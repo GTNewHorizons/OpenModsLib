@@ -9,6 +9,8 @@ import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.event.FMLConstructionEvent;
 import java.util.Arrays;
+
+import openmods.Mods;
 import openmods.injector.InjectorSanityChecker;
 
 public class OpenModsCore extends DummyModContainer {
@@ -18,7 +20,7 @@ public class OpenModsCore extends DummyModContainer {
 		ModMetadata meta = getMetadata();
 		meta.modId = "OpenModsCore";
 		meta.name = "OpenModsCore";
-		meta.version = "$LIB-VERSION$";
+		meta.version = Mods.OPEN_MODS_LIB_VERSION;
 		meta.authorList = Arrays.asList("Mikee", "NeverCast", "boq");
 		meta.url = "http://openmods.info/";
 		meta.description = "This is where the magic happens";

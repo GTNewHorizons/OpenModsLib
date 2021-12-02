@@ -40,7 +40,7 @@ import openmods.utils.bitmap.IRpcIntBitMap;
 import openmods.world.DelayedActionTickHandler;
 import openmods.world.DropCapture;
 
-@Mod(modid = OpenMods.MODID, name = OpenMods.MODID, version = "$LIB-VERSION$", dependencies = "required-after:OpenModsCore", guiFactory = "openmods.GuiFactory")
+@Mod(modid = OpenMods.MODID, name = OpenMods.MODID, version = Mods.OPEN_MODS_LIB_VERSION, dependencies = "required-after:OpenModsCore", guiFactory = "openmods.GuiFactory")
 public class OpenMods {
 
 	public static final String MODID = "OpenMods";

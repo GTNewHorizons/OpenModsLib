@@ -1,6 +1,8 @@
 package openmods;
 
 public class Mods {
+	public static final String OPEN_MODS_LIB_VERSION = "GRADLETOKEN_VERSION";
+
 	public static final String APPLIEDENERGISTICS = "AppliedEnergistics";
 	public static final String APPLIEDENERGISTICS2 = "appliedenergistics2";
 	public static final String ARMORSTATUSHUD = "ArmorStatusHUD";

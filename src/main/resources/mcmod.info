@@ -1,8 +1,9 @@
 [
 {
-  "modid" : "OpenMods",
-  "name" : "OpenMods",
-  "version" : "${version}",
+  "modid" : "${modId}",
+  "name" : "${modName}",
+  "version" : "${modVersion}",
+  "mcversion": "${minecraftVersion}",
   "url" : "http://openmods.info/",
   "credits" : "",
   "authors": [
