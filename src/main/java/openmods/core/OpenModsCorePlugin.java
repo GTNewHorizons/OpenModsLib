@@ -6,6 +6,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 import java.util.Map;
 import net.minecraft.launchwrapper.Launch;
 import openmods.Log;
+import openmods.Mods;
 
 //must be lower than all dependent ones
 @SortingIndex(16)
@@ -15,8 +16,8 @@ public class OpenModsCorePlugin implements IFMLLoadingPlugin {
 	public static final String CORE_MARKER = "OpenModsCoreLoaded";
 
 	public OpenModsCorePlugin() {
-		Log.debug("<OpenModsLib %s>\\o", "$LIB-VERSION$");
-		Launch.blackboard.put(CORE_MARKER, "$LIB-VERSION$");
+		Log.debug("<OpenModsLib %s>\\o", Mods.OPEN_MODS_LIB_VERSION);
+		Launch.blackboard.put(CORE_MARKER, Mods.OPEN_MODS_LIB_VERSION);
 	}
 
 	@Override
