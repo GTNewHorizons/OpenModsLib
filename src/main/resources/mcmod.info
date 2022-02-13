@@ -1,21 +1,39 @@
-[
 {
-  "modid" : "${modId}",
-  "name" : "${modName}",
-  "version" : "${modVersion}",
-  "mcversion": "${minecraftVersion}",
-  "url" : "http://openmods.info/",
-  "credits" : "",
-  "authors": [
-    "Mikee",
-    "NeverCast",
-    "boq",
-    "Lyqyd"
-  ],
-  "description": "Boring stuff for all that silly Open* mods",
-  "logoFile" : "",
-  "updateUrl" : "",
-  "parent" : "",
-  "screenshots": [
-  ]
-}]
+  "modListVersion": 2,
+  "modList": [{
+    "modid": "${modId}",
+    "name": "${modName}",
+    "version": "${modVersion}",
+    "mcversion": "${minecraftVersion}",
+    "url": "https://openmods.info/",
+    "credits": "",
+    "authors": [
+      "Mikee",
+      "NeverCast",
+      "boq",
+      "Lyqyd"
+    ],
+    "description": "Boring stuff for all that silly Open* mods",
+    "logoFile": "",
+    "updateUrl": "",
+    "parent": "",
+    "screenshots": []
+  }, {
+    "modid": "${modId}Core",
+    "name": "${modName}Core",
+    "version": "${modVersion}",
+    "mcversion": "${minecraftVersion}",
+    "url": "https://openmods.info/",
+    "credits": "",
+    "authors": [
+      "Mikee",
+      "NeverCast",
+      "boq"
+    ],
+    "description": "This is where the magic happens",
+    "logoFile": "",
+    "updateUrl": "",
+    "parent": "${modName}",
+    "screenshots": []
+  }]
+}

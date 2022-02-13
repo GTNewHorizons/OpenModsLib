@@ -11,6 +11,7 @@ import cpw.mods.fml.common.event.FMLConstructionEvent;
 import java.util.Arrays;
 
 import openmods.Mods;
+import openmods.OpenMods;
 import openmods.injector.InjectorSanityChecker;
 
 public class OpenModsCore extends DummyModContainer {
@@ -22,7 +23,8 @@ public class OpenModsCore extends DummyModContainer {
 		meta.name = "OpenModsCore";
 		meta.version = Mods.OPEN_MODS_LIB_VERSION;
 		meta.authorList = Arrays.asList("Mikee", "NeverCast", "boq");
-		meta.url = "http://openmods.info/";
+		meta.url = "https://openmods.info/";
+		meta.parent = OpenMods.MODID;
 		meta.description = "This is where the magic happens";
 	}
 
