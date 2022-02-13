@@ -1,6 +1,7 @@
 package openmods.core;
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 import java.util.Map;
@@ -10,6 +11,7 @@ import openmods.Mods;
 
 //must be lower than all dependent ones
 @SortingIndex(16)
+@MCVersion( "1.7.10" )
 @TransformerExclusions({ "openmods.asm.", "openmods.include.", "openmods.core.", "openmods.injector.", "openmods.Log" })
 public class OpenModsCorePlugin implements IFMLLoadingPlugin {
 
