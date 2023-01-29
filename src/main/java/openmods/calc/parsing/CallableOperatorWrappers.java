@@ -8,32 +8,34 @@ import openmods.calc.types.multi.TypedValue;
 
 public class CallableOperatorWrappers {
 
-	public static class Binary extends FixedCallable<TypedValue> {
-		private final BinaryOperator<TypedValue> op;
+    public static class Binary extends FixedCallable<TypedValue> {
 
-		public Binary(BinaryOperator<TypedValue> op) {
-			super(2, 1);
-			this.op = op;
-		}
+        private final BinaryOperator<TypedValue> op;
 
-		@Override
-		public void call(Frame<TypedValue> frame) {
-			op.execute(frame);
-		}
-	}
+        public Binary(BinaryOperator<TypedValue> op) {
+            super(2, 1);
+            this.op = op;
+        }
 
-	public static class Unary extends FixedCallable<TypedValue> {
-		private final UnaryOperator<TypedValue> op;
+        @Override
+        public void call(Frame<TypedValue> frame) {
+            op.execute(frame);
+        }
+    }
 
-		public Unary(UnaryOperator<TypedValue> op) {
-			super(1, 1);
-			this.op = op;
-		}
+    public static class Unary extends FixedCallable<TypedValue> {
 
-		@Override
-		public void call(Frame<TypedValue> frame) {
-			op.execute(frame);
-		}
-	}
+        private final UnaryOperator<TypedValue> op;
+
+        public Unary(UnaryOperator<TypedValue> op) {
+            super(1, 1);
+            this.op = op;
+        }
+
+        @Override
+        public void call(Frame<TypedValue> frame) {
+            op.execute(frame);
+        }
+    }
 
 }

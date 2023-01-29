@@ -1,102 +1,107 @@
 package openmods.config.simpler;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
+
 import openmods.reflection.FieldAccess;
 import openmods.utils.CachedFactory;
 import openmods.utils.io.IStringSerializer;
 import openmods.utils.io.TypeRW;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+
 public class ConfigurableClassAdapter<T> {
 
-	public static class NoSuchPropertyException extends RuntimeException {
-		private static final long serialVersionUID = 1L;
+    public static class NoSuchPropertyException extends RuntimeException {
 
-		public NoSuchPropertyException(String message) {
-			super(message);
-		}
-	}
+        private static final long serialVersionUID = 1L;
 
-	private static class FieldAdapter<T> {
+        public NoSuchPropertyException(String message) {
+            super(message);
+        }
+    }
 
-		private final IStringSerializer<T> serializer;
+    private static class FieldAdapter<T> {
 
-		private final FieldAccess<T> access;
+        private final IStringSerializer<T> serializer;
 
-		public FieldAdapter(IStringSerializer<T> serializer, FieldAccess<T> access) {
-			this.serializer = serializer;
-			this.access = access;
-		}
+        private final FieldAccess<T> access;
 
-		public void set(Object instance, String value) {
-			T converted = serializer.readFromString(value);
-			access.set(instance, converted);
-		}
+        public FieldAdapter(IStringSerializer<T> serializer, FieldAccess<T> access) {
+            this.serializer = serializer;
+            this.access = access;
+        }
 
-		public String get(Object instance) {
-			T value = access.get(instance);
-			return String.valueOf(value);
-		}
-	}
+        public void set(Object instance, String value) {
+            T converted = serializer.readFromString(value);
+            access.set(instance, converted);
+        }
 
-	private final Class<? extends T> cls;
+        public String get(Object instance) {
+            T value = access.get(instance);
+            return String.valueOf(value);
+        }
+    }
 
-	private final Map<String, FieldAdapter<?>> fields;
+    private final Class<? extends T> cls;
 
-	public ConfigurableClassAdapter(Class<? extends T> cls) {
-		this.cls = cls;
+    private final Map<String, FieldAdapter<?>> fields;
 
-		ImmutableMap.Builder<String, FieldAdapter<?>> fields = ImmutableMap.builder();
-		for (Field f : cls.getFields()) {
-			Configurable ann = f.getAnnotation(Configurable.class);
-			if (ann != null) {
-				String name = ann.name();
-				if (name.isEmpty()) name = f.getName();
+    public ConfigurableClassAdapter(Class<? extends T> cls) {
+        this.cls = cls;
 
-				final FieldAccess<?> access = FieldAccess.create(f);
-				final IStringSerializer<?> serializer = TypeRW.getStringSerializer(f.getType());
-				Preconditions.checkState(serializer != null, "Can't find serializer for field %s", f);
+        ImmutableMap.Builder<String, FieldAdapter<?>> fields = ImmutableMap.builder();
+        for (Field f : cls.getFields()) {
+            Configurable ann = f.getAnnotation(Configurable.class);
+            if (ann != null) {
+                String name = ann.name();
+                if (name.isEmpty()) name = f.getName();
 
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				final FieldAdapter<?> adapter = new FieldAdapter(serializer, access);
+                final FieldAccess<?> access = FieldAccess.create(f);
+                final IStringSerializer<?> serializer = TypeRW.getStringSerializer(f.getType());
+                Preconditions.checkState(serializer != null, "Can't find serializer for field %s", f);
 
-				fields.put(name, adapter);
-			}
-		}
+                @SuppressWarnings({ "rawtypes", "unchecked" })
+                final FieldAdapter<?> adapter = new FieldAdapter(serializer, access);
 
-		this.fields = fields.build();
-	}
+                fields.put(name, adapter);
+            }
+        }
 
-	public Set<String> keys() {
-		return fields.keySet();
-	}
+        this.fields = fields.build();
+    }
 
-	private FieldAdapter<?> findField(String key) {
-		final FieldAdapter<?> fieldAdapter = fields.get(key);
-		if (fieldAdapter == null) throw new NoSuchPropertyException(String.format("Can't find key %s in class %s", key, cls));
-		return fieldAdapter;
-	}
+    public Set<String> keys() {
+        return fields.keySet();
+    }
 
-	public String get(T instance, String key) {
-		return findField(key).get(instance);
-	}
+    private FieldAdapter<?> findField(String key) {
+        final FieldAdapter<?> fieldAdapter = fields.get(key);
+        if (fieldAdapter == null)
+            throw new NoSuchPropertyException(String.format("Can't find key %s in class %s", key, cls));
+        return fieldAdapter;
+    }
 
-	public void set(T instance, String key, String value) {
-		findField(key).set(instance, value);
-	}
+    public String get(T instance, String key) {
+        return findField(key).get(instance);
+    }
 
-	private static final CachedFactory<Class<?>, ConfigurableClassAdapter<?>> CACHE = new CachedFactory<Class<?>, ConfigurableClassAdapter<?>>() {
-		@Override
-		protected ConfigurableClassAdapter<?> create(Class<?> key) {
-			return new ConfigurableClassAdapter<Object>(key);
-		}
-	};
+    public void set(T instance, String key, String value) {
+        findField(key).set(instance, value);
+    }
 
-	@SuppressWarnings("unchecked")
-	public static <T> ConfigurableClassAdapter<T> getFor(Class<? extends T> cls) {
-		return (ConfigurableClassAdapter<T>)CACHE.getOrCreate(cls);
-	}
+    private static final CachedFactory<Class<?>, ConfigurableClassAdapter<?>> CACHE = new CachedFactory<Class<?>, ConfigurableClassAdapter<?>>() {
+
+        @Override
+        protected ConfigurableClassAdapter<?> create(Class<?> key) {
+            return new ConfigurableClassAdapter<Object>(key);
+        }
+    };
+
+    @SuppressWarnings("unchecked")
+    public static <T> ConfigurableClassAdapter<T> getFor(Class<? extends T> cls) {
+        return (ConfigurableClassAdapter<T>) CACHE.getOrCreate(cls);
+    }
 }

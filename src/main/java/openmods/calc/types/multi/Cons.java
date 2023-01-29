@@ -1,243 +1,253 @@
 package openmods.calc.types.multi;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.AbstractIterator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.AbstractIterator;
+
 public class Cons {
 
-	public final TypedValue car;
+    public final TypedValue car;
 
-	public final TypedValue cdr;
+    public final TypedValue cdr;
 
-	public Cons(TypedValue car, TypedValue cdr) {
-		Preconditions.checkNotNull(car);
-		Preconditions.checkNotNull(cdr);
-		Preconditions.checkArgument(car.domain == cdr.domain, "Mismatched domain on %s %s", car, cdr);
-		this.car = car;
-		this.cdr = cdr;
-	}
+    public Cons(TypedValue car, TypedValue cdr) {
+        Preconditions.checkNotNull(car);
+        Preconditions.checkNotNull(cdr);
+        Preconditions.checkArgument(car.domain == cdr.domain, "Mismatched domain on %s %s", car, cdr);
+        this.car = car;
+        this.cdr = cdr;
+    }
 
-	public static TypedValue create(TypeDomain domain, TypedValue car, TypedValue cdr) {
-		return domain.create(Cons.class, new Cons(car, cdr));
-	}
+    public static TypedValue create(TypeDomain domain, TypedValue car, TypedValue cdr) {
+        return domain.create(Cons.class, new Cons(car, cdr));
+    }
 
-	public TypedValue first() {
-		return car;
-	}
+    public TypedValue first() {
+        return car;
+    }
 
-	public TypedValue second() {
-		return cdr;
-	}
+    public TypedValue second() {
+        return cdr;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((car == null)? 0 : car.hashCode());
-		result = prime * result + ((cdr == null)? 0 : cdr.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((car == null) ? 0 : car.hashCode());
+        result = prime * result + ((cdr == null) ? 0 : cdr.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj instanceof Cons) {
-			final Cons other = (Cons)obj;
-			return this.car.equals(other.car) &&
-					this.cdr.equals(other.cdr);
-		}
-		return false;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj instanceof Cons) {
+            final Cons other = (Cons) obj;
+            return this.car.equals(other.car) && this.cdr.equals(other.cdr);
+        }
+        return false;
+    }
 
-	@Override
-	public String toString() {
-		return "(" + car + " . " + cdr + ")";
-	}
+    @Override
+    public String toString() {
+        return "(" + car + " . " + cdr + ")";
+    }
 
-	public static TypedValue createList(List<TypedValue> elements, TypedValue terminatorValue) {
-		final int lastElement = elements.size() - 1;
-		final TypeDomain domain = terminatorValue.domain;
+    public static TypedValue createList(List<TypedValue> elements, TypedValue terminatorValue) {
+        final int lastElement = elements.size() - 1;
+        final TypeDomain domain = terminatorValue.domain;
 
-		TypedValue result = terminatorValue;
+        TypedValue result = terminatorValue;
 
-		for (int i = lastElement; i >= 0; i--)
-			result = domain.create(Cons.class, new Cons(elements.get(i), result));
+        for (int i = lastElement; i >= 0; i--) result = domain.create(Cons.class, new Cons(elements.get(i), result));
 
-		return result;
-	}
+        return result;
+    }
 
-	public interface BranchingVisitor {
-		public void begin();
+    public interface BranchingVisitor {
 
-		public void value(TypedValue value, boolean isLast);
+        public void begin();
 
-		public BranchingVisitor nestedValue(TypedValue value);
+        public void value(TypedValue value, boolean isLast);
 
-		public void end(TypedValue terminator);
-	}
+        public BranchingVisitor nestedValue(TypedValue value);
 
-	public interface LinearVisitor {
-		public void begin();
+        public void end(TypedValue terminator);
+    }
 
-		public void value(TypedValue value, boolean isLast);
+    public interface LinearVisitor {
 
-		public void end(TypedValue terminator);
-	}
+        public void begin();
 
-	public abstract static class ListVisitor implements LinearVisitor {
+        public void value(TypedValue value, boolean isLast);
 
-		private final TypedValue expectedTerminator;
+        public void end(TypedValue terminator);
+    }
 
-		public ListVisitor(TypedValue expectedTerminator) {
-			this.expectedTerminator = expectedTerminator;
-		}
+    public abstract static class ListVisitor implements LinearVisitor {
 
-		@Override
-		public void begin() {}
+        private final TypedValue expectedTerminator;
 
-		@Override
-		public void end(TypedValue actualTerminator) {
-			Preconditions.checkState(actualTerminator.equals(expectedTerminator), "Not valid list: expected %s, got %s", expectedTerminator, actualTerminator);
-		}
-	}
+        public ListVisitor(TypedValue expectedTerminator) {
+            this.expectedTerminator = expectedTerminator;
+        }
 
-	public void visit(BranchingVisitor visitor) {
-		visitor.begin();
+        @Override
+        public void begin() {}
 
-		Cons e = this;
-		while (true) {
-			final boolean hasNext = e.cdr.is(Cons.class);
-			if (e.car.is(Cons.class)) {
-				BranchingVisitor nestedVisitor = visitor.nestedValue(car);
-				e.car.as(Cons.class).visit(nestedVisitor);
-			} else {
-				visitor.value(e.car, !hasNext);
-			}
+        @Override
+        public void end(TypedValue actualTerminator) {
+            Preconditions.checkState(
+                    actualTerminator.equals(expectedTerminator),
+                    "Not valid list: expected %s, got %s",
+                    expectedTerminator,
+                    actualTerminator);
+        }
+    }
 
-			if (!hasNext) break;
-			e = e.cdr.as(Cons.class);
-		}
+    public void visit(BranchingVisitor visitor) {
+        visitor.begin();
 
-		visitor.end(e.cdr);
-	}
+        Cons e = this;
+        while (true) {
+            final boolean hasNext = e.cdr.is(Cons.class);
+            if (e.car.is(Cons.class)) {
+                BranchingVisitor nestedVisitor = visitor.nestedValue(car);
+                e.car.as(Cons.class).visit(nestedVisitor);
+            } else {
+                visitor.value(e.car, !hasNext);
+            }
 
-	public void visit(LinearVisitor visitor) {
-		visitor.begin();
+            if (!hasNext) break;
+            e = e.cdr.as(Cons.class);
+        }
 
-		Cons e = this;
-		while (true) {
-			final boolean hasNext = e.cdr.is(Cons.class);
-			visitor.value(e.car, !hasNext);
+        visitor.end(e.cdr);
+    }
 
-			if (!hasNext) break;
-			e = e.cdr.as(Cons.class);
-		}
+    public void visit(LinearVisitor visitor) {
+        visitor.begin();
 
-		visitor.end(e.cdr);
-	}
+        Cons e = this;
+        while (true) {
+            final boolean hasNext = e.cdr.is(Cons.class);
+            visitor.value(e.car, !hasNext);
 
-	public String prettyPrint() {
-		final StringBuilder result = new StringBuilder();
-		visit(new BranchingVisitor() {
-			@Override
-			public void begin() {
-				result.append("(");
-			}
+            if (!hasNext) break;
+            e = e.cdr.as(Cons.class);
+        }
 
-			@Override
-			public void value(TypedValue value, boolean isLast) {
-				result.append(value);
-				if (!isLast) result.append(" ");
-			}
+        visitor.end(e.cdr);
+    }
 
-			@Override
-			public BranchingVisitor nestedValue(TypedValue value) {
-				result.append("(");
-				return this;
-			}
+    public String prettyPrint() {
+        final StringBuilder result = new StringBuilder();
+        visit(new BranchingVisitor() {
 
-			@Override
-			public void end(TypedValue terminator) {
-				result.append(" . ");
-				result.append(terminator);
-				result.append(")");
-			}
-		});
+            @Override
+            public void begin() {
+                result.append("(");
+            }
 
-		return result.toString();
-	}
+            @Override
+            public void value(TypedValue value, boolean isLast) {
+                result.append(value);
+                if (!isLast) result.append(" ");
+            }
 
-	public int length() {
-		int result = 1;
-		TypedValue c = cdr;
-		while (c.is(Cons.class)) {
-			c = c.as(Cons.class).cdr;
-			result++;
-		}
+            @Override
+            public BranchingVisitor nestedValue(TypedValue value) {
+                result.append("(");
+                return this;
+            }
 
-		return result;
-	}
+            @Override
+            public void end(TypedValue terminator) {
+                result.append(" . ");
+                result.append(terminator);
+                result.append(")");
+            }
+        });
 
-	public abstract static class RecursiveVisitor {
-		private final TypedValue nullValue;
+        return result.toString();
+    }
 
-		public RecursiveVisitor(TypedValue nullValue) {
-			this.nullValue = nullValue;
-		}
+    public int length() {
+        int result = 1;
+        TypedValue c = cdr;
+        while (c.is(Cons.class)) {
+            c = c.as(Cons.class).cdr;
+            result++;
+        }
 
-		protected abstract TypedValue processValue(TypedValue head, TypedValue tail);
+        return result;
+    }
 
-		protected TypedValue processEnd() {
-			return nullValue;
-		}
+    public abstract static class RecursiveVisitor {
 
-		public TypedValue process(TypedValue list) {
-			if (list == nullValue) return processEnd();
-			final Cons cons = list.as(Cons.class);
-			return processValue(cons.car, cons.cdr);
-		}
-	}
+        private final TypedValue nullValue;
 
-	public abstract static class TypedRecursiveVisitor<T> {
-		private final TypedValue nullValue;
+        public RecursiveVisitor(TypedValue nullValue) {
+            this.nullValue = nullValue;
+        }
 
-		public TypedRecursiveVisitor(TypedValue nullValue) {
-			this.nullValue = nullValue;
-		}
+        protected abstract TypedValue processValue(TypedValue head, TypedValue tail);
 
-		protected abstract T processValue(TypedValue head, TypedValue tail);
+        protected TypedValue processEnd() {
+            return nullValue;
+        }
 
-		protected abstract T processEnd();
+        public TypedValue process(TypedValue list) {
+            if (list == nullValue) return processEnd();
+            final Cons cons = list.as(Cons.class);
+            return processValue(cons.car, cons.cdr);
+        }
+    }
 
-		public T process(TypedValue list) {
-			if (list == nullValue) return processEnd();
-			final Cons cons = list.as(Cons.class);
-			return processValue(cons.car, cons.cdr);
-		}
-	}
+    public abstract static class TypedRecursiveVisitor<T> {
 
-	public static Iterable<TypedValue> toIterable(final TypedValue value, final TypedValue nullValue) {
-		return new Iterable<TypedValue>() {
-			@Override
-			public Iterator<TypedValue> iterator() {
-				return new AbstractIterator<TypedValue>() {
-					private TypedValue c = value;
+        private final TypedValue nullValue;
 
-					@Override
-					protected TypedValue computeNext() {
-						if (c == nullValue) return endOfData();
-						if (c.is(Cons.class)) {
-							final Cons next = c.as(Cons.class);
-							c = next.cdr;
-							return next.car;
-						}
+        public TypedRecursiveVisitor(TypedValue nullValue) {
+            this.nullValue = nullValue;
+        }
 
-						throw new IllegalArgumentException("Not a list: " + c);
-					}
-				};
-			}
-		};
-	}
+        protected abstract T processValue(TypedValue head, TypedValue tail);
+
+        protected abstract T processEnd();
+
+        public T process(TypedValue list) {
+            if (list == nullValue) return processEnd();
+            final Cons cons = list.as(Cons.class);
+            return processValue(cons.car, cons.cdr);
+        }
+    }
+
+    public static Iterable<TypedValue> toIterable(final TypedValue value, final TypedValue nullValue) {
+        return new Iterable<TypedValue>() {
+
+            @Override
+            public Iterator<TypedValue> iterator() {
+                return new AbstractIterator<TypedValue>() {
+
+                    private TypedValue c = value;
+
+                    @Override
+                    protected TypedValue computeNext() {
+                        if (c == nullValue) return endOfData();
+                        if (c.is(Cons.class)) {
+                            final Cons next = c.as(Cons.class);
+                            c = next.cdr;
+                            return next.car;
+                        }
+
+                        throw new IllegalArgumentException("Not a list: " + c);
+                    }
+                };
+            }
+        };
+    }
 }

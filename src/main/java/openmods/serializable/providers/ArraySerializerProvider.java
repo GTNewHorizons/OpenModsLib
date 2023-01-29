@@ -1,82 +1,85 @@
 package openmods.serializable.providers;
 
-import com.google.common.reflect.TypeToken;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.Array;
+
 import openmods.serializable.ISerializerProvider;
 import openmods.serializable.SerializerRegistry;
 import openmods.utils.ByteUtils;
 import openmods.utils.io.IStreamSerializer;
 
+import com.google.common.reflect.TypeToken;
+
 public class ArraySerializerProvider implements ISerializerProvider {
 
-	@Override
-	public IStreamSerializer<?> getSerializer(Class<?> cls) {
-		if (cls.isArray()) {
-			final TypeToken<?> componentCls = TypeToken.of(cls).getComponentType();
-			return componentCls.isPrimitive()
-					? createPrimitiveSerializer(componentCls)
-					: createNullableSerializer(componentCls);
-		}
+    @Override
+    public IStreamSerializer<?> getSerializer(Class<?> cls) {
+        if (cls.isArray()) {
+            final TypeToken<?> componentCls = TypeToken.of(cls).getComponentType();
+            return componentCls.isPrimitive() ? createPrimitiveSerializer(componentCls)
+                    : createNullableSerializer(componentCls);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private static IStreamSerializer<?> createPrimitiveSerializer(final TypeToken<?> componentType) {
-		final IStreamSerializer<Object> componentSerializer = SerializerRegistry.instance.findSerializer(componentType.getType());
-		final Class<?> componentCls = componentType.getRawType();
-		return new IStreamSerializer<Object>() {
-			@Override
-			public Object readFromStream(DataInput input) throws IOException {
-				final int length = ByteUtils.readVLI(input);
-				Object result = Array.newInstance(componentCls, length);
+    private static IStreamSerializer<?> createPrimitiveSerializer(final TypeToken<?> componentType) {
+        final IStreamSerializer<Object> componentSerializer = SerializerRegistry.instance
+                .findSerializer(componentType.getType());
+        final Class<?> componentCls = componentType.getRawType();
+        return new IStreamSerializer<Object>() {
 
-				for (int i = 0; i < length; i++) {
-					final Object value = componentSerializer.readFromStream(input);
-					Array.set(result, i, value);
-				}
+            @Override
+            public Object readFromStream(DataInput input) throws IOException {
+                final int length = ByteUtils.readVLI(input);
+                Object result = Array.newInstance(componentCls, length);
 
-				return result;
-			}
+                for (int i = 0; i < length; i++) {
+                    final Object value = componentSerializer.readFromStream(input);
+                    Array.set(result, i, value);
+                }
 
-			@Override
-			public void writeToStream(Object o, DataOutput output) throws IOException {
-				final int length = Array.getLength(o);
-				ByteUtils.writeVLI(output, length);
+                return result;
+            }
 
-				for (int i = 0; i < length; i++) {
-					Object value = Array.get(o, i);
-					componentSerializer.writeToStream(value, output);
-				}
-			}
-		};
-	}
+            @Override
+            public void writeToStream(Object o, DataOutput output) throws IOException {
+                final int length = Array.getLength(o);
+                ByteUtils.writeVLI(output, length);
 
-	private static IStreamSerializer<?> createNullableSerializer(final TypeToken<?> componentType) {
-		return new NullableCollectionSerializer<Object>(componentType) {
+                for (int i = 0; i < length; i++) {
+                    Object value = Array.get(o, i);
+                    componentSerializer.writeToStream(value, output);
+                }
+            }
+        };
+    }
 
-			@Override
-			protected Object createCollection(TypeToken<?> componentCls, int length) {
-				return Array.newInstance(componentCls.getRawType(), length);
-			}
+    private static IStreamSerializer<?> createNullableSerializer(final TypeToken<?> componentType) {
+        return new NullableCollectionSerializer<Object>(componentType) {
 
-			@Override
-			protected int getLength(Object collection) {
-				return Array.getLength(collection);
-			}
+            @Override
+            protected Object createCollection(TypeToken<?> componentCls, int length) {
+                return Array.newInstance(componentCls.getRawType(), length);
+            }
 
-			@Override
-			protected Object getElement(Object collection, int index) {
-				return Array.get(collection, index);
-			}
+            @Override
+            protected int getLength(Object collection) {
+                return Array.getLength(collection);
+            }
 
-			@Override
-			protected void setElement(Object collection, int index, Object value) {
-				Array.set(collection, index, value);
-			}
+            @Override
+            protected Object getElement(Object collection, int index) {
+                return Array.get(collection, index);
+            }
 
-		};
-	}
+            @Override
+            protected void setElement(Object collection, int index, Object value) {
+                Array.set(collection, index, value);
+            }
+
+        };
+    }
 }

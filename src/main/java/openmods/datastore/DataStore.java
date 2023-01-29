@@ -1,24 +1,25 @@
 package openmods.datastore;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
+
 public class DataStore<K, V> {
-	private final Map<K, V> values;
 
-	DataStore(Map<K, V> values) {
-		this.values = ImmutableMap.copyOf(values);
-	}
+    private final Map<K, V> values;
 
-	public V get(K key) {
-		return values.get(key);
-	}
+    DataStore(Map<K, V> values) {
+        this.values = ImmutableMap.copyOf(values);
+    }
 
-	void visit(IDataVisitor<K, V> visitor) {
-		visitor.begin(values.size());
-		for (Map.Entry<K, V> e : values.entrySet())
-			visitor.entry(e.getKey(), e.getValue());
+    public V get(K key) {
+        return values.get(key);
+    }
 
-		visitor.end();
-	}
+    void visit(IDataVisitor<K, V> visitor) {
+        visitor.begin(values.size());
+        for (Map.Entry<K, V> e : values.entrySet()) visitor.entry(e.getKey(), e.getValue());
+
+        visitor.end();
+    }
 }

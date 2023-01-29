@@ -8,5 +8,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NetworkEventCustomType {
-	public Class<? extends INetworkEventType> value();
+
+    public Class<? extends INetworkEventType> value();
 }

@@ -1,7 +1,11 @@
 package openmods.network;
 
+import java.util.Collection;
+import java.util.Map;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
 import cpw.mods.fml.common.network.FMLEmbeddedChannel;
 import cpw.mods.fml.common.network.FMLOutboundHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -13,64 +17,67 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import io.netty.util.AttributeKey;
-import java.util.Collection;
-import java.util.Map;
 
 public class ExtendedOutboundHandler extends ChannelOutboundHandlerAdapter {
-	public static final AttributeKey<IPacketTargetSelector<?>> MESSAGETARGET = new AttributeKey<IPacketTargetSelector<?>>("om:outboundTarget");
 
-	private static <T> Collection<NetworkDispatcher> getDispatchers(IPacketTargetSelector<T> target, Object arg) {
-		final Collection<NetworkDispatcher> output = Lists.newArrayList();
-		target.listDispatchers(target.castArg(arg), output);
-		return output;
-	}
+    public static final AttributeKey<IPacketTargetSelector<?>> MESSAGETARGET = new AttributeKey<IPacketTargetSelector<?>>(
+            "om:outboundTarget");
 
-	@Override
-	public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-		if (!(msg instanceof FMLProxyPacket)) {
-			ctx.write(msg);
-			return;
-		}
+    private static <T> Collection<NetworkDispatcher> getDispatchers(IPacketTargetSelector<T> target, Object arg) {
+        final Collection<NetworkDispatcher> output = Lists.newArrayList();
+        target.listDispatchers(target.castArg(arg), output);
+        return output;
+    }
 
-		final Channel channel = ctx.channel();
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        if (!(msg instanceof FMLProxyPacket)) {
+            ctx.write(msg);
+            return;
+        }
 
-		final IPacketTargetSelector<?> target = channel.attr(MESSAGETARGET).get();
-		if (target == null) {
-			ctx.write(msg);
-			return;
-		}
+        final Channel channel = ctx.channel();
 
-		final FMLProxyPacket pkt = (FMLProxyPacket)msg;
+        final IPacketTargetSelector<?> target = channel.attr(MESSAGETARGET).get();
+        if (target == null) {
+            ctx.write(msg);
+            return;
+        }
 
-		final Side channelSide = channel.attr(NetworkRegistry.CHANNEL_SOURCE).get();
+        final FMLProxyPacket pkt = (FMLProxyPacket) msg;
 
-		Preconditions.checkState(target.isAllowedOnSide(channelSide), "Packet not allowed on side");
+        final Side channelSide = channel.attr(NetworkRegistry.CHANNEL_SOURCE).get();
 
-		final String channelName = channel.attr(NetworkRegistry.FML_CHANNEL).get();
+        Preconditions.checkState(target.isAllowedOnSide(channelSide), "Packet not allowed on side");
 
-		Object arg = channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).get();
+        final String channelName = channel.attr(NetworkRegistry.FML_CHANNEL).get();
 
-		try {
-			final Collection<NetworkDispatcher> dispatchers = getDispatchers(target, arg);
-			for (NetworkDispatcher dispatcher : dispatchers)
-				dispatcher.sendProxy(pkt);
+        Object arg = channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).get();
 
-		} catch (Throwable t) {
+        try {
+            final Collection<NetworkDispatcher> dispatchers = getDispatchers(target, arg);
+            for (NetworkDispatcher dispatcher : dispatchers) dispatcher.sendProxy(pkt);
 
-			throw new IllegalStateException(String.format(
-					"Failed to select and send message (selector %s, arg: %s, channel: %s, side: %s)",
-					target, arg, channelName, channelSide), t);
-		}
+        } catch (Throwable t) {
 
-	}
+            throw new IllegalStateException(
+                    String.format(
+                            "Failed to select and send message (selector %s, arg: %s, channel: %s, side: %s)",
+                            target,
+                            arg,
+                            channelName,
+                            channelSide),
+                    t);
+        }
 
-	public static void install(Map<Side, FMLEmbeddedChannel> channels) {
-		for (Side side : Side.values())
-			install(channels.get(side));
-	}
+    }
 
-	public static void install(FMLEmbeddedChannel fmlEmbeddedChannel) {
-		fmlEmbeddedChannel.pipeline().addAfter("fml:outbound", "om:outbound", new ExtendedOutboundHandler());
-	}
+    public static void install(Map<Side, FMLEmbeddedChannel> channels) {
+        for (Side side : Side.values()) install(channels.get(side));
+    }
+
+    public static void install(FMLEmbeddedChannel fmlEmbeddedChannel) {
+        fmlEmbeddedChannel.pipeline().addAfter("fml:outbound", "om:outbound", new ExtendedOutboundHandler());
+    }
 
 }

@@ -4,5 +4,6 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.inventory.Slot;
 
 public interface ISlotBackgroundRenderer {
-	public void render(Gui gui, Slot slot);
+
+    public void render(Gui gui, Slot slot);
 }

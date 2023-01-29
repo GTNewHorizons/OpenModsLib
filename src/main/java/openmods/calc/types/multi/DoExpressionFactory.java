@@ -1,8 +1,7 @@
 package openmods.calc.types.multi;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import java.util.List;
+
 import openmods.calc.Environment;
 import openmods.calc.Frame;
 import openmods.calc.ICallable;
@@ -17,68 +16,72 @@ import openmods.calc.parsing.SymbolCallNode;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
 public class DoExpressionFactory {
 
-	private final TypeDomain domain;
+    private final TypeDomain domain;
 
-	public DoExpressionFactory(TypeDomain domain) {
-		this.domain = domain;
-	}
+    public DoExpressionFactory(TypeDomain domain) {
+        this.domain = domain;
+    }
 
-	private class DoNode extends SymbolCallNode<TypedValue> {
+    private class DoNode extends SymbolCallNode<TypedValue> {
 
-		public DoNode(List<IExprNode<TypedValue>> args) {
-			super(TypedCalcConstants.SYMBOL_DO, args);
-		}
+        public DoNode(List<IExprNode<TypedValue>> args) {
+            super(TypedCalcConstants.SYMBOL_DO, args);
+        }
 
-		@Override
-		public void flatten(List<IExecutable<TypedValue>> output) {
-			int argCount = 0;
-			for (IExprNode<TypedValue> child : getChildren()) {
-				output.add(Value.create(Code.flattenAndWrap(domain, child)));
-				argCount++;
-			}
+        @Override
+        public void flatten(List<IExecutable<TypedValue>> output) {
+            int argCount = 0;
+            for (IExprNode<TypedValue> child : getChildren()) {
+                output.add(Value.create(Code.flattenAndWrap(domain, child)));
+                argCount++;
+            }
 
-			Preconditions.checkState(argCount > 1, "'do' expects at least one argument");
-			output.add(new SymbolCall<TypedValue>(symbol, argCount, 1));
-		}
-	}
+            Preconditions.checkState(argCount > 1, "'do' expects at least one argument");
+            output.add(new SymbolCall<TypedValue>(symbol, argCount, 1));
+        }
+    }
 
-	private class DoExpr extends SameStateSymbolTransition<TypedValue> {
+    private class DoExpr extends SameStateSymbolTransition<TypedValue> {
 
-		public DoExpr(ICompilerState<TypedValue> parentState) {
-			super(parentState);
-		}
+        public DoExpr(ICompilerState<TypedValue> parentState) {
+            super(parentState);
+        }
 
-		@Override
-		public IExprNode<TypedValue> createRootNode(List<IExprNode<TypedValue>> children) {
-			return new DoNode(children);
-		}
-	}
+        @Override
+        public IExprNode<TypedValue> createRootNode(List<IExprNode<TypedValue>> children) {
+            return new DoNode(children);
+        }
+    }
 
-	public ISymbolCallStateTransition<TypedValue> createStateTransition(ICompilerState<TypedValue> compilerState) {
-		return new DoExpr(compilerState);
-	}
+    public ISymbolCallStateTransition<TypedValue> createStateTransition(ICompilerState<TypedValue> compilerState) {
+        return new DoExpr(compilerState);
+    }
 
-	private class DoSymbol implements ICallable<TypedValue> {
-		@Override
-		public void call(Frame<TypedValue> frame, OptionalInt argumentsCount, OptionalInt returnsCount) {
-			Preconditions.checkState(argumentsCount.isPresent(), "'do' symbol requires arguments count");
-			final Integer argCount = argumentsCount.get();
-			Preconditions.checkState(argCount > 1, "'do' expects at least one argument");
-			final Stack<TypedValue> stack = frame.stack().substack(argCount);
+    private class DoSymbol implements ICallable<TypedValue> {
 
-			for (TypedValue expr : ImmutableList.copyOf(stack)) {
-				stack.clear();
-				final Code exprCode = expr.as(Code.class);
-				exprCode.execute(frame);
-			}
+        @Override
+        public void call(Frame<TypedValue> frame, OptionalInt argumentsCount, OptionalInt returnsCount) {
+            Preconditions.checkState(argumentsCount.isPresent(), "'do' symbol requires arguments count");
+            final Integer argCount = argumentsCount.get();
+            Preconditions.checkState(argCount > 1, "'do' expects at least one argument");
+            final Stack<TypedValue> stack = frame.stack().substack(argCount);
 
-			TypedCalcUtils.expectExactReturnCount(returnsCount, stack.size());
-		}
-	}
+            for (TypedValue expr : ImmutableList.copyOf(stack)) {
+                stack.clear();
+                final Code exprCode = expr.as(Code.class);
+                exprCode.execute(frame);
+            }
 
-	public void registerSymbol(Environment<TypedValue> env) {
-		env.setGlobalSymbol(TypedCalcConstants.SYMBOL_DO, new DoSymbol());
-	}
+            TypedCalcUtils.expectExactReturnCount(returnsCount, stack.size());
+        }
+    }
+
+    public void registerSymbol(Environment<TypedValue> env) {
+        env.setGlobalSymbol(TypedCalcConstants.SYMBOL_DO, new DoSymbol());
+    }
 }

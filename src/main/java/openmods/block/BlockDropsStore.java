@@ -1,162 +1,170 @@
 package openmods.block;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
-import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
-import cpw.mods.fml.relauncher.Side;
-import gnu.trove.map.hash.TIntObjectHashMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.WorldEvent;
+
 import openmods.LibConfig;
 import openmods.Log;
 import openmods.utils.Coord;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
+import cpw.mods.fml.relauncher.Side;
+import gnu.trove.map.hash.TIntObjectHashMap;
+
 public class BlockDropsStore {
 
-	public static final BlockDropsStore instance = new BlockDropsStore();
+    public static final BlockDropsStore instance = new BlockDropsStore();
 
-	private static class BlockDrop {
-		public final Throwable location;
+    private static class BlockDrop {
 
-		public final List<ItemStack> items;
+        public final Throwable location;
 
-		public BlockDrop(List<ItemStack> drops) {
-			this.location = LibConfig.dropsDebug? new Throwable() : null;
-			this.items = ImmutableList.copyOf(drops);
-		}
+        public final List<ItemStack> items;
 
-		public void logContents(StringBuilder result) {
-			result.append("\tItems: ");
-			result.append(items.toString());
-			result.append('\n');
+        public BlockDrop(List<ItemStack> drops) {
+            this.location = LibConfig.dropsDebug ? new Throwable() : null;
+            this.items = ImmutableList.copyOf(drops);
+        }
 
-			if (location != null) {
-				result.append("\tLocation:\n");
-				for (StackTraceElement e : location.getStackTrace()) {
-					result.append("\t\t");
-					result.append(e.toString());
-					result.append('\n');
-				}
-			}
-		}
-	}
+        public void logContents(StringBuilder result) {
+            result.append("\tItems: ");
+            result.append(items.toString());
+            result.append('\n');
 
-	private static class WorldDrops {
-		public final Multimap<Coord, BlockDrop> drops = ArrayListMultimap.create();
+            if (location != null) {
+                result.append("\tLocation:\n");
+                for (StackTraceElement e : location.getStackTrace()) {
+                    result.append("\t\t");
+                    result.append(e.toString());
+                    result.append('\n');
+                }
+            }
+        }
+    }
 
-		public final int dimensionId;
+    private static class WorldDrops {
 
-		public WorldDrops(int dimensionId) {
-			this.dimensionId = dimensionId;
-		}
+        public final Multimap<Coord, BlockDrop> drops = ArrayListMultimap.create();
 
-		public synchronized void storeDrops(int x, int y, int z, List<ItemStack> items) {
-			drops.put(new Coord(x, y, z), new BlockDrop(items));
-		}
+        public final int dimensionId;
 
-		// vanilla requires that exact return type
-		public synchronized ArrayList<ItemStack> harvestDrops(int x, int y, int z) {
-			final Coord key = new Coord(x, y, z);
-			if (drops.containsKey(key)) {
-				ArrayList<ItemStack> result = Lists.newArrayList();
-				Iterator<BlockDrop> it = drops.get(key).iterator();
-				while (it.hasNext()) {
-					final BlockDrop drop = it.next();
-					result.addAll(drop.items);
-					it.remove();
-				}
-				return result;
-			}
+        public WorldDrops(int dimensionId) {
+            this.dimensionId = dimensionId;
+        }
 
-			return null;
-		}
+        public synchronized void storeDrops(int x, int y, int z, List<ItemStack> items) {
+            drops.put(new Coord(x, y, z), new BlockDrop(items));
+        }
 
-		public synchronized void cleanup(String location) {
-			if (!drops.isEmpty()) {
-				StringBuilder result = new StringBuilder();
-				result.append(String.format("Found unharvested drops in world %d after %s\n", dimensionId, location));
-				if (!LibConfig.dropsDebug) result.append("To enable stacktrace logging, set config option 'debug.dropsDebug' to true\n");
+        // vanilla requires that exact return type
+        public synchronized ArrayList<ItemStack> harvestDrops(int x, int y, int z) {
+            final Coord key = new Coord(x, y, z);
+            if (drops.containsKey(key)) {
+                ArrayList<ItemStack> result = Lists.newArrayList();
+                Iterator<BlockDrop> it = drops.get(key).iterator();
+                while (it.hasNext()) {
+                    final BlockDrop drop = it.next();
+                    result.addAll(drop.items);
+                    it.remove();
+                }
+                return result;
+            }
 
-				for (Map.Entry<Coord, Collection<BlockDrop>> e : drops.asMap().entrySet()) {
-					result.append("Drops from location: ");
-					result.append(e.getKey());
-					result.append('\n');
+            return null;
+        }
 
-					for (BlockDrop drop : e.getValue())
-						drop.logContents(result);
-				}
+        public synchronized void cleanup(String location) {
+            if (!drops.isEmpty()) {
+                StringBuilder result = new StringBuilder();
+                result.append(String.format("Found unharvested drops in world %d after %s\n", dimensionId, location));
+                if (!LibConfig.dropsDebug)
+                    result.append("To enable stacktrace logging, set config option 'debug.dropsDebug' to true\n");
 
-				Log.warn("%s", result.toString());
+                for (Map.Entry<Coord, Collection<BlockDrop>> e : drops.asMap().entrySet()) {
+                    result.append("Drops from location: ");
+                    result.append(e.getKey());
+                    result.append('\n');
 
-				drops.clear();
-			}
+                    for (BlockDrop drop : e.getValue()) drop.logContents(result);
+                }
 
-		}
-	}
+                Log.warn("%s", result.toString());
 
-	private final TIntObjectHashMap<WorldDrops> worldDrops = new TIntObjectHashMap<WorldDrops>();
+                drops.clear();
+            }
 
-	private synchronized WorldDrops getDrops(World world) {
-		if (world.isRemote) return null;
+        }
+    }
 
-		final int dimensionId = world.provider.dimensionId;
-		WorldDrops result = worldDrops.get(dimensionId);
-		if (result == null) {
-			result = new WorldDrops(dimensionId);
-			worldDrops.put(dimensionId, result);
-		}
+    private final TIntObjectHashMap<WorldDrops> worldDrops = new TIntObjectHashMap<WorldDrops>();
 
-		return result;
-	}
+    private synchronized WorldDrops getDrops(World world) {
+        if (world.isRemote) return null;
 
-	public void storeDrops(World world, int x, int y, int z, List<ItemStack> items) {
-		final WorldDrops drops = getDrops(world);
-		if (drops != null) drops.storeDrops(x, y, z, items);
-	}
+        final int dimensionId = world.provider.dimensionId;
+        WorldDrops result = worldDrops.get(dimensionId);
+        if (result == null) {
+            result = new WorldDrops(dimensionId);
+            worldDrops.put(dimensionId, result);
+        }
 
-	// ArrayList, since some Minecraft internals need it
-	public ArrayList<ItemStack> harvestDrops(World world, int x, int y, int z) {
-		final WorldDrops drops = getDrops(world);
-		return (drops != null)? drops.harvestDrops(x, y, z) : null;
-	}
+        return result;
+    }
 
-	public class ForgeListener {
-		@SubscribeEvent
-		public void onWorldUnload(WorldEvent.Unload evt) {
-			final World world = evt.world;
-			if (!world.isRemote) cleanup(world, "unload");
-		}
-	}
+    public void storeDrops(World world, int x, int y, int z, List<ItemStack> items) {
+        final WorldDrops drops = getDrops(world);
+        if (drops != null) drops.storeDrops(x, y, z, items);
+    }
 
-	public class FmlListener {
-		@SubscribeEvent
-		public void onWorldTick(WorldTickEvent evt) {
-			if (evt.side == Side.SERVER && evt.phase == Phase.END) cleanup(evt.world, "tick");
-		}
-	}
+    // ArrayList, since some Minecraft internals need it
+    public ArrayList<ItemStack> harvestDrops(World world, int x, int y, int z) {
+        final WorldDrops drops = getDrops(world);
+        return (drops != null) ? drops.harvestDrops(x, y, z) : null;
+    }
 
-	public Object createForgeListener() {
-		return new ForgeListener();
-	}
+    public class ForgeListener {
 
-	public Object createFmlListener() {
-		return new FmlListener();
-	}
+        @SubscribeEvent
+        public void onWorldUnload(WorldEvent.Unload evt) {
+            final World world = evt.world;
+            if (!world.isRemote) cleanup(world, "unload");
+        }
+    }
 
-	private void cleanup(final World world, final String location) {
-		final int dimensionId = world.provider.dimensionId;
-		final WorldDrops drops = worldDrops.get(dimensionId);
-		if (drops != null) drops.cleanup(location);
-	}
+    public class FmlListener {
+
+        @SubscribeEvent
+        public void onWorldTick(WorldTickEvent evt) {
+            if (evt.side == Side.SERVER && evt.phase == Phase.END) cleanup(evt.world, "tick");
+        }
+    }
+
+    public Object createForgeListener() {
+        return new ForgeListener();
+    }
+
+    public Object createFmlListener() {
+        return new FmlListener();
+    }
+
+    private void cleanup(final World world, final String location) {
+        final int dimensionId = world.provider.dimensionId;
+        final WorldDrops drops = worldDrops.get(dimensionId);
+        if (drops != null) drops.cleanup(location);
+    }
 
 }

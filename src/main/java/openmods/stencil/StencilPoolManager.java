@@ -1,153 +1,158 @@
 package openmods.stencil;
 
-import com.google.common.collect.Sets;
 import java.lang.reflect.Field;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.TreeSet;
+
 import net.minecraftforge.client.MinecraftForgeClient;
+
 import openmods.Log;
+
+import com.google.common.collect.Sets;
 
 public class StencilPoolManager {
 
-	public interface StencilPool {
-		public StencilBitAllocation acquire();
+    public interface StencilPool {
 
-		public void release(StencilBitAllocation bit);
+        public StencilBitAllocation acquire();
 
-		public int getSize();
+        public void release(StencilBitAllocation bit);
 
-		public String getType();
-	}
+        public int getSize();
 
-	private static final StencilPool DUMMY = new StencilPool() {
+        public String getType();
+    }
 
-		@Override
-		public StencilBitAllocation acquire() {
-			return null;
-		}
+    private static final StencilPool DUMMY = new StencilPool() {
 
-		@Override
-		public void release(StencilBitAllocation bit) {
-			throw new IllegalStateException();
-		}
+        @Override
+        public StencilBitAllocation acquire() {
+            return null;
+        }
 
-		@Override
-		public int getSize() {
-			return 0;
-		}
+        @Override
+        public void release(StencilBitAllocation bit) {
+            throw new IllegalStateException();
+        }
 
-		@Override
-		public String getType() {
-			return "disabled";
-		}
+        @Override
+        public int getSize() {
+            return 0;
+        }
 
-	};
+        @Override
+        public String getType() {
+            return "disabled";
+        }
 
-	private static class ForgePool implements StencilPool {
-		private final boolean isForced;
+    };
 
-		public ForgePool(boolean isForced) {
-			this.isForced = isForced;
-		}
+    private static class ForgePool implements StencilPool {
 
-		@Override
-		public StencilBitAllocation acquire() {
-			int bit = MinecraftForgeClient.reserveStencilBit();
-			return bit != -1? new StencilBitAllocation(bit) : null;
-		}
+        private final boolean isForced;
 
-		@Override
-		public void release(StencilBitAllocation allocation) {
-			MinecraftForgeClient.releaseStencilBit(allocation.bit);
-		}
+        public ForgePool(boolean isForced) {
+            this.isForced = isForced;
+        }
 
-		@Override
-		public int getSize() {
-			return MinecraftForgeClient.getStencilBits();
-		}
+        @Override
+        public StencilBitAllocation acquire() {
+            int bit = MinecraftForgeClient.reserveStencilBit();
+            return bit != -1 ? new StencilBitAllocation(bit) : null;
+        }
 
-		@Override
-		public String getType() {
-			return isForced? "forge (forced)" : "forge";
-		}
-	}
+        @Override
+        public void release(StencilBitAllocation allocation) {
+            MinecraftForgeClient.releaseStencilBit(allocation.bit);
+        }
 
-	private static class InternalPool implements StencilPool {
-		private final TreeSet<StencilBitAllocation> bits = Sets.newTreeSet();
+        @Override
+        public int getSize() {
+            return MinecraftForgeClient.getStencilBits();
+        }
 
-		private final boolean isForgeHacked;
+        @Override
+        public String getType() {
+            return isForced ? "forge (forced)" : "forge";
+        }
+    }
 
-		public InternalPool(boolean isForgeHacked) {
-			this.isForgeHacked = isForgeHacked;
+    private static class InternalPool implements StencilPool {
 
-			for (int i = 0; i < 8; i++)
-				bits.add(new StencilBitAllocation(i));
-		}
+        private final TreeSet<StencilBitAllocation> bits = Sets.newTreeSet();
 
-		@Override
-		public synchronized void release(StencilBitAllocation allocation) {
-			bits.add(allocation);
-		}
+        private final boolean isForgeHacked;
 
-		@Override
-		public synchronized StencilBitAllocation acquire() {
-			// reversed, so there is smaller chance we don't collide with hacked stencils
-			Iterator<StencilBitAllocation> it = bits.descendingIterator();
-			if (it.hasNext()) {
-				StencilBitAllocation result = it.next();
-				it.remove();
-				return result;
-			}
+        public InternalPool(boolean isForgeHacked) {
+            this.isForgeHacked = isForgeHacked;
 
-			return null;
-		}
+            for (int i = 0; i < 8; i++) bits.add(new StencilBitAllocation(i));
+        }
 
-		@Override
-		public int getSize() {
-			return 8;
-		}
+        @Override
+        public synchronized void release(StencilBitAllocation allocation) {
+            bits.add(allocation);
+        }
 
-		@Override
-		public String getType() {
-			return isForgeHacked? "internal (hacked forge)" : "internal";
-		}
-	}
+        @Override
+        public synchronized StencilBitAllocation acquire() {
+            // reversed, so there is smaller chance we don't collide with hacked stencils
+            Iterator<StencilBitAllocation> it = bits.descendingIterator();
+            if (it.hasNext()) {
+                StencilBitAllocation result = it.next();
+                it.remove();
+                return result;
+            }
 
-	private static StencilPool pool;
+            return null;
+        }
 
-	public static StencilPool pool() {
-		if (pool == null) pool = selectPool();
-		return pool;
-	}
+        @Override
+        public int getSize() {
+            return 8;
+        }
 
-	private static StencilPool selectPool() {
-		final boolean forgeHasDeclaredBits = MinecraftForgeClient.getStencilBits() > 0;
-		final boolean forgeHasActualBits = !isForgePoolEmpty();
-		if (forgeHasDeclaredBits) {
-			if (forgeHasActualBits) return new ForgePool(getForgeStencilFlag());
-			else return new InternalPool(true); // stencil is enabled, but Forge pool is always empty
-		}
+        @Override
+        public String getType() {
+            return isForgeHacked ? "internal (hacked forge)" : "internal";
+        }
+    }
 
-		if (FramebufferHooks.STENCIL_BUFFER_INJECTED) return new InternalPool(false);
-		return DUMMY;
-	}
+    private static StencilPool pool;
 
-	private static boolean isForgePoolEmpty() {
-		try {
-			Field f = MinecraftForgeClient.class.getDeclaredField("stencilBits");
-			f.setAccessible(true);
-			BitSet pool = (BitSet)f.get(null);
-			return pool.isEmpty();
-		} catch (Exception e) {
-			Log.warn(e, "Failed to get field!");
-		}
+    public static StencilPool pool() {
+        if (pool == null) pool = selectPool();
+        return pool;
+    }
 
-		return false;
-	}
+    private static StencilPool selectPool() {
+        final boolean forgeHasDeclaredBits = MinecraftForgeClient.getStencilBits() > 0;
+        final boolean forgeHasActualBits = !isForgePoolEmpty();
+        if (forgeHasDeclaredBits) {
+            if (forgeHasActualBits) return new ForgePool(getForgeStencilFlag());
+            else return new InternalPool(true); // stencil is enabled, but Forge pool is always empty
+        }
 
-	private static boolean getForgeStencilFlag() {
-		return Boolean.parseBoolean(System.getProperty("forge.forceDisplayStencil", "false"));
-	}
+        if (FramebufferHooks.STENCIL_BUFFER_INJECTED) return new InternalPool(false);
+        return DUMMY;
+    }
+
+    private static boolean isForgePoolEmpty() {
+        try {
+            Field f = MinecraftForgeClient.class.getDeclaredField("stencilBits");
+            f.setAccessible(true);
+            BitSet pool = (BitSet) f.get(null);
+            return pool.isEmpty();
+        } catch (Exception e) {
+            Log.warn(e, "Failed to get field!");
+        }
+
+        return false;
+    }
+
+    private static boolean getForgeStencilFlag() {
+        return Boolean.parseBoolean(System.getProperty("forge.forceDisplayStencil", "false"));
+    }
 
 }

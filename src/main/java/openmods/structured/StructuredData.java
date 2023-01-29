@@ -1,95 +1,106 @@
 package openmods.structured;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.TreeMultimap;
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntIntHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
+
 import openmods.structured.IStructureContainer.IElementAddCallback;
+
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.TreeMultimap;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntIntHashMap;
+
 public abstract class StructuredData<C extends IStructureContainer<E>, E extends IStructureElement> {
-	protected static final int NULL = -1;
 
-	protected final SortedMap<Integer, E> elements = Maps.newTreeMap();
-	protected final SortedMap<Integer, C> containers = Maps.newTreeMap();
-	protected final TreeMultimap<Integer, Integer> containerToElement = TreeMultimap.create();
-	protected final TIntIntHashMap elementToContainer = new TIntIntHashMap(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, NULL, NULL);
+    protected static final int NULL = -1;
 
-	public boolean isEmpty() {
-		return elements.isEmpty() && containers.isEmpty();
-	}
+    protected final SortedMap<Integer, E> elements = Maps.newTreeMap();
+    protected final SortedMap<Integer, C> containers = Maps.newTreeMap();
+    protected final TreeMultimap<Integer, Integer> containerToElement = TreeMultimap.create();
+    protected final TIntIntHashMap elementToContainer = new TIntIntHashMap(
+            Constants.DEFAULT_CAPACITY,
+            Constants.DEFAULT_LOAD_FACTOR,
+            NULL,
+            NULL);
 
-	protected final IStructureObserver<C, E> observer;
+    public boolean isEmpty() {
+        return elements.isEmpty() && containers.isEmpty();
+    }
 
-	public StructuredData(IStructureObserver<C, E> observer) {
-		this.observer = observer;
-	}
+    protected final IStructureObserver<C, E> observer;
 
-	public StructuredData() {
-		this(new StructureObserver<C, E>());
-	}
+    public StructuredData(IStructureObserver<C, E> observer) {
+        this.observer = observer;
+    }
 
-	public void removeAll() {
-		for (Map.Entry<Integer, C> c : containers.entrySet()) {
-			final int containerId = c.getKey();
-			final C container = c.getValue();
-			observer.onContainerRemoved(containerId, container);
+    public StructuredData() {
+        this(new StructureObserver<C, E>());
+    }
 
-			for (Integer elementId : containerToElement.get(containerId)) {
-				E element = elements.get(elementId);
-				Preconditions.checkNotNull(element);
-				observer.onElementRemoved(containerId, container, elementId, element);
-			}
-		}
+    public void removeAll() {
+        for (Map.Entry<Integer, C> c : containers.entrySet()) {
+            final int containerId = c.getKey();
+            final C container = c.getValue();
+            observer.onContainerRemoved(containerId, container);
 
-		elements.clear();
-		containers.clear();
-		containerToElement.clear();
-		elementToContainer.clear();
-	}
+            for (Integer elementId : containerToElement.get(containerId)) {
+                E element = elements.get(elementId);
+                Preconditions.checkNotNull(element);
+                observer.onElementRemoved(containerId, container, elementId, element);
+            }
+        }
 
-	protected SortedSet<Integer> removeContainer(int containerId) {
-		Preconditions.checkArgument(containerToElement.containsKey(containerId), "Container %s doesn't exists", containerId);
-		SortedSet<Integer> removedElements = containerToElement.removeAll(containerId);
+        elements.clear();
+        containers.clear();
+        containerToElement.clear();
+        elementToContainer.clear();
+    }
 
-		final C container = containers.remove(containerId);
-		observer.onContainerRemoved(containerId, container);
+    protected SortedSet<Integer> removeContainer(int containerId) {
+        Preconditions
+                .checkArgument(containerToElement.containsKey(containerId), "Container %s doesn't exists", containerId);
+        SortedSet<Integer> removedElements = containerToElement.removeAll(containerId);
 
-		for (Integer elementId : removedElements) {
-			final E element = elements.remove(elementId);
-			elementToContainer.remove(elementId);
-			observer.onElementRemoved(containerId, container, elementId, element);
-		}
+        final C container = containers.remove(containerId);
+        observer.onContainerRemoved(containerId, container);
 
-		return removedElements;
-	}
+        for (Integer elementId : removedElements) {
+            final E element = elements.remove(elementId);
+            elementToContainer.remove(elementId);
+            observer.onElementRemoved(containerId, container, elementId, element);
+        }
 
-	protected int addContainer(final int containerId, final C container, int firstElementId) {
-		final MutableInt nextElementId = new MutableInt(firstElementId);
+        return removedElements;
+    }
 
-		container.createElements(new IElementAddCallback<E>() {
-			@Override
-			public int addElement(E element) {
-				final int elementId = nextElementId.intValue();
-				nextElementId.increment();
+    protected int addContainer(final int containerId, final C container, int firstElementId) {
+        final MutableInt nextElementId = new MutableInt(firstElementId);
 
-				elements.put(elementId, element);
-				containerToElement.put(containerId, elementId);
-				elementToContainer.put(elementId, containerId);
+        container.createElements(new IElementAddCallback<E>() {
 
-				observer.onElementAdded(containerId, container, elementId, element);
+            @Override
+            public int addElement(E element) {
+                final int elementId = nextElementId.intValue();
+                nextElementId.increment();
 
-				return elementId;
-			}
-		});
+                elements.put(elementId, element);
+                containerToElement.put(containerId, elementId);
+                elementToContainer.put(elementId, containerId);
 
-		containers.put(containerId, container);
-		observer.onContainerAdded(containerId, container);
+                observer.onElementAdded(containerId, container, elementId, element);
 
-		return nextElementId.intValue();
-	}
+                return elementId;
+            }
+        });
+
+        containers.put(containerId, container);
+        observer.onContainerAdded(containerId, container);
+
+        return nextElementId.intValue();
+    }
 }

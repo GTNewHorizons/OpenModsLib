@@ -3,41 +3,45 @@ package openmods.network.event;
 import cpw.mods.fml.relauncher.Side;
 
 public enum EventDirection {
-	C2S {
-		@Override
-		public boolean validateSend(Side side) {
-			return side == Side.CLIENT;
-		}
 
-		@Override
-		public boolean validateReceive(Side side) {
-			return side == Side.SERVER;
-		}
-	},
-	S2C {
-		@Override
-		public boolean validateSend(Side side) {
-			return side == Side.SERVER;
-		}
+    C2S {
 
-		@Override
-		public boolean validateReceive(Side side) {
-			return side == Side.CLIENT;
-		}
-	},
-	ANY {
-		@Override
-		public boolean validateSend(Side side) {
-			return true;
-		}
+        @Override
+        public boolean validateSend(Side side) {
+            return side == Side.CLIENT;
+        }
 
-		@Override
-		public boolean validateReceive(Side side) {
-			return true;
-		}
-	};
+        @Override
+        public boolean validateReceive(Side side) {
+            return side == Side.SERVER;
+        }
+    },
+    S2C {
 
-	public abstract boolean validateSend(Side side);
+        @Override
+        public boolean validateSend(Side side) {
+            return side == Side.SERVER;
+        }
 
-	public abstract boolean validateReceive(Side side);
+        @Override
+        public boolean validateReceive(Side side) {
+            return side == Side.CLIENT;
+        }
+    },
+    ANY {
+
+        @Override
+        public boolean validateSend(Side side) {
+            return true;
+        }
+
+        @Override
+        public boolean validateReceive(Side side) {
+            return true;
+        }
+    };
+
+    public abstract boolean validateSend(Side side);
+
+    public abstract boolean validateReceive(Side side);
 }

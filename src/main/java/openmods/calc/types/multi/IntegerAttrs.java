@@ -1,50 +1,56 @@
 package openmods.calc.types.multi;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
 import java.math.BigInteger;
 import java.util.Map;
+
 import openmods.calc.Frame;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 
 public class IntegerAttrs {
 
-	private interface IntAttr {
-		public TypedValue get(TypeDomain domain, BigInteger value);
-	}
+    private interface IntAttr {
 
-	private final Map<String, IntAttr> attrs = Maps.newHashMap();
+        public TypedValue get(TypeDomain domain, BigInteger value);
+    }
 
-	{
-		attrs.put("bitLength", new IntAttr() {
-			@Override
-			public TypedValue get(TypeDomain domain, BigInteger value) {
-				return domain.create(BigInteger.class, BigInteger.valueOf(value.bitLength()));
-			}
-		});
+    private final Map<String, IntAttr> attrs = Maps.newHashMap();
 
-		attrs.put("chr", new IntAttr() {
-			@Override
-			public TypedValue get(TypeDomain domain, BigInteger value) {
-				final char[] chars = Character.toChars(value.intValue());
-				return domain.create(String.class, new String(chars));
-			}
-		});
-	}
+    {
+        attrs.put("bitLength", new IntAttr() {
 
-	public MetaObject.SlotAttr createAttrSlot() {
-		return new MetaObject.SlotAttr() {
-			@Override
-			public Optional<TypedValue> attr(TypedValue self, String key, Frame<TypedValue> frame) {
-				final IntAttr attr = attrs.get(key);
-				if (attr == null) return Optional.absent();
+            @Override
+            public TypedValue get(TypeDomain domain, BigInteger value) {
+                return domain.create(BigInteger.class, BigInteger.valueOf(value.bitLength()));
+            }
+        });
 
-				final BigInteger value = self.as(BigInteger.class);
-				return Optional.of(attr.get(self.domain, value));
-			}
-		};
-	}
+        attrs.put("chr", new IntAttr() {
 
-	public MetaObject.SlotDir createDirSlot() {
-		return MetaObjectUtils.dirFromIterable(attrs.keySet());
-	}
+            @Override
+            public TypedValue get(TypeDomain domain, BigInteger value) {
+                final char[] chars = Character.toChars(value.intValue());
+                return domain.create(String.class, new String(chars));
+            }
+        });
+    }
+
+    public MetaObject.SlotAttr createAttrSlot() {
+        return new MetaObject.SlotAttr() {
+
+            @Override
+            public Optional<TypedValue> attr(TypedValue self, String key, Frame<TypedValue> frame) {
+                final IntAttr attr = attrs.get(key);
+                if (attr == null) return Optional.absent();
+
+                final BigInteger value = self.as(BigInteger.class);
+                return Optional.of(attr.get(self.domain, value));
+            }
+        };
+    }
+
+    public MetaObject.SlotDir createDirSlot() {
+        return MetaObjectUtils.dirFromIterable(attrs.keySet());
+    }
 }

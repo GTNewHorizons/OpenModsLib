@@ -2,9 +2,9 @@ package openmods.integration;
 
 public interface IIntegrationModule {
 
-	public String name();
+    public String name();
 
-	public boolean canLoad();
+    public boolean canLoad();
 
-	public void load();
+    public void load();
 }

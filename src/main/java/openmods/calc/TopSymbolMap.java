@@ -1,91 +1,98 @@
 package openmods.calc;
 
-import com.google.common.collect.Maps;
 import java.util.Map;
+
 import openmods.utils.OptionalInt;
 import openmods.utils.StackValidationException;
 
+import com.google.common.collect.Maps;
+
 public class TopSymbolMap<E> extends SymbolMap<E> {
 
-	private static class CallableSymbol<E> implements ISymbol<E> {
-		private final ICallable<E> callable;
+    private static class CallableSymbol<E> implements ISymbol<E> {
 
-		public CallableSymbol(ICallable<E> callable) {
-			this.callable = callable;
-		}
+        private final ICallable<E> callable;
 
-		@Override
-		public void call(Frame<E> frame, OptionalInt argumentsCount, OptionalInt returnsCount) {
-			callable.call(frame, argumentsCount, returnsCount);
-		}
+        public CallableSymbol(ICallable<E> callable) {
+            this.callable = callable;
+        }
 
-		@Override
-		public E get() {
-			throw new UnsupportedOperationException("Cannot use function as value");
-		}
+        @Override
+        public void call(Frame<E> frame, OptionalInt argumentsCount, OptionalInt returnsCount) {
+            callable.call(frame, argumentsCount, returnsCount);
+        }
 
-	}
+        @Override
+        public E get() {
+            throw new UnsupportedOperationException("Cannot use function as value");
+        }
 
-	private abstract static class ValueSymbol<E> extends SingleReturnCallable<E> implements ISymbol<E> {
-		@Override
-		public E call(Frame<E> frame, OptionalInt argumentsCount) {
-			if (!argumentsCount.compareIfPresent(0)) throw new StackValidationException("Expected no arguments but got %s", argumentsCount.get());
+    }
 
-			return get();
-		}
-	}
+    private abstract static class ValueSymbol<E> extends SingleReturnCallable<E> implements ISymbol<E> {
 
-	private static class GettableSymbol<E> extends ValueSymbol<E> {
-		private final IGettable<E> gettable;
+        @Override
+        public E call(Frame<E> frame, OptionalInt argumentsCount) {
+            if (!argumentsCount.compareIfPresent(0))
+                throw new StackValidationException("Expected no arguments but got %s", argumentsCount.get());
 
-		public GettableSymbol(IGettable<E> gettable) {
-			this.gettable = gettable;
-		}
+            return get();
+        }
+    }
 
-		@Override
-		public E get() {
-			return gettable.get();
-		}
-	}
+    private static class GettableSymbol<E> extends ValueSymbol<E> {
 
-	private static class ConstantSymbol<E> extends ValueSymbol<E> {
-		private final E value;
+        private final IGettable<E> gettable;
 
-		public ConstantSymbol(E value) {
-			this.value = value;
-		}
+        public GettableSymbol(IGettable<E> gettable) {
+            this.gettable = gettable;
+        }
 
-		@Override
-		public E get() {
-			return value;
-		}
-	}
+        @Override
+        public E get() {
+            return gettable.get();
+        }
+    }
 
-	private final Map<String, ISymbol<E>> globals = Maps.newHashMap();
+    private static class ConstantSymbol<E> extends ValueSymbol<E> {
 
-	@Override
-	protected ISymbol<E> createSymbol(ICallable<E> callable) {
-		return new CallableSymbol<E>(callable);
-	}
+        private final E value;
 
-	@Override
-	protected ISymbol<E> createSymbol(IGettable<E> gettable) {
-		return new GettableSymbol<E>(gettable);
-	}
+        public ConstantSymbol(E value) {
+            this.value = value;
+        }
 
-	@Override
-	protected ISymbol<E> createSymbol(E value) {
-		return new ConstantSymbol<E>(value);
-	}
+        @Override
+        public E get() {
+            return value;
+        }
+    }
 
-	@Override
-	public void put(String name, ISymbol<E> symbol) {
-		globals.put(name, symbol);
-	}
+    private final Map<String, ISymbol<E>> globals = Maps.newHashMap();
 
-	@Override
-	public ISymbol<E> get(String name) {
-		return globals.get(name);
-	}
+    @Override
+    protected ISymbol<E> createSymbol(ICallable<E> callable) {
+        return new CallableSymbol<E>(callable);
+    }
+
+    @Override
+    protected ISymbol<E> createSymbol(IGettable<E> gettable) {
+        return new GettableSymbol<E>(gettable);
+    }
+
+    @Override
+    protected ISymbol<E> createSymbol(E value) {
+        return new ConstantSymbol<E>(value);
+    }
+
+    @Override
+    public void put(String name, ISymbol<E> symbol) {
+        globals.put(name, symbol);
+    }
+
+    @Override
+    public ISymbol<E> get(String name) {
+        return globals.get(name);
+    }
 
 }

@@ -6,20 +6,20 @@ import java.util.Random;
 
 public class Terminal implements IGenerator {
 
-	private final String value;
+    private final String value;
 
-	public Terminal(String value) {
-		this.value = value;
-	}
+    public Terminal(String value) {
+        this.value = value;
+    }
 
-	@Override
-	public String generate(Random random, Map<String, String> params) {
-		return value;
-	}
+    @Override
+    public String generate(Random random, Map<String, String> params) {
+        return value;
+    }
 
-	@Override
-	public BigInteger count() {
-		return BigInteger.ONE;
-	}
+    @Override
+    public BigInteger count() {
+        return BigInteger.ONE;
+    }
 
 }

@@ -8,5 +8,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface StoreOnDrop {
-	public String name() default "";
+
+    public String name() default "";
 }

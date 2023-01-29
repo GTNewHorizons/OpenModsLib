@@ -2,19 +2,19 @@ package openmods.utils;
 
 public abstract class LazyValue<T> {
 
-	private boolean initialized;
+    private boolean initialized;
 
-	private T value;
+    private T value;
 
-	protected abstract T initialize();
+    protected abstract T initialize();
 
-	public T get() {
-		if (!initialized) {
-			value = initialize();
-			initialized = true;
-		}
+    public T get() {
+        if (!initialized) {
+            value = initialize();
+            initialized = true;
+        }
 
-		return value;
-	}
+        return value;
+    }
 
 }

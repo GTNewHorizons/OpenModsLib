@@ -3,52 +3,56 @@ package openmods.renderer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import net.minecraft.client.renderer.Tessellator;
+
 import openmods.LibConfig;
 import openmods.Log;
 
 public class TessellatorPool {
 
-	private final Queue<Tessellator> pool = new ConcurrentLinkedQueue<Tessellator>();
-	private final AtomicInteger count = new AtomicInteger();
+    private final Queue<Tessellator> pool = new ConcurrentLinkedQueue<Tessellator>();
+    private final AtomicInteger count = new AtomicInteger();
 
-	public static final TessellatorPool instance = new TessellatorPool();
+    public static final TessellatorPool instance = new TessellatorPool();
 
-	private TessellatorPool() {}
+    private TessellatorPool() {}
 
-	public static interface TessellatorUser {
-		public void execute(Tessellator tes);
-	}
+    public static interface TessellatorUser {
 
-	private Tessellator reserveTessellator() {
-		Tessellator tes = pool.poll();
+        public void execute(Tessellator tes);
+    }
 
-		if (tes == null) {
-			int id = count.incrementAndGet();
-			if (id > LibConfig.tessellatorPoolLimit) Log.warn("Maximum number of tessellators in use reached. Something may leak them!");
-			tes = new Tessellator();
-		}
+    private Tessellator reserveTessellator() {
+        Tessellator tes = pool.poll();
 
-		return tes;
-	}
+        if (tes == null) {
+            int id = count.incrementAndGet();
+            if (id > LibConfig.tessellatorPoolLimit)
+                Log.warn("Maximum number of tessellators in use reached. Something may leak them!");
+            tes = new Tessellator();
+        }
 
-	public void startDrawing(TessellatorUser user, int primitive) {
-		final Tessellator tes = reserveTessellator();
+        return tes;
+    }
 
-		tes.startDrawing(primitive);
-		user.execute(tes);
-		tes.draw();
+    public void startDrawing(TessellatorUser user, int primitive) {
+        final Tessellator tes = reserveTessellator();
 
-		pool.add(tes);
-	}
+        tes.startDrawing(primitive);
+        user.execute(tes);
+        tes.draw();
 
-	public void startDrawingQuads(TessellatorUser user) {
-		final Tessellator tes = reserveTessellator();
+        pool.add(tes);
+    }
 
-		tes.startDrawingQuads();
-		user.execute(tes);
-		tes.draw();
+    public void startDrawingQuads(TessellatorUser user) {
+        final Tessellator tes = reserveTessellator();
 
-		pool.add(tes);
-	}
+        tes.startDrawingQuads();
+        user.execute(tes);
+        tes.draw();
+
+        pool.add(tes);
+    }
 }

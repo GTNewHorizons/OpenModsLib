@@ -1,9 +1,7 @@
 package openmods.calc.types.multi;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.util.List;
+
 import openmods.calc.IExecutable;
 import openmods.calc.Value;
 import openmods.calc.parsing.ContainerNode;
@@ -20,163 +18,174 @@ import openmods.calc.parsing.Token;
 import openmods.calc.parsing.TokenType;
 import openmods.calc.parsing.ValueNode;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 public class QuoteStateTransition {
 
-	private static final IExprNode<TypedValue> QUOTED_DOT_MARKER = new IExprNode<TypedValue>() {
-		@Override
-		public void flatten(List<IExecutable<TypedValue>> output) {
-			throw new UnsupportedOperationException(); // should be captured before serialization;
-		}
+    private static final IExprNode<TypedValue> QUOTED_DOT_MARKER = new IExprNode<TypedValue>() {
 
-		@Override
-		public Iterable<IExprNode<TypedValue>> getChildren() {
-			throw new UnsupportedOperationException();
-		}
-	};
+        @Override
+        public void flatten(List<IExecutable<TypedValue>> output) {
+            throw new UnsupportedOperationException(); // should be captured before serialization;
+        }
 
-	private class QuotedRoot implements IExprNode<TypedValue> {
-		private final IExprNode<TypedValue> arg;
+        @Override
+        public Iterable<IExprNode<TypedValue>> getChildren() {
+            throw new UnsupportedOperationException();
+        }
+    };
 
-		public QuotedRoot(IExprNode<TypedValue> arg) {
-			this.arg = arg;
-		}
+    private class QuotedRoot implements IExprNode<TypedValue> {
 
-		@Override
-		public void flatten(List<IExecutable<TypedValue>> output) {
-			final TypedValue node = unwrapNode(arg);
-			output.add(Value.create(node));
-		}
+        private final IExprNode<TypedValue> arg;
 
-		private TypedValue unwrapNode(IExprNode<TypedValue> arg) {
-			if (arg instanceof ValueNode) {
-				return ((ValueNode<TypedValue>)arg).value;
-			} else if (arg instanceof ContainerNode) {
-				return unwrapList(arg);
-			} else {
-				throw new IllegalStateException(arg.toString());
-			}
-		}
+        public QuotedRoot(IExprNode<TypedValue> arg) {
+            this.arg = arg;
+        }
 
-		private TypedValue unwrapList(IExprNode<TypedValue> arg) {
-			final List<TypedValue> elements = Lists.newArrayList();
-			boolean dotFound = false;
-			boolean firstAfterDot = false;
-			for (IExprNode<TypedValue> childArg : arg.getChildren()) {
-				if (childArg instanceof NullNode) continue;
-				if (childArg == QUOTED_DOT_MARKER) {
-					Preconditions.checkState(!dotFound, "Duplicated dot in quoted statement");
-					dotFound = true;
-				} else {
-					if (dotFound) {
-						Preconditions.checkState(!firstAfterDot, "More than one element after dot");
-						firstAfterDot = true;
-					}
+        @Override
+        public void flatten(List<IExecutable<TypedValue>> output) {
+            final TypedValue node = unwrapNode(arg);
+            output.add(Value.create(node));
+        }
 
-					elements.add(unwrapNode(childArg));
-				}
-			}
+        private TypedValue unwrapNode(IExprNode<TypedValue> arg) {
+            if (arg instanceof ValueNode) {
+                return ((ValueNode<TypedValue>) arg).value;
+            } else if (arg instanceof ContainerNode) {
+                return unwrapList(arg);
+            } else {
+                throw new IllegalStateException(arg.toString());
+            }
+        }
 
-			if (dotFound) {
-				final int lastElement = elements.size() - 1;
-				final TypedValue customTerminatorValue = elements.get(lastElement);
-				return Cons.createList(elements.subList(0, lastElement), customTerminatorValue);
-			} else {
-				return Cons.createList(elements, terminatorValue);
-			}
-		}
+        private TypedValue unwrapList(IExprNode<TypedValue> arg) {
+            final List<TypedValue> elements = Lists.newArrayList();
+            boolean dotFound = false;
+            boolean firstAfterDot = false;
+            for (IExprNode<TypedValue> childArg : arg.getChildren()) {
+                if (childArg instanceof NullNode) continue;
+                if (childArg == QUOTED_DOT_MARKER) {
+                    Preconditions.checkState(!dotFound, "Duplicated dot in quoted statement");
+                    dotFound = true;
+                } else {
+                    if (dotFound) {
+                        Preconditions.checkState(!firstAfterDot, "More than one element after dot");
+                        firstAfterDot = true;
+                    }
 
-		@Override
-		public Iterable<IExprNode<TypedValue>> getChildren() {
-			return ImmutableList.of(); // hide children - will be flattened
-		}
-	}
+                    elements.add(unwrapNode(childArg));
+                }
+            }
 
-	private class QuotedExprNodeFactory implements IQuotedExprNodeFactory<TypedValue> {
+            if (dotFound) {
+                final int lastElement = elements.size() - 1;
+                final TypedValue customTerminatorValue = elements.get(lastElement);
+                return Cons.createList(elements.subList(0, lastElement), customTerminatorValue);
+            } else {
+                return Cons.createList(elements, terminatorValue);
+            }
+        }
 
-		@Override
-		public IExprNode<TypedValue> createValueNode(Token token) {
-			if (token.type == TokenType.MODIFIER && token.value.equals(TypedCalcConstants.MODIFIER_CDR))
-				return QUOTED_DOT_MARKER;
-			if (token.type == TokenType.SEPARATOR) return new NullNode<TypedValue>();
-			if (token.type.isValue()) {
-				final TypedValue value = valueParser.parseToken(token);
-				return createValueNode(value);
-			}
-			return new ValueNode<TypedValue>(Symbol.get(domain, token.value));
-		}
+        @Override
+        public Iterable<IExprNode<TypedValue>> getChildren() {
+            return ImmutableList.of(); // hide children - will be flattened
+        }
+    }
 
-		@Override
-		public IExprNode<TypedValue> createValueNode(TypedValue value) {
-			return new ValueNode<TypedValue>(value);
-		}
+    private class QuotedExprNodeFactory implements IQuotedExprNodeFactory<TypedValue> {
 
-		@Override
-		public IExprNode<TypedValue> createBracketNode(String openingBracket, String closingBracket, List<IExprNode<TypedValue>> children) {
-			return new ContainerNode<TypedValue>(children);
-		}
-	}
+        @Override
+        public IExprNode<TypedValue> createValueNode(Token token) {
+            if (token.type == TokenType.MODIFIER && token.value.equals(TypedCalcConstants.MODIFIER_CDR))
+                return QUOTED_DOT_MARKER;
+            if (token.type == TokenType.SEPARATOR) return new NullNode<TypedValue>();
+            if (token.type.isValue()) {
+                final TypedValue value = valueParser.parseToken(token);
+                return createValueNode(value);
+            }
+            return new ValueNode<TypedValue>(Symbol.get(domain, token.value));
+        }
 
-	private class QuotedState implements ICompilerState<TypedValue> {
+        @Override
+        public IExprNode<TypedValue> createValueNode(TypedValue value) {
+            return new ValueNode<TypedValue>(value);
+        }
 
-		private final QuotedParser<TypedValue> quotedParser = new QuotedParser<TypedValue>(valueParser, new QuotedExprNodeFactory());
+        @Override
+        public IExprNode<TypedValue> createBracketNode(String openingBracket, String closingBracket,
+                List<IExprNode<TypedValue>> children) {
+            return new ContainerNode<TypedValue>(children);
+        }
+    }
 
-		@Override
-		public IAstParser<TypedValue> getParser() {
-			return quotedParser;
-		}
+    private class QuotedState implements ICompilerState<TypedValue> {
 
-		@Override
-		public ISymbolCallStateTransition<TypedValue> getStateForSymbolCall(String symbol) {
-			throw new UnsupportedOperationException(symbol);
-		}
+        private final QuotedParser<TypedValue> quotedParser = new QuotedParser<TypedValue>(
+                valueParser,
+                new QuotedExprNodeFactory());
 
-		@Override
-		public IModifierStateTransition<TypedValue> getStateForModifier(String modifier) {
-			throw new UnsupportedOperationException(modifier);
-		}
+        @Override
+        public IAstParser<TypedValue> getParser() {
+            return quotedParser;
+        }
 
-	}
+        @Override
+        public ISymbolCallStateTransition<TypedValue> getStateForSymbolCall(String symbol) {
+            throw new UnsupportedOperationException(symbol);
+        }
 
-	private final TypeDomain domain;
-	private final TypedValue terminatorValue;
-	private final IValueParser<TypedValue> valueParser;
+        @Override
+        public IModifierStateTransition<TypedValue> getStateForModifier(String modifier) {
+            throw new UnsupportedOperationException(modifier);
+        }
 
-	public QuoteStateTransition(TypeDomain domain, TypedValue terminatorValue, IValueParser<TypedValue> valueParser) {
-		this.domain = domain;
-		this.terminatorValue = terminatorValue;
-		this.valueParser = valueParser;
-	}
+    }
 
-	public static class ForSymbol extends QuoteStateTransition implements ISymbolCallStateTransition<TypedValue> {
-		public ForSymbol(TypeDomain domain, TypedValue terminatorValue, IValueParser<TypedValue> valueParser) {
-			super(domain, terminatorValue, valueParser);
-		}
+    private final TypeDomain domain;
+    private final TypedValue terminatorValue;
+    private final IValueParser<TypedValue> valueParser;
 
-		@Override
-		public ICompilerState<TypedValue> getState() {
-			return new QuotedState();
-		}
+    public QuoteStateTransition(TypeDomain domain, TypedValue terminatorValue, IValueParser<TypedValue> valueParser) {
+        this.domain = domain;
+        this.terminatorValue = terminatorValue;
+        this.valueParser = valueParser;
+    }
 
-		@Override
-		public IExprNode<TypedValue> createRootNode(List<IExprNode<TypedValue>> children) {
-			Preconditions.checkArgument(children.size() == 1, "Expected exactly one child for quote, got %s", children);
-			return new QuotedRoot(children.get(0));
-		}
-	}
+    public static class ForSymbol extends QuoteStateTransition implements ISymbolCallStateTransition<TypedValue> {
 
-	public static class ForModifier extends QuoteStateTransition implements IModifierStateTransition<TypedValue> {
-		public ForModifier(TypeDomain domain, TypedValue terminatorValue, IValueParser<TypedValue> valueParser) {
-			super(domain, terminatorValue, valueParser);
-		}
+        public ForSymbol(TypeDomain domain, TypedValue terminatorValue, IValueParser<TypedValue> valueParser) {
+            super(domain, terminatorValue, valueParser);
+        }
 
-		@Override
-		public ICompilerState<TypedValue> getState() {
-			return new QuotedState();
-		}
+        @Override
+        public ICompilerState<TypedValue> getState() {
+            return new QuotedState();
+        }
 
-		@Override
-		public IExprNode<TypedValue> createRootNode(IExprNode<TypedValue> child) {
-			return new QuotedRoot(child);
-		}
-	}
+        @Override
+        public IExprNode<TypedValue> createRootNode(List<IExprNode<TypedValue>> children) {
+            Preconditions.checkArgument(children.size() == 1, "Expected exactly one child for quote, got %s", children);
+            return new QuotedRoot(children.get(0));
+        }
+    }
+
+    public static class ForModifier extends QuoteStateTransition implements IModifierStateTransition<TypedValue> {
+
+        public ForModifier(TypeDomain domain, TypedValue terminatorValue, IValueParser<TypedValue> valueParser) {
+            super(domain, terminatorValue, valueParser);
+        }
+
+        @Override
+        public ICompilerState<TypedValue> getState() {
+            return new QuotedState();
+        }
+
+        @Override
+        public IExprNode<TypedValue> createRootNode(IExprNode<TypedValue> child) {
+            return new QuotedRoot(child);
+        }
+    }
 }

@@ -1,145 +1,153 @@
 package openmods.reflection;
 
 import openmods.reflection.ClonerFactory.ICloner;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ClonerFactoryTest {
 
-	public static class A {
-		public int a;
-		public double b;
-		public String c;
-	}
+    public static class A {
 
-	public static class B extends A {}
+        public int a;
+        public double b;
+        public String c;
+    }
 
-	public static class C extends A {}
+    public static class B extends A {
+    }
 
-	@Test
-	public void sameClassTest() {
-		final ClonerFactory factory = new ClonerFactory();
-		final ICloner<A> cloner = factory.getCloner(A.class);
+    public static class C extends A {
+    }
 
-		A from = new A();
-		from.a = 1;
-		from.b = 3.4;
-		from.c = "hello";
+    @Test
+    public void sameClassTest() {
+        final ClonerFactory factory = new ClonerFactory();
+        final ICloner<A> cloner = factory.getCloner(A.class);
 
-		A to = new A();
-		cloner.clone(from, to);
-		Assert.assertEquals(from.a, to.a);
-		Assert.assertEquals(from.b, to.b, 0);
-		Assert.assertEquals(from.c, to.c);
-	}
+        A from = new A();
+        from.a = 1;
+        from.b = 3.4;
+        from.c = "hello";
 
-	@Test
-	public void directDerrivativeTest() {
-		final ClonerFactory factory = new ClonerFactory();
-		final ICloner<A> cloner = factory.getCloner(A.class);
+        A to = new A();
+        cloner.clone(from, to);
+        Assert.assertEquals(from.a, to.a);
+        Assert.assertEquals(from.b, to.b, 0);
+        Assert.assertEquals(from.c, to.c);
+    }
 
-		A from = new A();
-		from.a = 1;
-		from.b = 3.4;
-		from.c = "hello";
+    @Test
+    public void directDerrivativeTest() {
+        final ClonerFactory factory = new ClonerFactory();
+        final ICloner<A> cloner = factory.getCloner(A.class);
 
-		B to = new B();
+        A from = new A();
+        from.a = 1;
+        from.b = 3.4;
+        from.c = "hello";
 
-		cloner.clone(from, to);
+        B to = new B();
 
-		Assert.assertEquals(from.a, to.a);
-		Assert.assertEquals(from.b, to.b, 0);
-		Assert.assertEquals(from.c, to.c);
-	}
+        cloner.clone(from, to);
 
-	@Test
-	public void commonParentTest() {
-		final ClonerFactory factory = new ClonerFactory();
-		final ICloner<A> cloner = factory.getCloner(A.class);
+        Assert.assertEquals(from.a, to.a);
+        Assert.assertEquals(from.b, to.b, 0);
+        Assert.assertEquals(from.c, to.c);
+    }
 
-		B from = new B();
-		from.a = 1;
-		from.b = 3.4;
-		from.c = "hello";
+    @Test
+    public void commonParentTest() {
+        final ClonerFactory factory = new ClonerFactory();
+        final ICloner<A> cloner = factory.getCloner(A.class);
 
-		C to = new C();
+        B from = new B();
+        from.a = 1;
+        from.b = 3.4;
+        from.c = "hello";
 
-		cloner.clone(from, to);
+        C to = new C();
 
-		Assert.assertEquals(from.a, to.a);
-		Assert.assertEquals(from.b, to.b, 0);
-		Assert.assertEquals(from.c, to.c);
-	}
+        cloner.clone(from, to);
 
-	public static class Base {
-		public int a;
+        Assert.assertEquals(from.a, to.a);
+        Assert.assertEquals(from.b, to.b, 0);
+        Assert.assertEquals(from.c, to.c);
+    }
 
-		public int getBase() {
-			return a;
-		}
+    public static class Base {
 
-		public void setBase(int value) {
-			this.a = value;
-		}
-	}
+        public int a;
 
-	public static class Override1 extends Base {
-		public int a;
+        public int getBase() {
+            return a;
+        }
 
-		public int getOverride1() {
-			return a;
-		}
-	}
+        public void setBase(int value) {
+            this.a = value;
+        }
+    }
 
-	public static class Override2 extends Override1 {
-		public int a;
+    public static class Override1 extends Base {
 
-		public int getOverride2() {
-			return a;
-		}
-	}
+        public int a;
 
-	@Test
-	public void testOverridenField() {
-		final ClonerFactory factory = new ClonerFactory();
-		final ICloner<Override1> cloner = factory.getCloner(Override1.class);
+        public int getOverride1() {
+            return a;
+        }
+    }
 
-		Override1 base = new Override1();
-		base.setBase(5);
-		base.a = 10;
+    public static class Override2 extends Override1 {
 
-		Override2 override = new Override2();
-		override.a = 15;
+        public int a;
 
-		cloner.clone(base, override);
+        public int getOverride2() {
+            return a;
+        }
+    }
 
-		Assert.assertEquals(5, override.getBase());
-		Assert.assertEquals(10, override.getOverride1());
-		Assert.assertEquals(15, override.getOverride2());
-	}
+    @Test
+    public void testOverridenField() {
+        final ClonerFactory factory = new ClonerFactory();
+        final ICloner<Override1> cloner = factory.getCloner(Override1.class);
 
-	public static class Sub extends Base {
-		public int a;
-	}
+        Override1 base = new Override1();
+        base.setBase(5);
+        base.a = 10;
 
-	@Test
-	public void testDerrivateToDerrivate() {
-		final ClonerFactory factory = new ClonerFactory();
-		final ICloner<Base> cloner = factory.getCloner(Base.class);
+        Override2 override = new Override2();
+        override.a = 15;
 
-		Sub from = new Sub();
-		from.a = 10;
-		from.setBase(5);
+        cloner.clone(base, override);
 
-		Sub to = new Sub();
-		to.a = 4;
+        Assert.assertEquals(5, override.getBase());
+        Assert.assertEquals(10, override.getOverride1());
+        Assert.assertEquals(15, override.getOverride2());
+    }
 
-		cloner.clone(from, to);
-		Assert.assertEquals(5, to.getBase());
-		Assert.assertEquals(5, from.getBase());
+    public static class Sub extends Base {
 
-		Assert.assertEquals(10, from.a);
-		Assert.assertEquals(4, to.a);
-	}
+        public int a;
+    }
+
+    @Test
+    public void testDerrivateToDerrivate() {
+        final ClonerFactory factory = new ClonerFactory();
+        final ICloner<Base> cloner = factory.getCloner(Base.class);
+
+        Sub from = new Sub();
+        from.a = 10;
+        from.setBase(5);
+
+        Sub to = new Sub();
+        to.a = 4;
+
+        cloner.clone(from, to);
+        Assert.assertEquals(5, to.getBase());
+        Assert.assertEquals(5, from.getBase());
+
+        Assert.assertEquals(10, from.a);
+        Assert.assertEquals(4, to.a);
+    }
 
 }

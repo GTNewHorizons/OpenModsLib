@@ -1,13 +1,5 @@
 package openmods.config.simple;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -22,151 +14,163 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import openmods.Log;
+
+import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class ConfigProcessor {
 
-	public interface UpdateListener {
-		public void valueSet(String value);
-	}
+    public interface UpdateListener {
 
-	private static class EntryMeta {
-		public final int version;
-		public final String value;
-		public String[] comment;
-		public final transient UpdateListener listener;
+        public void valueSet(String value);
+    }
 
-		public EntryMeta(String value, int version, UpdateListener listener) {
-			this.version = version;
-			this.value = value;
-			this.listener = listener;
-			this.comment = null;
-		}
+    private static class EntryMeta {
 
-		public EntryMeta(String value, int version, UpdateListener listener, String... comment) {
-			this.version = version;
-			this.value = value;
-			this.listener = listener;
-			this.comment = comment;
-		}
+        public final int version;
+        public final String value;
+        public String[] comment;
+        public final transient UpdateListener listener;
 
-		@Override
-		public String toString() {
-			return "[value=" + value + ", version=" + version + ", comment=" + Arrays.toString(comment) + "]";
-		}
-	}
+        public EntryMeta(String value, int version, UpdateListener listener) {
+            this.version = version;
+            this.value = value;
+            this.listener = listener;
+            this.comment = null;
+        }
 
-	private Map<String, EntryMeta> entries = Maps.newHashMap();
+        public EntryMeta(String value, int version, UpdateListener listener, String... comment) {
+            this.version = version;
+            this.value = value;
+            this.listener = listener;
+            this.comment = comment;
+        }
 
-	public void addEntry(String name, int version, String defaultValue, UpdateListener listener, String... comment) {
-		Preconditions.checkNotNull(listener);
-		addEntry(name, new EntryMeta(defaultValue, version, listener, comment));
-	}
+        @Override
+        public String toString() {
+            return "[value=" + value + ", version=" + version + ", comment=" + Arrays.toString(comment) + "]";
+        }
+    }
 
-	public void addEntry(String name, int version, String defaultValue, UpdateListener listener) {
-		Preconditions.checkNotNull(listener);
-		addEntry(name, new EntryMeta(defaultValue, version, listener));
-	}
+    private Map<String, EntryMeta> entries = Maps.newHashMap();
 
-	private void addEntry(String name, EntryMeta meta) {
-		EntryMeta prev = entries.put(name, meta);
-		Preconditions.checkState(prev == null, "Duplicate property '%s': [%s, %s]", name, prev, meta);
-	}
+    public void addEntry(String name, int version, String defaultValue, UpdateListener listener, String... comment) {
+        Preconditions.checkNotNull(listener);
+        addEntry(name, new EntryMeta(defaultValue, version, listener, comment));
+    }
 
-	private static class EntryCollection extends HashMap<String, EntryMeta> {
-		private static final long serialVersionUID = -3851628207393131247L;
-	}
+    public void addEntry(String name, int version, String defaultValue, UpdateListener listener) {
+        Preconditions.checkNotNull(listener);
+        addEntry(name, new EntryMeta(defaultValue, version, listener));
+    }
 
-	public void process(File config) {
-		boolean modified = false;
+    private void addEntry(String name, EntryMeta meta) {
+        EntryMeta prev = entries.put(name, meta);
+        Preconditions.checkState(prev == null, "Duplicate property '%s': [%s, %s]", name, prev, meta);
+    }
 
-		Log.debug("Parsing config file '%s'", config);
-		Map<String, EntryMeta> values = readFile(config);
-		if (values == null) values = Maps.newHashMap();
+    private static class EntryCollection extends HashMap<String, EntryMeta> {
 
-		for (String key : Sets.intersection(values.keySet(), entries.keySet())) {
-			EntryMeta defaultEntry = entries.get(key);
-			EntryMeta actualEntry = values.get(key);
+        private static final long serialVersionUID = -3851628207393131247L;
+    }
 
-			if (defaultEntry.version > actualEntry.version) {
-				Log.warn("Config value '%s' replaced with newer version", key);
-				values.put(key, defaultEntry);
-				modified = true;
-			} else {
-				if (!Arrays.equals(defaultEntry.comment, actualEntry.comment)) {
-					actualEntry.comment = defaultEntry.comment;
-					modified = true;
-				}
+    public void process(File config) {
+        boolean modified = false;
 
-				defaultEntry.listener.valueSet(actualEntry.value);
-			}
-		}
+        Log.debug("Parsing config file '%s'", config);
+        Map<String, EntryMeta> values = readFile(config);
+        if (values == null) values = Maps.newHashMap();
 
-		Set<String> removed = Sets.difference(values.keySet(), entries.keySet());
+        for (String key : Sets.intersection(values.keySet(), entries.keySet())) {
+            EntryMeta defaultEntry = entries.get(key);
+            EntryMeta actualEntry = values.get(key);
 
-		if (!removed.isEmpty()) {
-			Log.warn("Removing obsolete values: '%s'", removed);
+            if (defaultEntry.version > actualEntry.version) {
+                Log.warn("Config value '%s' replaced with newer version", key);
+                values.put(key, defaultEntry);
+                modified = true;
+            } else {
+                if (!Arrays.equals(defaultEntry.comment, actualEntry.comment)) {
+                    actualEntry.comment = defaultEntry.comment;
+                    modified = true;
+                }
 
-			modified = true;
-			for (String key : ImmutableSet.copyOf(removed))
-				values.remove(key);
-		}
+                defaultEntry.listener.valueSet(actualEntry.value);
+            }
+        }
 
-		Set<String> added = Sets.difference(entries.keySet(), values.keySet());
+        Set<String> removed = Sets.difference(values.keySet(), entries.keySet());
 
-		if (!added.isEmpty()) {
-			Log.warn("Adding new values: '%s'", added);
-			modified = true;
+        if (!removed.isEmpty()) {
+            Log.warn("Removing obsolete values: '%s'", removed);
 
-			for (String key : added) {
-				final EntryMeta entry = entries.get(key);
-				values.put(key, entry);
-				entry.listener.valueSet(entry.value);
-			}
-		}
+            modified = true;
+            for (String key : ImmutableSet.copyOf(removed)) values.remove(key);
+        }
 
-		if (modified) {
-			writeFile(config, values);
-		}
-	}
+        Set<String> added = Sets.difference(entries.keySet(), values.keySet());
 
-	private static void writeFile(File output, Map<String, EntryMeta> values) {
-		try {
-			OutputStream stream = new FileOutputStream(output);
+        if (!added.isEmpty()) {
+            Log.warn("Adding new values: '%s'", added);
+            modified = true;
 
-			try {
-				Writer writer = new OutputStreamWriter(stream, Charsets.UTF_8);
+            for (String key : added) {
+                final EntryMeta entry = entries.get(key);
+                values.put(key, entry);
+                entry.listener.valueSet(entry.value);
+            }
+        }
 
-				try {
-					Gson gson = new GsonBuilder().setPrettyPrinting().create();
-					gson.toJson(values, writer);
-				} finally {
-					writer.close();
-				}
+        if (modified) {
+            writeFile(config, values);
+        }
+    }
 
-			} finally {
-				stream.close();
-			}
-		} catch (IOException e) {
-			throw Throwables.propagate(e);
-		}
-	}
+    private static void writeFile(File output, Map<String, EntryMeta> values) {
+        try {
+            OutputStream stream = new FileOutputStream(output);
 
-	private static Map<String, EntryMeta> readFile(File input) {
-		if (!input.exists()) return null;
-		try {
-			InputStream stream = new FileInputStream(input);
+            try {
+                Writer writer = new OutputStreamWriter(stream, Charsets.UTF_8);
 
-			try {
-				Reader reader = new InputStreamReader(stream, Charsets.UTF_8);
-				Gson gson = new Gson();
-				return gson.fromJson(reader, EntryCollection.class);
+                try {
+                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                    gson.toJson(values, writer);
+                } finally {
+                    writer.close();
+                }
 
-			} finally {
-				stream.close();
-			}
-		} catch (IOException e) {
-			throw Throwables.propagate(e);
-		}
-	}
+            } finally {
+                stream.close();
+            }
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    private static Map<String, EntryMeta> readFile(File input) {
+        if (!input.exists()) return null;
+        try {
+            InputStream stream = new FileInputStream(input);
+
+            try {
+                Reader reader = new InputStreamReader(stream, Charsets.UTF_8);
+                Gson gson = new Gson();
+                return gson.fromJson(reader, EntryCollection.class);
+
+            } finally {
+                stream.close();
+            }
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
+    }
 }

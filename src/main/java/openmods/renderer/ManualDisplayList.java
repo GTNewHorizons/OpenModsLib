@@ -1,42 +1,44 @@
 package openmods.renderer;
 
-import com.google.common.base.Preconditions;
 import org.lwjgl.opengl.GL11;
+
+import com.google.common.base.Preconditions;
 
 public class ManualDisplayList {
 
-	public interface Renderer {
-		public void render();
-	}
+    public interface Renderer {
 
-	private int displayList;
+        public void render();
+    }
 
-	private boolean isAllocated;
+    private int displayList;
 
-	private boolean isValid;
+    private boolean isAllocated;
 
-	public boolean isCompiled() {
-		return isValid;
-	}
+    private boolean isValid;
 
-	public void render() {
-		Preconditions.checkState(isValid, "Display list not initialized");
-		GL11.glCallList(displayList);
-	}
+    public boolean isCompiled() {
+        return isValid;
+    }
 
-	public void compile(Renderer renderer) {
-		if (isAllocated) GL11.glDeleteLists(displayList, 1);
+    public void render() {
+        Preconditions.checkState(isValid, "Display list not initialized");
+        GL11.glCallList(displayList);
+    }
 
-		displayList = GL11.glGenLists(1);
-		GL11.glNewList(displayList, GL11.GL_COMPILE);
-		renderer.render();
-		GL11.glEndList();
+    public void compile(Renderer renderer) {
+        if (isAllocated) GL11.glDeleteLists(displayList, 1);
 
-		isAllocated = isValid = true;
-	}
+        displayList = GL11.glGenLists(1);
+        GL11.glNewList(displayList, GL11.GL_COMPILE);
+        renderer.render();
+        GL11.glEndList();
 
-	public void invalidate() {
-		isValid = false;
-	}
+        isAllocated = isValid = true;
+    }
+
+    public void invalidate() {
+        isValid = false;
+    }
 
 }

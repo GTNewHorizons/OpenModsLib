@@ -3,50 +3,51 @@ package openmods.gamelogic;
 import openmods.sync.SyncableInt;
 
 public class WorkerLogic {
-	private final SyncableInt progress;
-	private final int maxProgress;
-	private boolean isWorking;
 
-	public WorkerLogic(SyncableInt progress, int maxProgress) {
-		this.progress = progress;
-		this.maxProgress = maxProgress;
-	}
+    private final SyncableInt progress;
+    private final int maxProgress;
+    private boolean isWorking;
 
-	public void start() {
-		isWorking = true;
-	}
+    public WorkerLogic(SyncableInt progress, int maxProgress) {
+        this.progress = progress;
+        this.maxProgress = maxProgress;
+    }
 
-	public void pause() {
-		isWorking = false;
-	}
+    public void start() {
+        isWorking = true;
+    }
 
-	public void reset() {
-		isWorking = false;
-		progress.set(0);
-	}
+    public void pause() {
+        isWorking = false;
+    }
 
-	public void checkWorkCondition(boolean canWork) {
-		if (isWorking && !canWork) {
-			reset();
-		} else if (!isWorking && canWork) {
-			start();
-		}
-	}
+    public void reset() {
+        isWorking = false;
+        progress.set(0);
+    }
 
-	public boolean update() {
-		if (isWorking) {
-			if (progress.get() >= maxProgress) {
-				reset();
-				return true;
-			}
+    public void checkWorkCondition(boolean canWork) {
+        if (isWorking && !canWork) {
+            reset();
+        } else if (!isWorking && canWork) {
+            start();
+        }
+    }
 
-			progress.modify(+1);
-		}
+    public boolean update() {
+        if (isWorking) {
+            if (progress.get() >= maxProgress) {
+                reset();
+                return true;
+            }
 
-		return false;
-	}
+            progress.modify(+1);
+        }
 
-	public boolean isWorking() {
-		return isWorking;
-	}
+        return false;
+    }
+
+    public boolean isWorking() {
+        return isWorking;
+    }
 }

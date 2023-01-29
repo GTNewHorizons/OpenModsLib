@@ -2,84 +2,92 @@ package openmods.integration.modules;
 
 import static openmods.integration.Conditions.classExists;
 
-import buildcraft.api.transport.IPipeTile;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
+
 import openmods.integration.IntegrationModule;
 import openmods.inventory.legacy.CustomSinks;
 import openmods.inventory.legacy.CustomSinks.ICustomSink;
 import openmods.inventory.legacy.CustomSinks.ICustomSinkProvider;
+import buildcraft.api.transport.IPipeTile;
 
 public class BuildCraftPipes extends IntegrationModule {
 
-	public BuildCraftPipes() {
-		super(classExists("buildcraft.api.transport.IPipeTile"));
-	}
+    public BuildCraftPipes() {
+        super(classExists("buildcraft.api.transport.IPipeTile"));
+    }
 
-	public interface BuildCraftAccess {
-		public int tryAcceptIntoPipe(TileEntity possiblePipe, ItemStack nextStack, boolean doInsert, ForgeDirection direction);
+    public interface BuildCraftAccess {
 
-		public boolean isPipe(TileEntity tile);
-	}
+        public int tryAcceptIntoPipe(TileEntity possiblePipe, ItemStack nextStack, boolean doInsert,
+                ForgeDirection direction);
 
-	private static class Dummy implements BuildCraftAccess {
-		@Override
-		public int tryAcceptIntoPipe(TileEntity possiblePipe, ItemStack nextStack, boolean doInsert, ForgeDirection direction) {
-			return 0;
-		}
+        public boolean isPipe(TileEntity tile);
+    }
 
-		@Override
-		public boolean isPipe(TileEntity tile) {
-			return false;
-		}
-	}
+    private static class Dummy implements BuildCraftAccess {
 
-	private static class Live implements BuildCraftAccess {
+        @Override
+        public int tryAcceptIntoPipe(TileEntity possiblePipe, ItemStack nextStack, boolean doInsert,
+                ForgeDirection direction) {
+            return 0;
+        }
 
-		@Override
-		// left for BC 6
-		@SuppressWarnings("deprecation")
-		public int tryAcceptIntoPipe(TileEntity possiblePipe, ItemStack nextStack, boolean doInsert, ForgeDirection direction) {
-			if (possiblePipe instanceof IPipeTile) return ((IPipeTile)possiblePipe).injectItem(nextStack, doInsert, direction.getOpposite());
-			return 0;
-		}
+        @Override
+        public boolean isPipe(TileEntity tile) {
+            return false;
+        }
+    }
 
-		@Override
-		public boolean isPipe(TileEntity tile) {
-			return tile instanceof IPipeTile;
-		}
-	}
+    private static class Live implements BuildCraftAccess {
 
-	private static BuildCraftAccess access = new Dummy();
+        @Override
+        // left for BC 6
+        @SuppressWarnings("deprecation")
+        public int tryAcceptIntoPipe(TileEntity possiblePipe, ItemStack nextStack, boolean doInsert,
+                ForgeDirection direction) {
+            if (possiblePipe instanceof IPipeTile)
+                return ((IPipeTile) possiblePipe).injectItem(nextStack, doInsert, direction.getOpposite());
+            return 0;
+        }
 
-	public static BuildCraftAccess access() {
-		return access;
-	}
+        @Override
+        public boolean isPipe(TileEntity tile) {
+            return tile instanceof IPipeTile;
+        }
+    }
 
-	@Override
-	public void load() {
-		access = new Live();
+    private static BuildCraftAccess access = new Dummy();
 
-		CustomSinks.registerCustomSink(new ICustomSinkProvider() {
+    public static BuildCraftAccess access() {
+        return access;
+    }
 
-			@Override
-			public CustomSinks.ICustomSink create(final TileEntity te) {
-				if (!access.isPipe(te)) return null;
+    @Override
+    public void load() {
+        access = new Live();
 
-				return new ICustomSink() {
-					@Override
-					public int accept(ItemStack stack, boolean doInsert, ForgeDirection direction) {
-						return access.tryAcceptIntoPipe(te, stack, doInsert, direction);
-					}
-				};
-			}
-		});
-	}
+        CustomSinks.registerCustomSink(new ICustomSinkProvider() {
 
-	@Override
-	public String name() {
-		return "BuildCraft pipes";
-	}
+            @Override
+            public CustomSinks.ICustomSink create(final TileEntity te) {
+                if (!access.isPipe(te)) return null;
+
+                return new ICustomSink() {
+
+                    @Override
+                    public int accept(ItemStack stack, boolean doInsert, ForgeDirection direction) {
+                        return access.tryAcceptIntoPipe(te, stack, doInsert, direction);
+                    }
+                };
+            }
+        });
+    }
+
+    @Override
+    public String name() {
+        return "BuildCraft pipes";
+    }
 
 }

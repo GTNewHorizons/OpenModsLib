@@ -5,5 +5,6 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.FIELD, ElementType.METHOD })
 public @interface IncludeInterface {
-	public Class<?> value() default Object.class;
+
+    public Class<?> value() default Object.class;
 }

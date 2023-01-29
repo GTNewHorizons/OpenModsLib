@@ -1,67 +1,75 @@
 package openmods.network.event;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.LoaderState;
 import java.util.Map;
+
 import openmods.datastore.DataStoreBuilder;
 import openmods.network.IdSyncManager;
 import openmods.utils.io.TypeRW;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.LoaderState;
+
 public class NetworkEventManager {
 
-	public static class RegistrationContext {
-		private int currentId = 0;
+    public static class RegistrationContext {
 
-		private final DataStoreBuilder<String, Integer> builder;
+        private int currentId = 0;
 
-		private final Map<String, Class<? extends NetworkEvent>> events = Maps.newHashMap();
+        private final DataStoreBuilder<String, Integer> builder;
 
-		private RegistrationContext() {
-			this.builder = IdSyncManager.INSTANCE.createDataStore("events", String.class, Integer.class);
+        private final Map<String, Class<? extends NetworkEvent>> events = Maps.newHashMap();
 
-			this.builder.setDefaultKeyReaderWriter();
-			this.builder.setValueReaderWriter(TypeRW.VLI_SERIALIZABLE);
-		}
+        private RegistrationContext() {
+            this.builder = IdSyncManager.INSTANCE.createDataStore("events", String.class, Integer.class);
 
-		public RegistrationContext register(Class<? extends NetworkEvent> cls) {
-			Preconditions.checkState(Loader.instance().isInState(LoaderState.PREINITIALIZATION), "This method can only be called in pre-initialization state");
+            this.builder.setDefaultKeyReaderWriter();
+            this.builder.setValueReaderWriter(TypeRW.VLI_SERIALIZABLE);
+        }
 
-			final String id = cls.getName();
-			builder.addEntry(id, currentId++);
-			events.put(id, cls);
-			return this;
-		}
+        public RegistrationContext register(Class<? extends NetworkEvent> cls) {
+            Preconditions.checkState(
+                    Loader.instance().isInState(LoaderState.PREINITIALIZATION),
+                    "This method can only be called in pre-initialization state");
 
-		void register(NetworkEventRegistry eventIdVisitor) {
-			eventIdVisitor.registerClasses(events);
-			builder.addVisitor(eventIdVisitor);
-			builder.register();
-		}
-	}
+            final String id = cls.getName();
+            builder.addEntry(id, currentId++);
+            events.put(id, cls);
+            return this;
+        }
 
-	private NetworkEventManager() {}
+        void register(NetworkEventRegistry eventIdVisitor) {
+            eventIdVisitor.registerClasses(events);
+            builder.addVisitor(eventIdVisitor);
+            builder.register();
+        }
+    }
 
-	public static final NetworkEventManager INSTANCE = new NetworkEventManager();
+    private NetworkEventManager() {}
 
-	private final NetworkEventRegistry registry = new NetworkEventRegistry();
+    public static final NetworkEventManager INSTANCE = new NetworkEventManager();
 
-	private final NetworkEventDispatcher dispatcher = new NetworkEventDispatcher(registry);
+    private final NetworkEventRegistry registry = new NetworkEventRegistry();
 
-	private RegistrationContext registrationContext = new RegistrationContext();
+    private final NetworkEventDispatcher dispatcher = new NetworkEventDispatcher(registry);
 
-	public RegistrationContext startRegistration() {
-		Preconditions.checkState(Loader.instance().isInState(LoaderState.PREINITIALIZATION), "This method can only be called in pre-initialization state");
-		return registrationContext;
-	}
+    private RegistrationContext registrationContext = new RegistrationContext();
 
-	public void finalizeRegistration() {
-		registrationContext.register(registry);
-		registrationContext = null;
-	}
+    public RegistrationContext startRegistration() {
+        Preconditions.checkState(
+                Loader.instance().isInState(LoaderState.PREINITIALIZATION),
+                "This method can only be called in pre-initialization state");
+        return registrationContext;
+    }
 
-	public NetworkEventDispatcher dispatcher() {
-		return dispatcher;
-	}
+    public void finalizeRegistration() {
+        registrationContext.register(registry);
+        registrationContext = null;
+    }
+
+    public NetworkEventDispatcher dispatcher() {
+        return dispatcher;
+    }
 }

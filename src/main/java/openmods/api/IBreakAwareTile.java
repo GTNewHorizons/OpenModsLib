@@ -1,5 +1,6 @@
 package openmods.api;
 
 public interface IBreakAwareTile {
-	public void onBlockBroken();
+
+    public void onBlockBroken();
 }

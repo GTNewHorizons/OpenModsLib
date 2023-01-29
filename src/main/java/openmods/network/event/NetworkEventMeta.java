@@ -8,9 +8,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NetworkEventMeta {
-	public boolean compressed() default false;
 
-	public boolean chunked() default false;
+    public boolean compressed() default false;
 
-	public EventDirection direction() default EventDirection.ANY;
+    public boolean chunked() default false;
+
+    public EventDirection direction() default EventDirection.ANY;
 }

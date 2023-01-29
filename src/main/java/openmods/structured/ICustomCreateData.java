@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public interface ICustomCreateData {
 
-	public void readCustomDataFromStream(DataInput input) throws IOException;
+    public void readCustomDataFromStream(DataInput input) throws IOException;
 
-	public void writeCustomDataFromStream(DataOutput output) throws IOException;
+    public void writeCustomDataFromStream(DataOutput output) throws IOException;
 }

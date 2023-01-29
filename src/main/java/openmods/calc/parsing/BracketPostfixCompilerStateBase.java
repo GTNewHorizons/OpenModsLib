@@ -1,37 +1,39 @@
 package openmods.calc.parsing;
 
-import com.google.common.base.Preconditions;
 import openmods.calc.IExecutable;
 
+import com.google.common.base.Preconditions;
+
 public abstract class BracketPostfixCompilerStateBase<E> extends SimplePostfixCompilerState<E> {
-	private final String openingBracket;
-	private boolean isFinished;
 
-	public BracketPostfixCompilerStateBase(IExecutableListBuilder<E> builder, String openingBracket) {
-		super(builder);
-		this.openingBracket = openingBracket;
-	}
+    private final String openingBracket;
+    private boolean isFinished;
 
-	@Override
-	public Result acceptToken(Token token) {
-		if (token.type == TokenType.RIGHT_BRACKET) {
-			TokenUtils.checkIsValidBracketPair(openingBracket, token.value);
-			isFinished = true;
-			return Result.ACCEPTED_AND_FINISHED;
-		}
-		return processBracketContent(token);
-	}
+    public BracketPostfixCompilerStateBase(IExecutableListBuilder<E> builder, String openingBracket) {
+        super(builder);
+        this.openingBracket = openingBracket;
+    }
 
-	protected Result processBracketContent(Token token) {
-		return super.acceptToken(token);
-	}
+    @Override
+    public Result acceptToken(Token token) {
+        if (token.type == TokenType.RIGHT_BRACKET) {
+            TokenUtils.checkIsValidBracketPair(openingBracket, token.value);
+            isFinished = true;
+            return Result.ACCEPTED_AND_FINISHED;
+        }
+        return processBracketContent(token);
+    }
 
-	@Override
-	public IExecutable<E> exit() {
-		Preconditions.checkState(isFinished, "Missing closing bracket");
-		final IExecutable<E> compiledExpr = super.exit();
-		return processCompiledBracket(compiledExpr);
-	}
+    protected Result processBracketContent(Token token) {
+        return super.acceptToken(token);
+    }
 
-	protected abstract IExecutable<E> processCompiledBracket(IExecutable<E> compiledExpr);
+    @Override
+    public IExecutable<E> exit() {
+        Preconditions.checkState(isFinished, "Missing closing bracket");
+        final IExecutable<E> compiledExpr = super.exit();
+        return processCompiledBracket(compiledExpr);
+    }
+
+    protected abstract IExecutable<E> processCompiledBracket(IExecutable<E> compiledExpr);
 }

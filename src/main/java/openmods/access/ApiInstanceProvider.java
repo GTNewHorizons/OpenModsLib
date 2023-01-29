@@ -3,70 +3,74 @@ package openmods.access;
 import com.google.common.base.Throwables;
 
 public abstract class ApiInstanceProvider<T> {
-	public static class CachedInstance<T> extends ApiInstanceProvider<T> {
-		private final T instance;
 
-		public CachedInstance(Class<? extends T> cls) {
-			try {
-				instance = cls.newInstance();
-			} catch (Throwable t) {
-				throw Throwables.propagate(t);
-			}
-		}
+    public static class CachedInstance<T> extends ApiInstanceProvider<T> {
 
-		@Override
-		public T getInterface() {
-			return instance;
-		}
+        private final T instance;
 
-		@Override
-		public String toString() {
-			return "SingleInstanceProvider [instance=" + instance + "]";
-		}
+        public CachedInstance(Class<? extends T> cls) {
+            try {
+                instance = cls.newInstance();
+            } catch (Throwable t) {
+                throw Throwables.propagate(t);
+            }
+        }
 
-	}
+        @Override
+        public T getInterface() {
+            return instance;
+        }
 
-	public static class NewInstance<T> extends ApiInstanceProvider<T> {
-		private final Class<? extends T> cls;
+        @Override
+        public String toString() {
+            return "SingleInstanceProvider [instance=" + instance + "]";
+        }
 
-		public NewInstance(Class<? extends T> cls) {
-			this.cls = cls;
-		}
+    }
 
-		@Override
-		public T getInterface() {
-			try {
-				return cls.newInstance();
-			} catch (Throwable t) {
-				throw Throwables.propagate(t);
-			}
-		}
+    public static class NewInstance<T> extends ApiInstanceProvider<T> {
 
-		@Override
-		public String toString() {
-			return "NewInstanceProvider [cls=" + cls + "]";
-		}
+        private final Class<? extends T> cls;
 
-	}
+        public NewInstance(Class<? extends T> cls) {
+            this.cls = cls;
+        }
 
-	public static class Singleton<T> extends ApiInstanceProvider<T> {
-		private final T obj;
+        @Override
+        public T getInterface() {
+            try {
+                return cls.newInstance();
+            } catch (Throwable t) {
+                throw Throwables.propagate(t);
+            }
+        }
 
-		public Singleton(T obj) {
-			this.obj = obj;
-		}
+        @Override
+        public String toString() {
+            return "NewInstanceProvider [cls=" + cls + "]";
+        }
 
-		@Override
-		public T getInterface() {
-			return obj;
-		}
+    }
 
-		@Override
-		public String toString() {
-			return "SingletonProvider [obj=" + obj + "]";
-		}
+    public static class Singleton<T> extends ApiInstanceProvider<T> {
 
-	}
+        private final T obj;
 
-	public abstract T getInterface();
+        public Singleton(T obj) {
+            this.obj = obj;
+        }
+
+        @Override
+        public T getInterface() {
+            return obj;
+        }
+
+        @Override
+        public String toString() {
+            return "SingletonProvider [obj=" + obj + "]";
+        }
+
+    }
+
+    public abstract T getInterface();
 }

@@ -1,36 +1,36 @@
 package openmods.network.senders;
 
-import io.netty.channel.Channel;
 import java.util.Collection;
+
 import openmods.utils.NetUtils;
+import io.netty.channel.Channel;
 
 public class PacketSenderBase implements IPacketSender {
 
-	private final Channel channel;
+    private final Channel channel;
 
-	public PacketSenderBase(Channel channel) {
-		this.channel = channel;
-	}
+    public PacketSenderBase(Channel channel) {
+        this.channel = channel;
+    }
 
-	protected void configureChannel(Channel channel) {}
+    protected void configureChannel(Channel channel) {}
 
-	protected void cleanupChannel(Channel channel) {}
+    protected void cleanupChannel(Channel channel) {}
 
-	@Override
-	public void sendMessage(Object msg) {
-		configureChannel(channel);
-		channel.writeAndFlush(msg).addListener(NetUtils.LOGGING_LISTENER);
-	}
+    @Override
+    public void sendMessage(Object msg) {
+        configureChannel(channel);
+        channel.writeAndFlush(msg).addListener(NetUtils.LOGGING_LISTENER);
+    }
 
-	@Override
-	public void sendMessages(Collection<Object> msgs) {
-		configureChannel(channel);
+    @Override
+    public void sendMessages(Collection<Object> msgs) {
+        configureChannel(channel);
 
-		for (Object msg : msgs)
-			channel.write(msg).addListener(NetUtils.LOGGING_LISTENER);
+        for (Object msg : msgs) channel.write(msg).addListener(NetUtils.LOGGING_LISTENER);
 
-		channel.flush();
+        channel.flush();
 
-		cleanupChannel(channel);
-	}
+        cleanupChannel(channel);
+    }
 }

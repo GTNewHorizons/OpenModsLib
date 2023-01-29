@@ -1,57 +1,60 @@
 package openmods.renderer;
 
-import com.google.common.base.Preconditions;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 
+import com.google.common.base.Preconditions;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 @SideOnly(Side.CLIENT)
 public class DisposableDynamicTexture extends AbstractTexture {
-	private int[] dynamicTextureData;
-	private int width;
-	private int height;
 
-	private static int textureCounter;
+    private int[] dynamicTextureData;
+    private int width;
+    private int height;
 
-	public DisposableDynamicTexture() {}
+    private static int textureCounter;
 
-	public void resize(int width, int height) {
-		if (width != this.width || height != this.height) {
-			this.width = width;
-			this.height = height;
-			TextureUtil.allocateTexture(getGlTextureId(), width, height);
-		}
-	}
+    public DisposableDynamicTexture() {}
 
-	@Override
-	public void loadTexture(IResourceManager par1ResourceManager) {}
+    public void resize(int width, int height) {
+        if (width != this.width || height != this.height) {
+            this.width = width;
+            this.height = height;
+            TextureUtil.allocateTexture(getGlTextureId(), width, height);
+        }
+    }
 
-	public void update() {
-		Preconditions.checkNotNull(dynamicTextureData, "Texture not allocated");
-		TextureUtil.uploadTexture(getGlTextureId(), dynamicTextureData, width, height);
-	}
+    @Override
+    public void loadTexture(IResourceManager par1ResourceManager) {}
 
-	public void updateAndDeallocate() {
-		update();
-		dynamicTextureData = null;
-	}
+    public void update() {
+        Preconditions.checkNotNull(dynamicTextureData, "Texture not allocated");
+        TextureUtil.uploadTexture(getGlTextureId(), dynamicTextureData, width, height);
+    }
 
-	public int[] allocate() {
-		if (dynamicTextureData == null) dynamicTextureData = new int[width * height];
+    public void updateAndDeallocate() {
+        update();
+        dynamicTextureData = null;
+    }
 
-		return this.dynamicTextureData;
-	}
+    public int[] allocate() {
+        if (dynamicTextureData == null) dynamicTextureData = new int[width * height];
 
-	public ResourceLocation register(TextureManager manager, String prefix) {
-		ResourceLocation location = new ResourceLocation(String.format("dynamic_o/%s_%d", prefix, textureCounter));
-		textureCounter++;
+        return this.dynamicTextureData;
+    }
 
-		manager.loadTexture(location, this);
-		return location;
-	}
+    public ResourceLocation register(TextureManager manager, String prefix) {
+        ResourceLocation location = new ResourceLocation(String.format("dynamic_o/%s_%d", prefix, textureCounter));
+        textureCounter++;
+
+        manager.loadTexture(location, this);
+        return location;
+    }
 
 }

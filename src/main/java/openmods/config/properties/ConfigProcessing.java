@@ -1,77 +1,79 @@
 package openmods.config.properties;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Table;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+
 import net.minecraftforge.common.config.Configuration;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 
 public class ConfigProcessing {
 
-	public static class ModConfig {
-		private final Configuration config;
-		public final Class<?> configClass;
-		public final String modId;
+    public static class ModConfig {
 
-		private Table<String, String, ConfigPropertyMeta> properties = HashBasedTable.create();
+        private final Configuration config;
+        public final Class<?> configClass;
+        public final String modId;
 
-		private ModConfig(String modId, Configuration config, Class<?> configClass) {
-			this.modId = modId;
-			this.config = config;
-			this.configClass = configClass;
-		}
+        private Table<String, String, ConfigPropertyMeta> properties = HashBasedTable.create();
 
-		void tryProcessConfig(Field field) {
-			ConfigPropertyMeta meta = ConfigPropertyMeta.createMetaForField(config, field);
-			if (meta != null) {
-				meta.updateValueFromConfig(false);
-				properties.put(meta.category.toLowerCase(Locale.ENGLISH), meta.name.toLowerCase(Locale.ENGLISH), meta);
-			}
-		}
+        private ModConfig(String modId, Configuration config, Class<?> configClass) {
+            this.modId = modId;
+            this.config = config;
+            this.configClass = configClass;
+        }
 
-		public File getConfigFile() {
-			return config.getConfigFile();
-		}
+        void tryProcessConfig(Field field) {
+            ConfigPropertyMeta meta = ConfigPropertyMeta.createMetaForField(config, field);
+            if (meta != null) {
+                meta.updateValueFromConfig(false);
+                properties.put(meta.category.toLowerCase(Locale.ENGLISH), meta.name.toLowerCase(Locale.ENGLISH), meta);
+            }
+        }
 
-		public void save() {
-			if (config.hasChanged()) config.save();
-		}
+        public File getConfigFile() {
+            return config.getConfigFile();
+        }
 
-		public Collection<String> getCategories() {
-			return Collections.unmodifiableCollection(properties.rowKeySet());
-		}
+        public void save() {
+            if (config.hasChanged()) config.save();
+        }
 
-		public Collection<String> getValues(String category) {
-			return Collections.unmodifiableCollection(properties.row(category.toLowerCase(Locale.ENGLISH)).keySet());
-		}
+        public Collection<String> getCategories() {
+            return Collections.unmodifiableCollection(properties.rowKeySet());
+        }
 
-		public ConfigPropertyMeta getValue(String category, String name) {
-			return properties.get(category.toLowerCase(Locale.ENGLISH), name.toLowerCase(Locale.ENGLISH));
-		}
-	}
+        public Collection<String> getValues(String category) {
+            return Collections.unmodifiableCollection(properties.row(category.toLowerCase(Locale.ENGLISH)).keySet());
+        }
 
-	private static final Map<String, ModConfig> configs = Maps.newHashMap();
+        public ConfigPropertyMeta getValue(String category, String name) {
+            return properties.get(category.toLowerCase(Locale.ENGLISH), name.toLowerCase(Locale.ENGLISH));
+        }
+    }
 
-	public static Collection<String> getConfigsIds() {
-		return Collections.unmodifiableCollection(configs.keySet());
-	}
+    private static final Map<String, ModConfig> configs = Maps.newHashMap();
 
-	public static ModConfig getConfig(String modId) {
-		return configs.get(modId.toLowerCase(Locale.ENGLISH));
-	}
+    public static Collection<String> getConfigsIds() {
+        return Collections.unmodifiableCollection(configs.keySet());
+    }
 
-	public static void processAnnotations(String modId, Configuration config, Class<?> klazz) {
-		Preconditions.checkState(!configs.containsKey(modId), "Trying to configure mod '%s' twice", modId);
-		ModConfig configMeta = new ModConfig(modId, config, klazz);
-		configs.put(modId.toLowerCase(Locale.ENGLISH), configMeta);
+    public static ModConfig getConfig(String modId) {
+        return configs.get(modId.toLowerCase(Locale.ENGLISH));
+    }
 
-		for (Field f : klazz.getFields())
-			configMeta.tryProcessConfig(f);
-	}
+    public static void processAnnotations(String modId, Configuration config, Class<?> klazz) {
+        Preconditions.checkState(!configs.containsKey(modId), "Trying to configure mod '%s' twice", modId);
+        ModConfig configMeta = new ModConfig(modId, config, klazz);
+        configs.put(modId.toLowerCase(Locale.ENGLISH), configMeta);
+
+        for (Field f : klazz.getFields()) configMeta.tryProcessConfig(f);
+    }
 }

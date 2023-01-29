@@ -2,8 +2,10 @@ package openmods.reflection;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+
 import openmods.utils.CachedFactory;
 import openmods.utils.SneakyThrower;
+
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -12,112 +14,126 @@ import org.objectweb.asm.commons.Method;
 
 public class ClonerFactory implements Opcodes {
 
-	private static class ClonerClassLoader extends ClassLoader {
-		private ClonerClassLoader() {
-			super(ClonerClassLoader.class.getClassLoader());
-		}
+    private static class ClonerClassLoader extends ClassLoader {
 
-		public Class<?> define(byte[] data) {
-			return defineClass(null, data, 0, data.length);
-		}
-	}
+        private ClonerClassLoader() {
+            super(ClonerClassLoader.class.getClassLoader());
+        }
 
-	public interface ICloner<T> {
-		public <A extends T, B extends T> void clone(A from, B to);
-	}
+        public Class<?> define(byte[] data) {
+            return defineClass(null, data, 0, data.length);
+        }
+    }
 
-	private static final String CLONER_DESC = Type.getInternalName(ICloner.class);
+    public interface ICloner<T> {
 
-	private static final Method CLONER_FUNC_DESC = Method.getMethod(ICloner.class.getDeclaredMethods()[0]);
+        public <A extends T, B extends T> void clone(A from, B to);
+    }
 
-	public static final ClonerFactory instance = new ClonerFactory();
+    private static final String CLONER_DESC = Type.getInternalName(ICloner.class);
 
-	private final CachedFactory<Class<?>, ICloner<?>> cache = new CachedFactory<Class<?>, ClonerFactory.ICloner<?>>() {
-		@Override
-		protected ICloner<?> create(Class<?> key) {
-			try {
-				Class<? extends ICloner<?>> cls = createClonerClass(key);
-				return cls.newInstance();
-			} catch (Throwable t) {
-				throw SneakyThrower.sneakyThrow(t);
-			}
-		}
-	};
+    private static final Method CLONER_FUNC_DESC = Method.getMethod(ICloner.class.getDeclaredMethods()[0]);
 
-	private final ClonerClassLoader clonerClassLoader = new ClonerClassLoader();
+    public static final ClonerFactory instance = new ClonerFactory();
 
-	private static byte[] createClonerClassData(Class<?> cls) {
-		final ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    private final CachedFactory<Class<?>, ICloner<?>> cache = new CachedFactory<Class<?>, ClonerFactory.ICloner<?>>() {
 
-		final String commonCls = Type.getInternalName(cls);
+        @Override
+        protected ICloner<?> create(Class<?> key) {
+            try {
+                Class<? extends ICloner<?>> cls = createClonerClass(key);
+                return cls.newInstance();
+            } catch (Throwable t) {
+                throw SneakyThrower.sneakyThrow(t);
+            }
+        }
+    };
 
-		final String name = commonCls + "$$cloner$";
+    private final ClonerClassLoader clonerClassLoader = new ClonerClassLoader();
 
-		writer.visit(V1_6, ACC_PUBLIC | ACC_SUPER | ACC_SYNTHETIC, name, null, "java/lang/Object", new String[] { CLONER_DESC });
-		writer.visitSource(".dynamic", null);
+    private static byte[] createClonerClassData(Class<?> cls) {
+        final ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-		{
-			MethodVisitor mv = writer.visitMethod(ACC_PUBLIC | ACC_SYNTHETIC, "<init>", "()V", null, null);
-			mv.visitCode();
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-			mv.visitInsn(Opcodes.RETURN);
-			mv.visitMaxs(0, 0);
-			mv.visitEnd();
-		}
+        final String commonCls = Type.getInternalName(cls);
 
-		{
+        final String name = commonCls + "$$cloner$";
 
-			MethodVisitor mv = writer.visitMethod(ACC_PUBLIC | ACC_SYNTHETIC, CLONER_FUNC_DESC.getName(), CLONER_FUNC_DESC.getDescriptor(), null, null);
-			mv.visitCode();
+        writer.visit(
+                V1_6,
+                ACC_PUBLIC | ACC_SUPER | ACC_SYNTHETIC,
+                name,
+                null,
+                "java/lang/Object",
+                new String[] { CLONER_DESC });
+        writer.visitSource(".dynamic", null);
 
-			mv.visitVarInsn(Opcodes.ALOAD, 2);
-			mv.visitTypeInsn(Opcodes.CHECKCAST, commonCls);
+        {
+            MethodVisitor mv = writer.visitMethod(ACC_PUBLIC | ACC_SYNTHETIC, "<init>", "()V", null, null);
+            mv.visitCode();
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+            mv.visitInsn(Opcodes.RETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+        }
 
-			mv.visitVarInsn(Opcodes.ALOAD, 1);
-			mv.visitTypeInsn(Opcodes.CHECKCAST, commonCls);
+        {
 
-			Class<?> currentCls = cls;
-			while (currentCls != Object.class) {
-				addClonedFields(mv, currentCls);
-				currentCls = currentCls.getSuperclass();
-			}
+            MethodVisitor mv = writer.visitMethod(
+                    ACC_PUBLIC | ACC_SYNTHETIC,
+                    CLONER_FUNC_DESC.getName(),
+                    CLONER_FUNC_DESC.getDescriptor(),
+                    null,
+                    null);
+            mv.visitCode();
 
-			mv.visitInsn(Opcodes.POP2);
-			mv.visitInsn(Opcodes.RETURN);
-			mv.visitMaxs(0, 0);
-			mv.visitEnd();
-		}
+            mv.visitVarInsn(Opcodes.ALOAD, 2);
+            mv.visitTypeInsn(Opcodes.CHECKCAST, commonCls);
 
-		writer.visitEnd();
+            mv.visitVarInsn(Opcodes.ALOAD, 1);
+            mv.visitTypeInsn(Opcodes.CHECKCAST, commonCls);
 
-		return writer.toByteArray();
-	}
+            Class<?> currentCls = cls;
+            while (currentCls != Object.class) {
+                addClonedFields(mv, currentCls);
+                currentCls = currentCls.getSuperclass();
+            }
 
-	private static void addClonedFields(MethodVisitor writer, Class<?> currentCls) {
-		final String owner = Type.getType(currentCls).getInternalName();
+            mv.visitInsn(Opcodes.POP2);
+            mv.visitInsn(Opcodes.RETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+        }
 
-		for (Field f : currentCls.getDeclaredFields()) {
-			final int modifier = f.getModifiers();
-			if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier) || !Modifier.isPublic(modifier)) continue;
-			final String fieldDesc = Type.getType(f.getType()).getDescriptor();
+        writer.visitEnd();
 
-			writer.visitInsn(Opcodes.DUP2);
-			writer.visitFieldInsn(Opcodes.GETFIELD, owner, f.getName(), fieldDesc);
-			writer.visitFieldInsn(Opcodes.PUTFIELD, owner, f.getName(), fieldDesc);
-		}
+        return writer.toByteArray();
+    }
 
-	}
+    private static void addClonedFields(MethodVisitor writer, Class<?> currentCls) {
+        final String owner = Type.getType(currentCls).getInternalName();
 
-	@SuppressWarnings("unchecked")
-	private Class<? extends ICloner<?>> createClonerClass(Class<?> cls) {
-		final byte[] classData = createClonerClassData(cls);
-		return (Class<? extends ICloner<?>>)clonerClassLoader.define(classData);
-	}
+        for (Field f : currentCls.getDeclaredFields()) {
+            final int modifier = f.getModifiers();
+            if (Modifier.isFinal(modifier) || Modifier.isStatic(modifier) || !Modifier.isPublic(modifier)) continue;
+            final String fieldDesc = Type.getType(f.getType()).getDescriptor();
 
-	@SuppressWarnings("unchecked")
-	public <T> ICloner<T> getCloner(Class<T> cls) {
-		return (ICloner<T>)cache.getOrCreate(cls);
-	}
+            writer.visitInsn(Opcodes.DUP2);
+            writer.visitFieldInsn(Opcodes.GETFIELD, owner, f.getName(), fieldDesc);
+            writer.visitFieldInsn(Opcodes.PUTFIELD, owner, f.getName(), fieldDesc);
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private Class<? extends ICloner<?>> createClonerClass(Class<?> cls) {
+        final byte[] classData = createClonerClassData(cls);
+        return (Class<? extends ICloner<?>>) clonerClassLoader.define(classData);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> ICloner<T> getCloner(Class<T> cls) {
+        return (ICloner<T>) cache.getOrCreate(cls);
+    }
 
 }

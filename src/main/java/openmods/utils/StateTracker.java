@@ -1,66 +1,69 @@
 package openmods.utils;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+
 import openmods.Log;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 public class StateTracker<T extends Enum<T>> {
 
-	public static class StateUpdater<T extends Enum<T>> {
-		private final String name;
-		private T state;
+    public static class StateUpdater<T extends Enum<T>> {
 
-		public StateUpdater(String name, T state) {
-			this.name = name;
-			this.state = state;
-		}
+        private final String name;
+        private T state;
 
-		public T state() {
-			return state;
-		}
+        public StateUpdater(String name, T state) {
+            this.name = name;
+            this.state = state;
+        }
 
-		public void update(T state) {
-			Log.trace("State of %s updated from %s to %s", name, this.state, state);
-			this.state = state;
-		}
+        public T state() {
+            return state;
+        }
 
-		public String name() {
-			return name;
-		}
+        public void update(T state) {
+            Log.trace("State of %s updated from %s to %s", name, this.state, state);
+            this.state = state;
+        }
 
-		@Override
-		public String toString() {
-			return "[" + name + ":" + state + "]";
-		}
-	}
+        public String name() {
+            return name;
+        }
 
-	private final Map<String, StateUpdater<T>> states = Maps.newHashMap();
+        @Override
+        public String toString() {
+            return "[" + name + ":" + state + "]";
+        }
+    }
 
-	private final T defaultInitialState;
+    private final Map<String, StateUpdater<T>> states = Maps.newHashMap();
 
-	public StateTracker(T defaultInitialState) {
-		this.defaultInitialState = defaultInitialState;
-	}
+    private final T defaultInitialState;
 
-	public StateUpdater<T> register(String name) {
-		return register(name, defaultInitialState);
-	}
+    public StateTracker(T defaultInitialState) {
+        this.defaultInitialState = defaultInitialState;
+    }
 
-	public StateUpdater<T> register(String name, T initialState) {
-		StateUpdater<T> state = new StateUpdater<T>(name, initialState);
-		StateUpdater<T> prev = states.put(name, state);
-		Preconditions.checkState(prev == null, "Duplicated tracked name: %s", name);
-		return state;
-	}
+    public StateUpdater<T> register(String name) {
+        return register(name, defaultInitialState);
+    }
 
-	public Collection<StateUpdater<T>> states() {
-		return Collections.unmodifiableCollection(states.values());
-	}
+    public StateUpdater<T> register(String name, T initialState) {
+        StateUpdater<T> state = new StateUpdater<T>(name, initialState);
+        StateUpdater<T> prev = states.put(name, state);
+        Preconditions.checkState(prev == null, "Duplicated tracked name: %s", name);
+        return state;
+    }
 
-	public static <T extends Enum<T>> StateTracker<T> create(T initialState) {
-		return new StateTracker<T>(initialState);
-	}
+    public Collection<StateUpdater<T>> states() {
+        return Collections.unmodifiableCollection(states.values());
+    }
+
+    public static <T extends Enum<T>> StateTracker<T> create(T initialState) {
+        return new StateTracker<T>(initialState);
+    }
 }

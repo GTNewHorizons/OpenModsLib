@@ -1,34 +1,36 @@
 package openmods.renderer;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+
 public abstract class StencilRendererHandler {
 
-	public static final StencilRendererHandler DUMMY = new StencilRendererHandler() {
-		@Override
-		public void render(RenderGlobal context, float partialTickTime) {}
-	};
+    public static final StencilRendererHandler DUMMY = new StencilRendererHandler() {
 
-	public abstract void render(RenderGlobal context, float partialTickTime);
+        @Override
+        public void render(RenderGlobal context, float partialTickTime) {}
+    };
 
-	private boolean renderThisTick;
+    public abstract void render(RenderGlobal context, float partialTickTime);
 
-	public StencilRendererHandler() {
-		MinecraftForge.EVENT_BUS.register(this);
-	}
+    private boolean renderThisTick;
 
-	public void markForRender() {
-		renderThisTick = true;
-	}
+    public StencilRendererHandler() {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
 
-	@SubscribeEvent
-	public void drawStenciledBackground(RenderWorldLastEvent evt) {
-		if (!renderThisTick) return;
-		renderThisTick = false;
+    public void markForRender() {
+        renderThisTick = true;
+    }
 
-		render(evt.context, evt.partialTicks);
-	}
+    @SubscribeEvent
+    public void drawStenciledBackground(RenderWorldLastEvent evt) {
+        if (!renderThisTick) return;
+        renderThisTick = false;
+
+        render(evt.context, evt.partialTicks);
+    }
 }

@@ -10,87 +10,89 @@ import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GLContext;
 
 public class ArraysHelper {
-	static {
-		initialize();
-	}
 
-	public static IArrayMethods methods;
+    static {
+        initialize();
+    }
 
-	static void initialize() {
-		ContextCapabilities caps = GLContext.getCapabilities();
-		if (GLArrayMethods.isSupported(caps)) methods = new GLArrayMethods();
-		else if (ARBArrayMethods.isSupported(caps)) methods = new ARBArrayMethods();
-	}
+    public static IArrayMethods methods;
 
-	public static boolean isSupported() {
-		return methods != null;
-	}
+    static void initialize() {
+        ContextCapabilities caps = GLContext.getCapabilities();
+        if (GLArrayMethods.isSupported(caps)) methods = new GLArrayMethods();
+        else if (ARBArrayMethods.isSupported(caps)) methods = new ARBArrayMethods();
+    }
 
-	public static IArrayMethods methods() {
-		return methods;
-	}
+    public static boolean isSupported() {
+        return methods != null;
+    }
 
-	public static interface IArrayMethods {
-		public int glGenVertexArrays();
+    public static IArrayMethods methods() {
+        return methods;
+    }
 
-		public void glBindVertexArray(int array);
+    public static interface IArrayMethods {
 
-		public void glVertexAttribDivisor(int index, int divisor);
+        public int glGenVertexArrays();
 
-		public void glDrawArraysInstanced(int mode, int first, int count, int primcount);
-	}
+        public void glBindVertexArray(int array);
 
-	private static class GLArrayMethods implements IArrayMethods {
+        public void glVertexAttribDivisor(int index, int divisor);
 
-		public static boolean isSupported(ContextCapabilities caps) {
-			return caps.OpenGL33;
-		}
+        public void glDrawArraysInstanced(int mode, int first, int count, int primcount);
+    }
 
-		@Override
-		public int glGenVertexArrays() {
-			return GL30.glGenVertexArrays();
-		}
+    private static class GLArrayMethods implements IArrayMethods {
 
-		@Override
-		public void glBindVertexArray(int array) {
-			GL30.glBindVertexArray(array);
-		}
+        public static boolean isSupported(ContextCapabilities caps) {
+            return caps.OpenGL33;
+        }
 
-		@Override
-		public void glVertexAttribDivisor(int index, int divisor) {
-			GL33.glVertexAttribDivisor(index, divisor);
-		}
+        @Override
+        public int glGenVertexArrays() {
+            return GL30.glGenVertexArrays();
+        }
 
-		@Override
-		public void glDrawArraysInstanced(int mode, int first, int count, int primcount) {
-			GL31.glDrawArraysInstanced(mode, first, count, primcount);
-		}
-	}
+        @Override
+        public void glBindVertexArray(int array) {
+            GL30.glBindVertexArray(array);
+        }
 
-	private static class ARBArrayMethods implements IArrayMethods {
+        @Override
+        public void glVertexAttribDivisor(int index, int divisor) {
+            GL33.glVertexAttribDivisor(index, divisor);
+        }
 
-		public static boolean isSupported(ContextCapabilities caps) {
-			return caps.GL_ARB_instanced_arrays && caps.GL_ARB_vertex_array_object;
-		}
+        @Override
+        public void glDrawArraysInstanced(int mode, int first, int count, int primcount) {
+            GL31.glDrawArraysInstanced(mode, first, count, primcount);
+        }
+    }
 
-		@Override
-		public int glGenVertexArrays() {
-			return ARBVertexArrayObject.glGenVertexArrays();
-		}
+    private static class ARBArrayMethods implements IArrayMethods {
 
-		@Override
-		public void glBindVertexArray(int array) {
-			ARBVertexArrayObject.glBindVertexArray(array);
-		}
+        public static boolean isSupported(ContextCapabilities caps) {
+            return caps.GL_ARB_instanced_arrays && caps.GL_ARB_vertex_array_object;
+        }
 
-		@Override
-		public void glVertexAttribDivisor(int index, int divisor) {
-			ARBInstancedArrays.glVertexAttribDivisorARB(index, divisor);
-		}
+        @Override
+        public int glGenVertexArrays() {
+            return ARBVertexArrayObject.glGenVertexArrays();
+        }
 
-		@Override
-		public void glDrawArraysInstanced(int mode, int first, int count, int primcount) {
-			ARBDrawInstanced.glDrawArraysInstancedARB(mode, first, count, primcount);
-		}
-	}
+        @Override
+        public void glBindVertexArray(int array) {
+            ARBVertexArrayObject.glBindVertexArray(array);
+        }
+
+        @Override
+        public void glVertexAttribDivisor(int index, int divisor) {
+            ARBInstancedArrays.glVertexAttribDivisorARB(index, divisor);
+        }
+
+        @Override
+        public void glDrawArraysInstanced(int mode, int first, int count, int primcount) {
+            ARBDrawInstanced.glDrawArraysInstancedARB(mode, first, count, primcount);
+        }
+    }
 }

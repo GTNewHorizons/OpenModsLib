@@ -1,7 +1,7 @@
 package openmods.calc.types.fraction;
 
-import com.google.common.collect.Ordering;
 import java.util.Random;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.Calculator;
 import openmods.calc.Environment;
@@ -16,208 +16,237 @@ import openmods.calc.UnaryOperator;
 import openmods.calc.parsing.BasicCompilerMapFactory;
 import openmods.calc.parsing.CommonSimpleSymbolFactory;
 import openmods.calc.parsing.IValueParser;
+
 import org.apache.commons.lang3.math.Fraction;
 
+import com.google.common.collect.Ordering;
+
 public class FractionCalculatorFactory<M> extends SimpleCalculatorFactory<Fraction, M> {
-	public static final Fraction NULL_VALUE = Fraction.ZERO;
 
-	private static Fraction int2frac(int value) {
-		return Fraction.getFraction(value, 1);
-	}
+    public static final Fraction NULL_VALUE = Fraction.ZERO;
 
-	@Override
-	protected Fraction getNullValue() {
-		return NULL_VALUE;
-	}
+    private static Fraction int2frac(int value) {
+        return Fraction.getFraction(value, 1);
+    }
 
-	@Override
-	protected IValueParser<Fraction> getValueParser() {
-		return new FractionParser();
-	}
+    @Override
+    protected Fraction getNullValue() {
+        return NULL_VALUE;
+    }
 
-	@Override
-	protected IValuePrinter<Fraction> createValuePrinter() {
-		return new FractionPrinter();
-	}
+    @Override
+    protected IValueParser<Fraction> getValueParser() {
+        return new FractionParser();
+    }
 
-	@Override
-	protected void configureEnvironment(Environment<Fraction> env) {
-		env.setGlobalSymbol("abs", new UnaryFunction.Direct<Fraction>() {
-			@Override
-			protected Fraction call(Fraction value) {
-				return value.abs();
-			}
-		});
+    @Override
+    protected IValuePrinter<Fraction> createValuePrinter() {
+        return new FractionPrinter();
+    }
 
-		env.setGlobalSymbol("sgn", new UnaryFunction.Direct<Fraction>() {
-			@Override
-			protected Fraction call(Fraction value) {
-				return int2frac(Integer.signum(value.getNumerator()));
-			}
-		});
+    @Override
+    protected void configureEnvironment(Environment<Fraction> env) {
+        env.setGlobalSymbol("abs", new UnaryFunction.Direct<Fraction>() {
 
-		env.setGlobalSymbol("numerator", new UnaryFunction.Direct<Fraction>() {
-			@Override
-			protected Fraction call(Fraction value) {
-				return int2frac(value.getNumerator());
-			}
-		});
+            @Override
+            protected Fraction call(Fraction value) {
+                return value.abs();
+            }
+        });
 
-		env.setGlobalSymbol("denominator", new UnaryFunction.Direct<Fraction>() {
-			@Override
-			protected Fraction call(Fraction value) {
-				return int2frac(value.getDenominator());
-			}
-		});
+        env.setGlobalSymbol("sgn", new UnaryFunction.Direct<Fraction>() {
 
-		env.setGlobalSymbol("frac", new UnaryFunction.Direct<Fraction>() {
-			@Override
-			protected Fraction call(Fraction value) {
-				return Fraction.getFraction(value.getProperNumerator(), value.getDenominator());
-			}
-		});
+            @Override
+            protected Fraction call(Fraction value) {
+                return int2frac(Integer.signum(value.getNumerator()));
+            }
+        });
 
-		env.setGlobalSymbol("int", new UnaryFunction.Direct<Fraction>() {
-			@Override
-			protected Fraction call(Fraction value) {
-				return int2frac(value.getProperWhole());
-			}
-		});
+        env.setGlobalSymbol("numerator", new UnaryFunction.Direct<Fraction>() {
 
-		env.setGlobalSymbol("sqrt", new UnaryFunction.Direct<Fraction>() {
-			@Override
-			protected Fraction call(Fraction value) {
-				return Fraction.getFraction(Math.sqrt(value.doubleValue()));
-			}
-		});
+            @Override
+            protected Fraction call(Fraction value) {
+                return int2frac(value.getNumerator());
+            }
+        });
 
-		env.setGlobalSymbol("log", new UnaryFunction.Direct<Fraction>() {
-			@Override
-			protected Fraction call(Fraction value) {
-				return Fraction.getFraction(Math.log(value.doubleValue()));
-			}
-		});
+        env.setGlobalSymbol("denominator", new UnaryFunction.Direct<Fraction>() {
 
-		env.setGlobalSymbol("min", new AccumulatorFunction<Fraction>(NULL_VALUE) {
-			@Override
-			protected Fraction accumulate(Fraction result, Fraction value) {
-				return Ordering.natural().min(result, value);
-			}
-		});
+            @Override
+            protected Fraction call(Fraction value) {
+                return int2frac(value.getDenominator());
+            }
+        });
 
-		env.setGlobalSymbol("max", new AccumulatorFunction<Fraction>(NULL_VALUE) {
-			@Override
-			protected Fraction accumulate(Fraction result, Fraction value) {
-				return Ordering.natural().max(result, value);
-			}
-		});
+        env.setGlobalSymbol("frac", new UnaryFunction.Direct<Fraction>() {
 
-		env.setGlobalSymbol("sum", new AccumulatorFunction<Fraction>(NULL_VALUE) {
-			@Override
-			protected Fraction accumulate(Fraction result, Fraction value) {
-				return result.add(value);
-			}
-		});
+            @Override
+            protected Fraction call(Fraction value) {
+                return Fraction.getFraction(value.getProperNumerator(), value.getDenominator());
+            }
+        });
 
-		env.setGlobalSymbol("avg", new AccumulatorFunction<Fraction>(NULL_VALUE) {
-			@Override
-			protected Fraction accumulate(Fraction result, Fraction value) {
-				return result.add(value);
-			}
+        env.setGlobalSymbol("int", new UnaryFunction.Direct<Fraction>() {
 
-			@Override
-			protected Fraction process(Fraction result, int argCount) {
-				return result.multiplyBy(Fraction.getFraction(1, argCount));
-			}
+            @Override
+            protected Fraction call(Fraction value) {
+                return int2frac(value.getProperWhole());
+            }
+        });
 
-		});
+        env.setGlobalSymbol("sqrt", new UnaryFunction.Direct<Fraction>() {
 
-		final Random random = new Random();
+            @Override
+            protected Fraction call(Fraction value) {
+                return Fraction.getFraction(Math.sqrt(value.doubleValue()));
+            }
+        });
 
-		env.setGlobalSymbol("rand", new NullaryFunction.Direct<Fraction>() {
-			@Override
-			protected Fraction call() {
-				return Fraction.getFraction(random.nextDouble());
-			}
-		});
+        env.setGlobalSymbol("log", new UnaryFunction.Direct<Fraction>() {
 
-		env.setGlobalSymbol("gauss", new NullaryFunction.Direct<Fraction>() {
-			@Override
-			protected Fraction call() {
-				return Fraction.getFraction(random.nextGaussian());
-			}
-		});
-	}
+            @Override
+            protected Fraction call(Fraction value) {
+                return Fraction.getFraction(Math.log(value.doubleValue()));
+            }
+        });
 
-	private static final int PRIORITY_MULTIPLY = 2;
-	private static final int PRIORITY_ADD = 1;
-	private static final int PRIORITY_ASSIGN = 0;
+        env.setGlobalSymbol("min", new AccumulatorFunction<Fraction>(NULL_VALUE) {
 
-	@Override
-	protected void configureOperators(OperatorDictionary<Fraction> operators) {
-		operators.registerUnaryOperator(new UnaryOperator.Direct<Fraction>("neg") {
-			@Override
-			public Fraction execute(Fraction value) {
-				return value.negate();
-			}
-		});
+            @Override
+            protected Fraction accumulate(Fraction result, Fraction value) {
+                return Ordering.natural().min(result, value);
+            }
+        });
 
-		operators.registerBinaryOperator(new BinaryOperator.Direct<Fraction>("+", PRIORITY_ADD) {
-			@Override
-			public Fraction execute(Fraction left, Fraction right) {
-				return left.add(right);
-			}
-		});
+        env.setGlobalSymbol("max", new AccumulatorFunction<Fraction>(NULL_VALUE) {
 
-		operators.registerUnaryOperator(new UnaryOperator.Direct<Fraction>("+") {
-			@Override
-			public Fraction execute(Fraction value) {
-				return value;
-			}
-		});
+            @Override
+            protected Fraction accumulate(Fraction result, Fraction value) {
+                return Ordering.natural().max(result, value);
+            }
+        });
 
-		operators.registerBinaryOperator(new BinaryOperator.Direct<Fraction>("-", PRIORITY_ADD) {
-			@Override
-			public Fraction execute(Fraction left, Fraction right) {
-				return left.subtract(right);
-			}
-		});
+        env.setGlobalSymbol("sum", new AccumulatorFunction<Fraction>(NULL_VALUE) {
 
-		operators.registerUnaryOperator(new UnaryOperator.Direct<Fraction>("-") {
-			@Override
-			public Fraction execute(Fraction value) {
-				return value.negate();
-			}
-		});
+            @Override
+            protected Fraction accumulate(Fraction result, Fraction value) {
+                return result.add(value);
+            }
+        });
 
-		operators.registerBinaryOperator(new BinaryOperator.Direct<Fraction>("*", PRIORITY_MULTIPLY) {
-			@Override
-			public Fraction execute(Fraction left, Fraction right) {
-				return left.multiplyBy(right);
-			}
-		}).setDefault();
+        env.setGlobalSymbol("avg", new AccumulatorFunction<Fraction>(NULL_VALUE) {
 
-		operators.registerBinaryOperator(new BinaryOperator.Direct<Fraction>("/", PRIORITY_MULTIPLY) {
-			@Override
-			public Fraction execute(Fraction left, Fraction right) {
-				return left.divideBy(right);
-			}
-		});
-	}
+            @Override
+            protected Fraction accumulate(Fraction result, Fraction value) {
+                return result.add(value);
+            }
 
-	public static Calculator<Fraction, ExprType> createSimple() {
-		return new FractionCalculatorFactory<ExprType>().create(new BasicCompilerMapFactory<Fraction>());
-	}
+            @Override
+            protected Fraction process(Fraction result, int argCount) {
+                return result.multiplyBy(Fraction.getFraction(1, argCount));
+            }
 
-	public static Calculator<Fraction, ExprType> createDefault() {
-		final CommonSimpleSymbolFactory<Fraction> letFactory = new CommonSimpleSymbolFactory<Fraction>(PRIORITY_ASSIGN, ":", "=");
+        });
 
-		return new FractionCalculatorFactory<ExprType>() {
-			@Override
-			protected void configureOperators(OperatorDictionary<Fraction> operators) {
-				super.configureOperators(operators);
-				letFactory.registerSeparators(operators);
-			}
-		}.create(letFactory.createCompilerFactory());
-	}
+        final Random random = new Random();
+
+        env.setGlobalSymbol("rand", new NullaryFunction.Direct<Fraction>() {
+
+            @Override
+            protected Fraction call() {
+                return Fraction.getFraction(random.nextDouble());
+            }
+        });
+
+        env.setGlobalSymbol("gauss", new NullaryFunction.Direct<Fraction>() {
+
+            @Override
+            protected Fraction call() {
+                return Fraction.getFraction(random.nextGaussian());
+            }
+        });
+    }
+
+    private static final int PRIORITY_MULTIPLY = 2;
+    private static final int PRIORITY_ADD = 1;
+    private static final int PRIORITY_ASSIGN = 0;
+
+    @Override
+    protected void configureOperators(OperatorDictionary<Fraction> operators) {
+        operators.registerUnaryOperator(new UnaryOperator.Direct<Fraction>("neg") {
+
+            @Override
+            public Fraction execute(Fraction value) {
+                return value.negate();
+            }
+        });
+
+        operators.registerBinaryOperator(new BinaryOperator.Direct<Fraction>("+", PRIORITY_ADD) {
+
+            @Override
+            public Fraction execute(Fraction left, Fraction right) {
+                return left.add(right);
+            }
+        });
+
+        operators.registerUnaryOperator(new UnaryOperator.Direct<Fraction>("+") {
+
+            @Override
+            public Fraction execute(Fraction value) {
+                return value;
+            }
+        });
+
+        operators.registerBinaryOperator(new BinaryOperator.Direct<Fraction>("-", PRIORITY_ADD) {
+
+            @Override
+            public Fraction execute(Fraction left, Fraction right) {
+                return left.subtract(right);
+            }
+        });
+
+        operators.registerUnaryOperator(new UnaryOperator.Direct<Fraction>("-") {
+
+            @Override
+            public Fraction execute(Fraction value) {
+                return value.negate();
+            }
+        });
+
+        operators.registerBinaryOperator(new BinaryOperator.Direct<Fraction>("*", PRIORITY_MULTIPLY) {
+
+            @Override
+            public Fraction execute(Fraction left, Fraction right) {
+                return left.multiplyBy(right);
+            }
+        }).setDefault();
+
+        operators.registerBinaryOperator(new BinaryOperator.Direct<Fraction>("/", PRIORITY_MULTIPLY) {
+
+            @Override
+            public Fraction execute(Fraction left, Fraction right) {
+                return left.divideBy(right);
+            }
+        });
+    }
+
+    public static Calculator<Fraction, ExprType> createSimple() {
+        return new FractionCalculatorFactory<ExprType>().create(new BasicCompilerMapFactory<Fraction>());
+    }
+
+    public static Calculator<Fraction, ExprType> createDefault() {
+        final CommonSimpleSymbolFactory<Fraction> letFactory = new CommonSimpleSymbolFactory<Fraction>(
+                PRIORITY_ASSIGN,
+                ":",
+                "=");
+
+        return new FractionCalculatorFactory<ExprType>() {
+
+            @Override
+            protected void configureOperators(OperatorDictionary<Fraction> operators) {
+                super.configureOperators(operators);
+                letFactory.registerSeparators(operators);
+            }
+        }.create(letFactory.createCompilerFactory());
+    }
 }

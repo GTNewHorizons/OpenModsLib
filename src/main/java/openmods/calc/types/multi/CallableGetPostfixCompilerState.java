@@ -13,31 +13,31 @@ import openmods.calc.parsing.TokenType;
 
 public class CallableGetPostfixCompilerState extends SymbolGetPostfixCompilerState<TypedValue> {
 
-	private final OperatorDictionary<TypedValue> operators;
-	private final TypeDomain domain;
+    private final OperatorDictionary<TypedValue> operators;
+    private final TypeDomain domain;
 
-	public CallableGetPostfixCompilerState(OperatorDictionary<TypedValue> operators, TypeDomain domain) {
-		this.operators = operators;
-		this.domain = domain;
-	}
+    public CallableGetPostfixCompilerState(OperatorDictionary<TypedValue> operators, TypeDomain domain) {
+        this.operators = operators;
+        this.domain = domain;
+    }
 
-	@Override
-	protected IExecutable<TypedValue> parseToken(Token token) {
-		if (token.type == TokenType.OPERATOR) {
-			final BinaryOperator<TypedValue> binaryOp = operators.getBinaryOperator(token.value);
-			if (binaryOp != null) return createGetter(new CallableOperatorWrappers.Binary(binaryOp));
+    @Override
+    protected IExecutable<TypedValue> parseToken(Token token) {
+        if (token.type == TokenType.OPERATOR) {
+            final BinaryOperator<TypedValue> binaryOp = operators.getBinaryOperator(token.value);
+            if (binaryOp != null) return createGetter(new CallableOperatorWrappers.Binary(binaryOp));
 
-			final UnaryOperator<TypedValue> unaryOp = operators.getUnaryOperator(token.value);
-			if (unaryOp != null) return createGetter(new CallableOperatorWrappers.Unary(unaryOp));
+            final UnaryOperator<TypedValue> unaryOp = operators.getUnaryOperator(token.value);
+            if (unaryOp != null) return createGetter(new CallableOperatorWrappers.Unary(unaryOp));
 
-			return rejectToken();
-		}
+            return rejectToken();
+        }
 
-		return super.parseToken(token);
-	}
+        return super.parseToken(token);
+    }
 
-	private IExecutable<TypedValue> createGetter(ICallable<TypedValue> wrapper) {
-		return Value.create(CallableValue.wrap(domain, wrapper));
-	}
+    private IExecutable<TypedValue> createGetter(ICallable<TypedValue> wrapper) {
+        return Value.create(CallableValue.wrap(domain, wrapper));
+    }
 
 }

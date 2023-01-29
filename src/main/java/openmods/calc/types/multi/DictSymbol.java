@@ -1,16 +1,9 @@
 package openmods.calc.types.multi;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import openmods.calc.BinaryFunction;
 import openmods.calc.FixedCallable;
 import openmods.calc.Frame;
@@ -19,298 +12,319 @@ import openmods.calc.UnaryFunction;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 public class DictSymbol {
 
-	private final TypedValue nullValue;
+    private final TypedValue nullValue;
 
-	private final TypeDomain domain;
+    private final TypeDomain domain;
 
-	private final TypedValue selfValue;
+    private final TypedValue selfValue;
 
-	public DictSymbol(TypedValue nullValue) {
-		this.nullValue = nullValue;
-		this.domain = nullValue.domain;
-		this.domain.registerType(Dict.class, "dict", createValueMetaObject());
-		this.selfValue = domain.create(TypeUserdata.class, new TypeUserdata("dict", Dict.class), createTypeMetaObject());
-	}
+    public DictSymbol(TypedValue nullValue) {
+        this.nullValue = nullValue;
+        this.domain = nullValue.domain;
+        this.domain.registerType(Dict.class, "dict", createValueMetaObject());
+        this.selfValue = domain
+                .create(TypeUserdata.class, new TypeUserdata("dict", Dict.class), createTypeMetaObject());
+    }
 
-	private MetaObject createTypeMetaObject() {
-		return TypeUserdata.defaultMetaObject(domain)
-				.set(new MetaObject.SlotCall() {
-					@Override
-					public void call(TypedValue self, OptionalInt argumentsCount, OptionalInt returnsCount, Frame<TypedValue> frame) {
-						Preconditions.checkState(argumentsCount.isPresent(), "'dict' symbol requires arguments count");
-						TypedCalcUtils.expectSingleReturn(returnsCount);
-						final Stack<TypedValue> stack = frame.stack().substack(argumentsCount.get());
+    private MetaObject createTypeMetaObject() {
+        return TypeUserdata.defaultMetaObject(domain).set(new MetaObject.SlotCall() {
 
-						final Map<TypedValue, TypedValue> values = Maps.newHashMap();
-						extractKeyValuesPairs(stack, values);
+            @Override
+            public void call(TypedValue self, OptionalInt argumentsCount, OptionalInt returnsCount,
+                    Frame<TypedValue> frame) {
+                Preconditions.checkState(argumentsCount.isPresent(), "'dict' symbol requires arguments count");
+                TypedCalcUtils.expectSingleReturn(returnsCount);
+                final Stack<TypedValue> stack = frame.stack().substack(argumentsCount.get());
 
-						final TypedValue result = domain.create(Dict.class, new Dict(values));
-						stack.clear();
-						stack.push(result);
+                final Map<TypedValue, TypedValue> values = Maps.newHashMap();
+                extractKeyValuesPairs(stack, values);
 
-					}
-				})
-				.build();
-	}
+                final TypedValue result = domain.create(Dict.class, new Dict(values));
+                stack.clear();
+                stack.push(result);
 
-	private static void extractKeyValuesPairs(Iterable<TypedValue> args, Map<TypedValue, TypedValue> output) {
-		for (TypedValue arg : args) {
-			if (arg.is(Cons.class)) {
-				final Cons pair = arg.as(Cons.class);
-				output.put(pair.car, pair.cdr);
-			} else {
-				throw new IllegalArgumentException("Expected key(symbol):value pair, got " + arg);
-			}
-		}
-	}
+            }
+        }).build();
+    }
 
-	private interface DelayedValue {
-		public TypedValue get();
-	}
+    private static void extractKeyValuesPairs(Iterable<TypedValue> args, Map<TypedValue, TypedValue> output) {
+        for (TypedValue arg : args) {
+            if (arg.is(Cons.class)) {
+                final Cons pair = arg.as(Cons.class);
+                output.put(pair.car, pair.cdr);
+            } else {
+                throw new IllegalArgumentException("Expected key(symbol):value pair, got " + arg);
+            }
+        }
+    }
 
-	private class Dict {
-		private final Map<TypedValue, TypedValue> values;
+    private interface DelayedValue {
 
-		private final Map<String, TypedValue> members = Maps.newHashMap();
+        public TypedValue get();
+    }
 
-		private final Map<String, DelayedValue> delayedMembers = Maps.newHashMap();
+    private class Dict {
 
-		private class UpdateMethod extends SingleReturnCallable<TypedValue> {
-			@Override
-			public TypedValue call(Frame<TypedValue> frame, OptionalInt argumentsCount) {
-				Preconditions.checkState(argumentsCount.isPresent(), "This method requires arguments count");
-				final Stack<TypedValue> args = frame.stack().substack(argumentsCount.get());
+        private final Map<TypedValue, TypedValue> values;
 
-				final Map<TypedValue, TypedValue> newValues = Maps.newHashMap(values);
-				extractKeyValuesPairs(args, newValues);
-				final TypedValue result = domain.create(Dict.class, new Dict(newValues));
-				args.clear();
-				return result;
-			}
-		}
+        private final Map<String, TypedValue> members = Maps.newHashMap();
 
-		private class RemoveMethod extends SingleReturnCallable<TypedValue> {
-			@Override
-			public TypedValue call(Frame<TypedValue> frame, OptionalInt argumentsCount) {
-				Preconditions.checkState(argumentsCount.isPresent(), "This method requires arguments count");
-				final Stack<TypedValue> args = frame.stack().substack(argumentsCount.get());
+        private final Map<String, DelayedValue> delayedMembers = Maps.newHashMap();
 
-				final Map<TypedValue, TypedValue> newValues = Maps.newHashMap(values);
-				for (TypedValue arg : args)
-					newValues.remove(arg);
+        private class UpdateMethod extends SingleReturnCallable<TypedValue> {
 
-				final TypedValue result = domain.create(Dict.class, new Dict(newValues));
-				args.clear();
-				return result;
-			}
-		}
+            @Override
+            public TypedValue call(Frame<TypedValue> frame, OptionalInt argumentsCount) {
+                Preconditions.checkState(argumentsCount.isPresent(), "This method requires arguments count");
+                final Stack<TypedValue> args = frame.stack().substack(argumentsCount.get());
 
-		private abstract class EntriesAccessor implements DelayedValue {
-			@Override
-			public TypedValue get() {
-				// final list will be reversed, but it's still hash map, so order is undetermined anyway
-				TypedValue result = nullValue;
+                final Map<TypedValue, TypedValue> newValues = Maps.newHashMap(values);
+                extractKeyValuesPairs(args, newValues);
+                final TypedValue result = domain.create(Dict.class, new Dict(newValues));
+                args.clear();
+                return result;
+            }
+        }
 
-				for (Map.Entry<TypedValue, TypedValue> e : values.entrySet()) {
-					final TypedValue element = getEntry(e);
-					result = domain.create(Cons.class, new Cons(element, result));
-				}
+        private class RemoveMethod extends SingleReturnCallable<TypedValue> {
 
-				return result;
-			}
+            @Override
+            public TypedValue call(Frame<TypedValue> frame, OptionalInt argumentsCount) {
+                Preconditions.checkState(argumentsCount.isPresent(), "This method requires arguments count");
+                final Stack<TypedValue> args = frame.stack().substack(argumentsCount.get());
 
-			protected abstract TypedValue getEntry(Map.Entry<TypedValue, TypedValue> e);
-		}
+                final Map<TypedValue, TypedValue> newValues = Maps.newHashMap(values);
+                for (TypedValue arg : args) newValues.remove(arg);
 
-		public Dict(Map<TypedValue, TypedValue> values) {
-			this.values = ImmutableMap.copyOf(values);
+                final TypedValue result = domain.create(Dict.class, new Dict(newValues));
+                args.clear();
+                return result;
+            }
+        }
 
-			members.put("update", CallableValue.wrap(domain, new UpdateMethod()));
-			members.put("remove", CallableValue.wrap(domain, new RemoveMethod()));
-			members.put("hasKey", CallableValue.wrap(domain, new UnaryFunction.Direct<TypedValue>() {
-				@Override
-				protected TypedValue call(TypedValue key) {
-					return domain.create(Boolean.class, Dict.this.values.containsKey(key));
-				}
-			}));
-			members.put("getOptional", CallableValue.wrap(domain, new UnaryFunction.Direct<TypedValue>() {
-				@Override
-				protected TypedValue call(TypedValue key) {
-					return OptionalType.wrapNullable(domain, Dict.this.values.get(key));
-				}
-			}));
-			members.put("getOr", CallableValue.wrap(domain, new BinaryFunction.Direct<TypedValue>() {
-				@Override
-				protected TypedValue call(TypedValue key, TypedValue defaultValue) {
-					final TypedValue result = Dict.this.values.get(key);
-					return result != null? result : defaultValue;
-				}
-			}));
-			members.put("getOrCall", CallableValue.wrap(domain, new FixedCallable<TypedValue>(2, 1) {
-				@Override
-				public void call(Frame<TypedValue> frame) {
-					final Stack<TypedValue> stack = frame.stack();
-					final TypedValue defaultFunction = stack.pop();
-					final TypedValue key = stack.pop();
-					final TypedValue result = Dict.this.values.get(key);
-					if (result != null) {
-						stack.push(result);
-					} else {
-						MetaObjectUtils.call(frame, defaultFunction, OptionalInt.ZERO, OptionalInt.ONE);
-					}
+        private abstract class EntriesAccessor implements DelayedValue {
 
-				}
-			}));
-			members.put("hasValue", CallableValue.wrap(domain, new UnaryFunction.Direct<TypedValue>() {
-				@Override
-				protected TypedValue call(TypedValue value) {
-					return domain.create(Boolean.class, Dict.this.values.containsValue(value));
-				}
-			}));
+            @Override
+            public TypedValue get() {
+                // final list will be reversed, but it's still hash map, so order is undetermined anyway
+                TypedValue result = nullValue;
 
-			delayedMembers.put("keys", new EntriesAccessor() {
-				@Override
-				protected TypedValue getEntry(Entry<TypedValue, TypedValue> e) {
-					return e.getKey();
-				}
-			});
-			delayedMembers.put("values", new EntriesAccessor() {
-				@Override
-				protected TypedValue getEntry(Entry<TypedValue, TypedValue> e) {
-					return e.getValue();
-				}
-			});
-			delayedMembers.put("items", new EntriesAccessor() {
-				@Override
-				protected TypedValue getEntry(Entry<TypedValue, TypedValue> e) {
-					return domain.create(Cons.class, new Cons(e.getKey(), e.getValue()));
-				}
-			});
-		}
+                for (Map.Entry<TypedValue, TypedValue> e : values.entrySet()) {
+                    final TypedValue element = getEntry(e);
+                    result = domain.create(Cons.class, new Cons(element, result));
+                }
 
-		public Optional<TypedValue> attr(String key) {
-			TypedValue member = members.get(key);
-			if (member == null && !delayedMembers.isEmpty()) {
-				final DelayedValue delayedValue = delayedMembers.remove(key);
-				if (delayedValue != null) {
-					member = delayedValue.get();
-					members.put(key, member);
-				}
-			}
+                return result;
+            }
 
-			return Optional.fromNullable(member);
-		}
+            protected abstract TypedValue getEntry(Map.Entry<TypedValue, TypedValue> e);
+        }
 
-		public Iterable<String> dir() {
-			return Sets.union(members.keySet(), delayedMembers.keySet());
-		}
+        public Dict(Map<TypedValue, TypedValue> values) {
+            this.values = ImmutableMap.copyOf(values);
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((values == null)? 0 : values.hashCode());
-			return result;
-		}
+            members.put("update", CallableValue.wrap(domain, new UpdateMethod()));
+            members.put("remove", CallableValue.wrap(domain, new RemoveMethod()));
+            members.put("hasKey", CallableValue.wrap(domain, new UnaryFunction.Direct<TypedValue>() {
 
-		@Override
-		public boolean equals(Object o) {
-			if (o == this) return true;
+                @Override
+                protected TypedValue call(TypedValue key) {
+                    return domain.create(Boolean.class, Dict.this.values.containsKey(key));
+                }
+            }));
+            members.put("getOptional", CallableValue.wrap(domain, new UnaryFunction.Direct<TypedValue>() {
 
-			if (o instanceof Dict) {
-				final Dict other = (Dict)o;
-				return other.values.equals(this.values);
-			}
+                @Override
+                protected TypedValue call(TypedValue key) {
+                    return OptionalType.wrapNullable(domain, Dict.this.values.get(key));
+                }
+            }));
+            members.put("getOr", CallableValue.wrap(domain, new BinaryFunction.Direct<TypedValue>() {
 
-			return false;
-		}
-	}
+                @Override
+                protected TypedValue call(TypedValue key, TypedValue defaultValue) {
+                    final TypedValue result = Dict.this.values.get(key);
+                    return result != null ? result : defaultValue;
+                }
+            }));
+            members.put("getOrCall", CallableValue.wrap(domain, new FixedCallable<TypedValue>(2, 1) {
 
-	private MetaObject createValueMetaObject() {
-		return MetaObject.builder()
-				.set(new MetaObject.SlotCall() {
-					@Override
-					public void call(TypedValue self, OptionalInt argumentsCount, OptionalInt returnsCount, Frame<TypedValue> frame) {
-						TypedCalcUtils.expectSingleReturn(returnsCount);
-						Preconditions.checkState(argumentsCount.isPresent(), "This method requires arguments count");
+                @Override
+                public void call(Frame<TypedValue> frame) {
+                    final Stack<TypedValue> stack = frame.stack();
+                    final TypedValue defaultFunction = stack.pop();
+                    final TypedValue key = stack.pop();
+                    final TypedValue result = Dict.this.values.get(key);
+                    if (result != null) {
+                        stack.push(result);
+                    } else {
+                        MetaObjectUtils.call(frame, defaultFunction, OptionalInt.ZERO, OptionalInt.ONE);
+                    }
 
-						final Stack<TypedValue> stack = frame.stack().substack(argumentsCount.get());
+                }
+            }));
+            members.put("hasValue", CallableValue.wrap(domain, new UnaryFunction.Direct<TypedValue>() {
 
-						final Dict dict = self.as(Dict.class);
-						final Map<TypedValue, TypedValue> newValues = Maps.newHashMap(dict.values);
-						extractKeyValuesPairs(stack, newValues);
-						stack.clear();
-						stack.push(domain.create(Dict.class, new Dict(newValues)));
-					}
-				})
-				.set(new MetaObject.SlotType() {
-					@Override
-					public TypedValue type(TypedValue self, Frame<TypedValue> frame) {
-						return DictSymbol.this.selfValue;
-					}
-				})
-				.set(new MetaObject.SlotStr() {
-					@Override
-					public String str(TypedValue self, Frame<TypedValue> frame) {
-						final Dict dict = self.as(Dict.class);
-						final List<String> entries = Lists.newArrayList();
-						for (Map.Entry<TypedValue, TypedValue> e : dict.values.entrySet())
-							entries.add(MetaObjectUtils.callStrSlot(frame, e.getKey()) + ":" + MetaObjectUtils.callStrSlot(frame, e.getValue()));
+                @Override
+                protected TypedValue call(TypedValue value) {
+                    return domain.create(Boolean.class, Dict.this.values.containsValue(value));
+                }
+            }));
 
-						return "{" + Joiner.on(",").join(entries) + "}";
-					}
-				})
-				.set(new MetaObject.SlotRepr() {
+            delayedMembers.put("keys", new EntriesAccessor() {
 
-					@Override
-					public String repr(TypedValue self, Frame<TypedValue> frame) {
-						final Dict dict = self.as(Dict.class);
-						final List<String> entries = Lists.newArrayList();
-						for (Map.Entry<TypedValue, TypedValue> e : dict.values.entrySet())
-							entries.add(MetaObjectUtils.callReprSlot(frame, e.getKey()) + ":" + MetaObjectUtils.callReprSlot(frame, e.getValue()));
+                @Override
+                protected TypedValue getEntry(Entry<TypedValue, TypedValue> e) {
+                    return e.getKey();
+                }
+            });
+            delayedMembers.put("values", new EntriesAccessor() {
 
-						return "dict(" + Joiner.on(",").join(entries) + ")";
-					}
-				})
-				.set(new MetaObject.SlotLength() {
-					@Override
-					public int length(TypedValue self, Frame<TypedValue> frame) {
-						return self.as(Dict.class).values.size();
-					}
-				})
-				.set(new MetaObject.SlotBool() {
-					@Override
-					public boolean bool(TypedValue self, Frame<TypedValue> frame) {
-						return !self.as(Dict.class).values.isEmpty();
-					}
-				})
-				.set(new MetaObject.SlotSlice() {
+                @Override
+                protected TypedValue getEntry(Entry<TypedValue, TypedValue> e) {
+                    return e.getValue();
+                }
+            });
+            delayedMembers.put("items", new EntriesAccessor() {
 
-					@Override
-					public TypedValue slice(TypedValue self, TypedValue index, Frame<TypedValue> frame) {
-						return Objects.firstNonNull(self.as(Dict.class).values.get(index), nullValue);
-					}
-				})
-				.set(new MetaObject.SlotAttr() {
-					@Override
-					public Optional<TypedValue> attr(TypedValue self, String key, Frame<TypedValue> frame) {
-						return self.as(Dict.class).attr(key);
-					}
-				})
-				.set(new MetaObject.SlotDir() {
-					@Override
-					public Iterable<String> dir(TypedValue self, Frame<TypedValue> frame) {
-						return self.as(Dict.class).dir();
-					}
-				})
-				.set(MetaObjectUtils.USE_VALUE_EQUALS)
-				.build();
-	}
+                @Override
+                protected TypedValue getEntry(Entry<TypedValue, TypedValue> e) {
+                    return domain.create(Cons.class, new Cons(e.getKey(), e.getValue()));
+                }
+            });
+        }
 
-	public TypedValue value() {
-		return selfValue;
-	}
+        public Optional<TypedValue> attr(String key) {
+            TypedValue member = members.get(key);
+            if (member == null && !delayedMembers.isEmpty()) {
+                final DelayedValue delayedValue = delayedMembers.remove(key);
+                if (delayedValue != null) {
+                    member = delayedValue.get();
+                    members.put(key, member);
+                }
+            }
+
+            return Optional.fromNullable(member);
+        }
+
+        public Iterable<String> dir() {
+            return Sets.union(members.keySet(), delayedMembers.keySet());
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((values == null) ? 0 : values.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) return true;
+
+            if (o instanceof Dict) {
+                final Dict other = (Dict) o;
+                return other.values.equals(this.values);
+            }
+
+            return false;
+        }
+    }
+
+    private MetaObject createValueMetaObject() {
+        return MetaObject.builder().set(new MetaObject.SlotCall() {
+
+            @Override
+            public void call(TypedValue self, OptionalInt argumentsCount, OptionalInt returnsCount,
+                    Frame<TypedValue> frame) {
+                TypedCalcUtils.expectSingleReturn(returnsCount);
+                Preconditions.checkState(argumentsCount.isPresent(), "This method requires arguments count");
+
+                final Stack<TypedValue> stack = frame.stack().substack(argumentsCount.get());
+
+                final Dict dict = self.as(Dict.class);
+                final Map<TypedValue, TypedValue> newValues = Maps.newHashMap(dict.values);
+                extractKeyValuesPairs(stack, newValues);
+                stack.clear();
+                stack.push(domain.create(Dict.class, new Dict(newValues)));
+            }
+        }).set(new MetaObject.SlotType() {
+
+            @Override
+            public TypedValue type(TypedValue self, Frame<TypedValue> frame) {
+                return DictSymbol.this.selfValue;
+            }
+        }).set(new MetaObject.SlotStr() {
+
+            @Override
+            public String str(TypedValue self, Frame<TypedValue> frame) {
+                final Dict dict = self.as(Dict.class);
+                final List<String> entries = Lists.newArrayList();
+                for (Map.Entry<TypedValue, TypedValue> e : dict.values.entrySet()) entries.add(
+                        MetaObjectUtils.callStrSlot(frame, e.getKey()) + ":"
+                                + MetaObjectUtils.callStrSlot(frame, e.getValue()));
+
+                return "{" + Joiner.on(",").join(entries) + "}";
+            }
+        }).set(new MetaObject.SlotRepr() {
+
+            @Override
+            public String repr(TypedValue self, Frame<TypedValue> frame) {
+                final Dict dict = self.as(Dict.class);
+                final List<String> entries = Lists.newArrayList();
+                for (Map.Entry<TypedValue, TypedValue> e : dict.values.entrySet()) entries.add(
+                        MetaObjectUtils.callReprSlot(frame, e.getKey()) + ":"
+                                + MetaObjectUtils.callReprSlot(frame, e.getValue()));
+
+                return "dict(" + Joiner.on(",").join(entries) + ")";
+            }
+        }).set(new MetaObject.SlotLength() {
+
+            @Override
+            public int length(TypedValue self, Frame<TypedValue> frame) {
+                return self.as(Dict.class).values.size();
+            }
+        }).set(new MetaObject.SlotBool() {
+
+            @Override
+            public boolean bool(TypedValue self, Frame<TypedValue> frame) {
+                return !self.as(Dict.class).values.isEmpty();
+            }
+        }).set(new MetaObject.SlotSlice() {
+
+            @Override
+            public TypedValue slice(TypedValue self, TypedValue index, Frame<TypedValue> frame) {
+                return Objects.firstNonNull(self.as(Dict.class).values.get(index), nullValue);
+            }
+        }).set(new MetaObject.SlotAttr() {
+
+            @Override
+            public Optional<TypedValue> attr(TypedValue self, String key, Frame<TypedValue> frame) {
+                return self.as(Dict.class).attr(key);
+            }
+        }).set(new MetaObject.SlotDir() {
+
+            @Override
+            public Iterable<String> dir(TypedValue self, Frame<TypedValue> frame) {
+                return self.as(Dict.class).dir();
+            }
+        }).set(MetaObjectUtils.USE_VALUE_EQUALS).build();
+    }
+
+    public TypedValue value() {
+        return selfValue;
+    }
 
 }

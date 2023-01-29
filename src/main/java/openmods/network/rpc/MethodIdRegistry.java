@@ -1,63 +1,66 @@
 package openmods.network.rpc;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Set;
+
+import openmods.datastore.IDataVisitor;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.Set;
-import openmods.datastore.IDataVisitor;
 
 public class MethodIdRegistry implements IDataVisitor<String, Integer> {
-	private final Set<Class<?>> registeredInterfaces = Sets.newHashSet();
 
-	private final BiMap<Method, Integer> methodIds = HashBiMap.create();
+    private final Set<Class<?>> registeredInterfaces = Sets.newHashSet();
 
-	private Map<String, Method> methods = ImmutableMap.of();
+    private final BiMap<Method, Integer> methodIds = HashBiMap.create();
 
-	public boolean isClassRegistered(Class<?> cls) {
-		return registeredInterfaces.contains(cls);
-	}
+    private Map<String, Method> methods = ImmutableMap.of();
 
-	public int methodToId(Method method) {
-		Integer id = methodIds.get(method);
-		Preconditions.checkNotNull(id, "Method %s is ignored or not registered", method);
-		return id;
-	}
+    public boolean isClassRegistered(Class<?> cls) {
+        return registeredInterfaces.contains(cls);
+    }
 
-	public Method idToMethod(int id) {
-		Method method = methodIds.inverse().get(id);
-		Preconditions.checkNotNull(method, "Unregistered method id %s", id);
-		return method;
-	}
+    public int methodToId(Method method) {
+        Integer id = methodIds.get(method);
+        Preconditions.checkNotNull(id, "Method %s is ignored or not registered", method);
+        return id;
+    }
 
-	@Override
-	public void begin(int size) {
-		registeredInterfaces.clear();
-		methodIds.clear();
-	}
+    public Method idToMethod(int id) {
+        Method method = methodIds.inverse().get(id);
+        Preconditions.checkNotNull(method, "Unregistered method id %s", id);
+        return method;
+    }
 
-	@Override
-	public void entry(String methodDesc, Integer id) {
-		final Method method = methods.get(methodDesc);
-		if (method == null) {
-			throw new IllegalArgumentException("Can't find method " + methodDesc);
-		}
-		MethodParamsCodec.create(method).validate();
+    @Override
+    public void begin(int size) {
+        registeredInterfaces.clear();
+        methodIds.clear();
+    }
 
-		methodIds.put(method, id);
+    @Override
+    public void entry(String methodDesc, Integer id) {
+        final Method method = methods.get(methodDesc);
+        if (method == null) {
+            throw new IllegalArgumentException("Can't find method " + methodDesc);
+        }
+        MethodParamsCodec.create(method).validate();
 
-		final Class<?> declaringClass = method.getDeclaringClass();
-		registeredInterfaces.add(declaringClass);
-	}
+        methodIds.put(method, id);
 
-	@Override
-	public void end() {}
+        final Class<?> declaringClass = method.getDeclaringClass();
+        registeredInterfaces.add(declaringClass);
+    }
 
-	public void addMethods(final Map<String, Method> methods) {
-		this.methods = ImmutableMap.copyOf(methods);
-	}
+    @Override
+    public void end() {}
+
+    public void addMethods(final Map<String, Method> methods) {
+        this.methods = ImmutableMap.copyOf(methods);
+    }
 
 }

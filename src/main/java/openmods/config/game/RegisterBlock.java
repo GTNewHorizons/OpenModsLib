@@ -4,35 +4,39 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
+
 import openmods.item.ItemOpenBlock;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface RegisterBlock {
-	public static final String DEFAULT = "[default]";
-	public static final String NONE = "[none]";
 
-	public @interface RegisterTileEntity {
-		public String name();
+    public static final String DEFAULT = "[default]";
+    public static final String NONE = "[none]";
 
-		public Class<? extends TileEntity> cls();
-	}
+    public @interface RegisterTileEntity {
 
-	public String name();
+        public String name();
 
-	public Class<? extends ItemBlock> itemBlock() default ItemOpenBlock.class;
+        public Class<? extends TileEntity> cls();
+    }
 
-	public Class<? extends TileEntity> tileEntity() default TileEntity.class;
+    public String name();
 
-	public RegisterTileEntity[] tileEntities() default {};
+    public Class<? extends ItemBlock> itemBlock() default ItemOpenBlock.class;
 
-	public String unlocalizedName() default DEFAULT;
+    public Class<? extends TileEntity> tileEntity() default TileEntity.class;
 
-	public String textureName() default DEFAULT;
+    public RegisterTileEntity[] tileEntities() default {};
 
-	public boolean isEnabled() default true;
+    public String unlocalizedName() default DEFAULT;
 
-	public boolean isConfigurable() default true;
+    public String textureName() default DEFAULT;
+
+    public boolean isEnabled() default true;
+
+    public boolean isConfigurable() default true;
 }

@@ -1,11 +1,8 @@
 package openmods.calc.types.multi;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.Environment;
 import openmods.calc.ExecutionErrorException;
@@ -29,297 +26,325 @@ import openmods.calc.parsing.SymbolGetNode;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 public class LetExpressionFactory {
 
-	private final TypeDomain domain;
-	private final TypedValue nullValue;
-	private final BinaryOperator<TypedValue> colonOperator;
-	private final BinaryOperator<TypedValue> assignOperator;
-	private final BinaryOperator<TypedValue> lambdaOperator;
-	private final ClosureCompilerHelper closureCompiler;
+    private final TypeDomain domain;
+    private final TypedValue nullValue;
+    private final BinaryOperator<TypedValue> colonOperator;
+    private final BinaryOperator<TypedValue> assignOperator;
+    private final BinaryOperator<TypedValue> lambdaOperator;
+    private final ClosureCompilerHelper closureCompiler;
 
-	public LetExpressionFactory(TypeDomain domain, TypedValue nullValue, BinaryOperator<TypedValue> colonOperator, BinaryOperator<TypedValue> assignOperator, BinaryOperator<TypedValue> lambdaOperator, UnaryOperator<TypedValue> varArgMarker) {
-		this.domain = domain;
-		this.nullValue = nullValue;
-		this.colonOperator = colonOperator;
-		this.assignOperator = assignOperator;
-		this.lambdaOperator = lambdaOperator;
-		this.closureCompiler = new ClosureCompilerHelper(domain, varArgMarker);
-	}
+    public LetExpressionFactory(TypeDomain domain, TypedValue nullValue, BinaryOperator<TypedValue> colonOperator,
+            BinaryOperator<TypedValue> assignOperator, BinaryOperator<TypedValue> lambdaOperator,
+            UnaryOperator<TypedValue> varArgMarker) {
+        this.domain = domain;
+        this.nullValue = nullValue;
+        this.colonOperator = colonOperator;
+        this.assignOperator = assignOperator;
+        this.lambdaOperator = lambdaOperator;
+        this.closureCompiler = new ClosureCompilerHelper(domain, varArgMarker);
+    }
 
-	private class LetNode extends ScopeModifierNode {
-		public LetNode(String letSymbol, List<IExprNode<TypedValue>> children) {
-			super(domain, letSymbol, colonOperator, assignOperator, children);
-		}
+    private class LetNode extends ScopeModifierNode {
 
-		@Override
-		protected void handlePairOp(List<IExecutable<TypedValue>> output, BinaryOpNode<TypedValue> opNode) {
-			if (opNode.operator == lambdaOperator) {
-				flattenLambdaDefinition(output, opNode);
-			} else {
-				throw new UnsupportedOperationException("Expected '=', ':' or '->' as pair separators, got " + opNode.operator);
-			}
-		}
+        public LetNode(String letSymbol, List<IExprNode<TypedValue>> children) {
+            super(domain, letSymbol, colonOperator, assignOperator, children);
+        }
 
-		@Override
-		protected void flattenNameAndValue(List<IExecutable<TypedValue>> output, IExprNode<TypedValue> bindPattern, IExprNode<TypedValue> value) {
-			flattenBindPattern(output, bindPattern);
-			output.add(Value.create(Code.flattenAndWrap(domain, value)));
-		}
+        @Override
+        protected void handlePairOp(List<IExecutable<TypedValue>> output, BinaryOpNode<TypedValue> opNode) {
+            if (opNode.operator == lambdaOperator) {
+                flattenLambdaDefinition(output, opNode);
+            } else {
+                throw new UnsupportedOperationException(
+                        "Expected '=', ':' or '->' as pair separators, got " + opNode.operator);
+            }
+        }
 
-		private void flattenLambdaDefinition(List<IExecutable<TypedValue>> output, BinaryOpNode<TypedValue> opNode) {
-			final IExprNode<TypedValue> nameNode = opNode.left;
-			final IExprNode<TypedValue> lambdaBody = opNode.right;
+        @Override
+        protected void flattenNameAndValue(List<IExecutable<TypedValue>> output, IExprNode<TypedValue> bindPattern,
+                IExprNode<TypedValue> value) {
+            flattenBindPattern(output, bindPattern);
+            output.add(Value.create(Code.flattenAndWrap(domain, value)));
+        }
 
-			final TypedValue varName;
-			final Iterable<IExprNode<TypedValue>> lambdaArgs;
-			if (nameNode instanceof SymbolCallNode) {
-				// f(...) -> <lambda body>
-				final String symbolName = ((SymbolCallNode<TypedValue>)nameNode).symbol();
-				varName = Symbol.get(domain, symbolName);
-				lambdaArgs = nameNode.getChildren();
-			} else if (nameNode instanceof SymbolGetNode) {
-				varName = Symbol.get(domain, ((SymbolGetNode<TypedValue>)nameNode).symbol());
-				lambdaArgs = ImmutableList.of();
-			} else {
-				throw new IllegalArgumentException("Cannot extract value name from " + nameNode);
-			}
+        private void flattenLambdaDefinition(List<IExecutable<TypedValue>> output, BinaryOpNode<TypedValue> opNode) {
+            final IExprNode<TypedValue> nameNode = opNode.left;
+            final IExprNode<TypedValue> lambdaBody = opNode.right;
 
-			output.add(Value.create(varName));
-			output.add(Value.create(createLambdaWrapperCode(lambdaArgs, lambdaBody)));
-		}
+            final TypedValue varName;
+            final Iterable<IExprNode<TypedValue>> lambdaArgs;
+            if (nameNode instanceof SymbolCallNode) {
+                // f(...) -> <lambda body>
+                final String symbolName = ((SymbolCallNode<TypedValue>) nameNode).symbol();
+                varName = Symbol.get(domain, symbolName);
+                lambdaArgs = nameNode.getChildren();
+            } else if (nameNode instanceof SymbolGetNode) {
+                varName = Symbol.get(domain, ((SymbolGetNode<TypedValue>) nameNode).symbol());
+                lambdaArgs = ImmutableList.of();
+            } else {
+                throw new IllegalArgumentException("Cannot extract value name from " + nameNode);
+            }
 
-		private TypedValue createLambdaWrapperCode(Iterable<IExprNode<TypedValue>> args, IExprNode<TypedValue> body) {
-			final List<IExecutable<TypedValue>> result = Lists.newArrayList();
-			closureCompiler.compile(result, args, body);
-			return Code.wrap(domain, result);
-		}
+            output.add(Value.create(varName));
+            output.add(Value.create(createLambdaWrapperCode(lambdaArgs, lambdaBody)));
+        }
 
-		private void flattenBindPattern(List<IExecutable<TypedValue>> output, IExprNode<TypedValue> bindPattern) {
-			if (bindPattern instanceof SymbolGetNode) {
-				// optimization - single variable -> use symbol
-				final SymbolGetNode<TypedValue> var = (SymbolGetNode<TypedValue>)bindPattern;
-				output.add(Value.create(Symbol.get(domain, var.symbol())));
-			} else {
-				output.add(Value.create(Code.flattenAndWrap(domain, bindPattern)));
-				output.add(new SymbolCall<TypedValue>(TypedCalcConstants.SYMBOL_PATTERN, 1, 1));
-			}
-		}
-	}
+        private TypedValue createLambdaWrapperCode(Iterable<IExprNode<TypedValue>> args, IExprNode<TypedValue> body) {
+            final List<IExecutable<TypedValue>> result = Lists.newArrayList();
+            closureCompiler.compile(result, args, body);
+            return Code.wrap(domain, result);
+        }
 
-	private class LetStateTransition extends SameStateSymbolTransition<TypedValue> {
-		private final String letState;
+        private void flattenBindPattern(List<IExecutable<TypedValue>> output, IExprNode<TypedValue> bindPattern) {
+            if (bindPattern instanceof SymbolGetNode) {
+                // optimization - single variable -> use symbol
+                final SymbolGetNode<TypedValue> var = (SymbolGetNode<TypedValue>) bindPattern;
+                output.add(Value.create(Symbol.get(domain, var.symbol())));
+            } else {
+                output.add(Value.create(Code.flattenAndWrap(domain, bindPattern)));
+                output.add(new SymbolCall<TypedValue>(TypedCalcConstants.SYMBOL_PATTERN, 1, 1));
+            }
+        }
+    }
 
-		public LetStateTransition(String letState, ICompilerState<TypedValue> parentState) {
-			super(parentState);
-			this.letState = letState;
-		}
+    private class LetStateTransition extends SameStateSymbolTransition<TypedValue> {
 
-		@Override
-		public IExprNode<TypedValue> createRootNode(List<IExprNode<TypedValue>> children) {
-			return new LetNode(letState, children);
-		}
-	}
+        private final String letState;
 
-	public ISymbolCallStateTransition<TypedValue> createLetStateTransition(ICompilerState<TypedValue> parentState) {
-		return new LetStateTransition(TypedCalcConstants.SYMBOL_LET, parentState);
-	}
+        public LetStateTransition(String letState, ICompilerState<TypedValue> parentState) {
+            super(parentState);
+            this.letState = letState;
+        }
 
-	public ISymbolCallStateTransition<TypedValue> createLetSeqStateTransition(ICompilerState<TypedValue> parentState) {
-		return new LetStateTransition(TypedCalcConstants.SYMBOL_LETSEQ, parentState);
-	}
+        @Override
+        public IExprNode<TypedValue> createRootNode(List<IExprNode<TypedValue>> children) {
+            return new LetNode(letState, children);
+        }
+    }
 
-	public ISymbolCallStateTransition<TypedValue> createLetRecStateTransition(ICompilerState<TypedValue> parentState) {
-		return new LetStateTransition(TypedCalcConstants.SYMBOL_LETREC, parentState);
-	}
+    public ISymbolCallStateTransition<TypedValue> createLetStateTransition(ICompilerState<TypedValue> parentState) {
+        return new LetStateTransition(TypedCalcConstants.SYMBOL_LET, parentState);
+    }
 
-	private static class PlaceholderSymbol implements ISymbol<TypedValue> {
-		@Override
-		public void call(Frame<TypedValue> frame, OptionalInt argumentsCount, OptionalInt returnsCount) {
-			throw new ExecutionErrorException("Cannot call symbol during definition");
-		}
+    public ISymbolCallStateTransition<TypedValue> createLetSeqStateTransition(ICompilerState<TypedValue> parentState) {
+        return new LetStateTransition(TypedCalcConstants.SYMBOL_LETSEQ, parentState);
+    }
 
-		@Override
-		public TypedValue get() {
-			throw new ExecutionErrorException("Cannot reference symbol during definition");
-		}
-	}
+    public ISymbolCallStateTransition<TypedValue> createLetRecStateTransition(ICompilerState<TypedValue> parentState) {
+        return new LetStateTransition(TypedCalcConstants.SYMBOL_LETREC, parentState);
+    }
 
-	@SuppressWarnings("serial")
-	private static class InvalidArgsException extends RuntimeException {}
+    private static class PlaceholderSymbol implements ISymbol<TypedValue> {
 
-	private static abstract class LetSymbolBase implements ICallable<TypedValue> {
+        @Override
+        public void call(Frame<TypedValue> frame, OptionalInt argumentsCount, OptionalInt returnsCount) {
+            throw new ExecutionErrorException("Cannot call symbol during definition");
+        }
 
-		@Override
-		public void call(Frame<TypedValue> currentFrame, OptionalInt argumentsCount, OptionalInt returnsCount) {
-			TypedCalcUtils.expectExactArgCount(argumentsCount, 2);
+        @Override
+        public TypedValue get() {
+            throw new ExecutionErrorException("Cannot reference symbol during definition");
+        }
+    }
 
-			final Frame<TypedValue> letFrame = FrameFactory.newLocalFrameWithSubstack(currentFrame, 2);
-			final Stack<TypedValue> letStack = letFrame.stack();
-			final Code code = letStack.pop().as(Code.class, "second (code) 'let' parameter");
-			final Cons vars = letStack.pop().as(Cons.class, "first (var list) 'let'  parameter");
+    @SuppressWarnings("serial")
+    private static class InvalidArgsException extends RuntimeException {
+    }
 
-			try {
-				prepareFrame(letFrame.symbols(), currentFrame.symbols(), vars);
-			} catch (InvalidArgsException e) {
-				throw new IllegalArgumentException("Expected list of name:value pairs on second 'let' parameter, got " + vars, e);
-			}
+    private static abstract class LetSymbolBase implements ICallable<TypedValue> {
 
-			code.execute(letFrame);
+        @Override
+        public void call(Frame<TypedValue> currentFrame, OptionalInt argumentsCount, OptionalInt returnsCount) {
+            TypedCalcUtils.expectExactArgCount(argumentsCount, 2);
 
-			TypedCalcUtils.expectExactReturnCount(returnsCount, letStack.size());
-		}
+            final Frame<TypedValue> letFrame = FrameFactory.newLocalFrameWithSubstack(currentFrame, 2);
+            final Stack<TypedValue> letStack = letFrame.stack();
+            final Code code = letStack.pop().as(Code.class, "second (code) 'let' parameter");
+            final Cons vars = letStack.pop().as(Cons.class, "first (var list) 'let'  parameter");
 
-		protected abstract void prepareFrame(SymbolMap<TypedValue> outputFrame, SymbolMap<TypedValue> callSymbols, Cons vars);
-	}
+            try {
+                prepareFrame(letFrame.symbols(), currentFrame.symbols(), vars);
+            } catch (InvalidArgsException e) {
+                throw new IllegalArgumentException(
+                        "Expected list of name:value pairs on second 'let' parameter, got " + vars,
+                        e);
+            }
 
-	private abstract class ArgPairVisitor extends Cons.ListVisitor {
-		public ArgPairVisitor() {
-			super(nullValue);
-		}
+            code.execute(letFrame);
 
-		@Override
-		public void value(TypedValue value, boolean isLast) {
-			if (!value.is(Cons.class)) throw new InvalidArgsException();
-			final Cons pair = value.as(Cons.class);
+            TypedCalcUtils.expectExactReturnCount(returnsCount, letStack.size());
+        }
 
-			final TypedValue patternValue = pair.car;
-			final IBindPattern pattern;
-			if (patternValue.is(IBindPattern.class)) {
-				pattern = patternValue.as(IBindPattern.class);
-			} else if (patternValue.is(Symbol.class)) {
-				pattern = BindPatternTranslator.createPatternForVarName(patternValue.as(Symbol.class).value);
-			} else {
-				throw new IllegalArgumentException("Invalid bind pattern: " + patternValue);
-			}
+        protected abstract void prepareFrame(SymbolMap<TypedValue> outputFrame, SymbolMap<TypedValue> callSymbols,
+                Cons vars);
+    }
 
-			if (!pair.cdr.is(Code.class)) throw new InvalidArgsException();
-			final Code valueExpr = pair.cdr.as(Code.class);
+    private abstract class ArgPairVisitor extends Cons.ListVisitor {
 
-			acceptVar(pattern, valueExpr);
-		}
+        public ArgPairVisitor() {
+            super(nullValue);
+        }
 
-		protected abstract void acceptVar(IBindPattern pattern, Code value);
+        @Override
+        public void value(TypedValue value, boolean isLast) {
+            if (!value.is(Cons.class)) throw new InvalidArgsException();
+            final Cons pair = value.as(Cons.class);
 
-		@Override
-		public void end(TypedValue terminator) {}
+            final TypedValue patternValue = pair.car;
+            final IBindPattern pattern;
+            if (patternValue.is(IBindPattern.class)) {
+                pattern = patternValue.as(IBindPattern.class);
+            } else if (patternValue.is(Symbol.class)) {
+                pattern = BindPatternTranslator.createPatternForVarName(patternValue.as(Symbol.class).value);
+            } else {
+                throw new IllegalArgumentException("Invalid bind pattern: " + patternValue);
+            }
 
-		@Override
-		public void begin() {}
-	}
+            if (!pair.cdr.is(Code.class)) throw new InvalidArgsException();
+            final Code valueExpr = pair.cdr.as(Code.class);
 
-	private static void copySymbols(Set<String> names, SymbolMap<TypedValue> from, SymbolMap<TypedValue> to) {
-		for (String bindName : names) {
-			final ISymbol<TypedValue> outputSymbol = from.get(bindName);
-			Preconditions.checkState(outputSymbol != null, "Symbol not defined: %s", bindName);
-			to.put(bindName, outputSymbol);
-		}
-	}
+            acceptVar(pattern, valueExpr);
+        }
 
-	private static void fillPlaceholders(Set<String> bindNames, SymbolMap<TypedValue> symbols) {
-		for (String bindName : bindNames)
-			symbols.put(bindName, new PlaceholderSymbol());
-	}
+        protected abstract void acceptVar(IBindPattern pattern, Code value);
 
-	private static Set<String> extractBindNames(IBindPattern pattern) {
-		final Set<String> bindNames = Sets.newHashSet();
-		pattern.listBoundVars(bindNames);
-		return bindNames;
-	}
+        @Override
+        public void end(TypedValue terminator) {}
 
-	private static TypedValue executeForSingleResult(Frame<TypedValue> frame, Code expr) {
-		expr.execute(frame);
-		return frame.stack().popAndExpectEmptyStack();
-	}
+        @Override
+        public void begin() {}
+    }
 
-	private class LetSymbol extends LetSymbolBase {
-		@Override
-		protected void prepareFrame(final SymbolMap<TypedValue> outputSymbols, final SymbolMap<TypedValue> callSymbols, Cons vars) {
-			vars.visit(new ArgPairVisitor() {
-				@Override
-				protected void acceptVar(IBindPattern pattern, Code expr) {
-					final Frame<TypedValue> executionFrame = FrameFactory.newLocalFrame(callSymbols);
-					final SymbolMap<TypedValue> executionSymbols = executionFrame.symbols();
+    private static void copySymbols(Set<String> names, SymbolMap<TypedValue> from, SymbolMap<TypedValue> to) {
+        for (String bindName : names) {
+            final ISymbol<TypedValue> outputSymbol = from.get(bindName);
+            Preconditions.checkState(outputSymbol != null, "Symbol not defined: %s", bindName);
+            to.put(bindName, outputSymbol);
+        }
+    }
 
-					final Set<String> bindNames = extractBindNames(pattern);
-					fillPlaceholders(bindNames, executionSymbols);
+    private static void fillPlaceholders(Set<String> bindNames, SymbolMap<TypedValue> symbols) {
+        for (String bindName : bindNames) symbols.put(bindName, new PlaceholderSymbol());
+    }
 
-					final TypedValue result = executeForSingleResult(executionFrame, expr);
+    private static Set<String> extractBindNames(IBindPattern pattern) {
+        final Set<String> bindNames = Sets.newHashSet();
+        pattern.listBoundVars(bindNames);
+        return bindNames;
+    }
 
-					TypedCalcUtils.matchPattern(pattern, executionFrame, outputSymbols, result);
+    private static TypedValue executeForSingleResult(Frame<TypedValue> frame, Code expr) {
+        expr.execute(frame);
+        return frame.stack().popAndExpectEmptyStack();
+    }
 
-					// make new values visible to intializer body
-					copySymbols(bindNames, outputSymbols, executionSymbols);
-				}
-			});
-		}
-	}
+    private class LetSymbol extends LetSymbolBase {
 
-	private class LetSeqSymbol extends LetSymbolBase {
-		@Override
-		protected void prepareFrame(final SymbolMap<TypedValue> outputSymbols, SymbolMap<TypedValue> callSymbols, Cons vars) {
-			vars.visit(new ArgPairVisitor() {
-				@Override
-				protected void acceptVar(IBindPattern pattern, Code expr) {
-					final Set<String> bindNames = extractBindNames(pattern);
-					fillPlaceholders(bindNames, outputSymbols);
+        @Override
+        protected void prepareFrame(final SymbolMap<TypedValue> outputSymbols, final SymbolMap<TypedValue> callSymbols,
+                Cons vars) {
+            vars.visit(new ArgPairVisitor() {
 
-					final Frame<TypedValue> executionFrame = FrameFactory.symbolsToFrame(outputSymbols);
+                @Override
+                protected void acceptVar(IBindPattern pattern, Code expr) {
+                    final Frame<TypedValue> executionFrame = FrameFactory.newLocalFrame(callSymbols);
+                    final SymbolMap<TypedValue> executionSymbols = executionFrame.symbols();
 
-					final TypedValue result = executeForSingleResult(executionFrame, expr);
+                    final Set<String> bindNames = extractBindNames(pattern);
+                    fillPlaceholders(bindNames, executionSymbols);
 
-					TypedCalcUtils.matchPattern(pattern, executionFrame, outputSymbols, result);
+                    final TypedValue result = executeForSingleResult(executionFrame, expr);
 
-					// make new values visible to intializer body
-					copySymbols(bindNames, outputSymbols, executionFrame.symbols());
-				}
-			});
-		}
-	}
+                    TypedCalcUtils.matchPattern(pattern, executionFrame, outputSymbols, result);
 
-	private static class PatternInitializerCodePair {
-		public final IBindPattern pattern;
-		public final Code code;
+                    // make new values visible to intializer body
+                    copySymbols(bindNames, outputSymbols, executionSymbols);
+                }
+            });
+        }
+    }
 
-		public PatternInitializerCodePair(IBindPattern pattern, Code code) {
-			this.pattern = pattern;
-			this.code = code;
-		}
-	}
+    private class LetSeqSymbol extends LetSymbolBase {
 
-	private class LetRecSymbol extends LetSymbolBase {
-		@Override
-		protected void prepareFrame(final SymbolMap<TypedValue> outputSymbols, SymbolMap<TypedValue> callSymbols, Cons vars) {
-			// collect data, including var names
-			final Set<String> bindNames = Sets.newHashSet();
-			final List<PatternInitializerCodePair> varsToExecute = Lists.newArrayList();
-			vars.visit(new ArgPairVisitor() {
-				@Override
-				protected void acceptVar(IBindPattern pattern, Code expr) {
-					pattern.listBoundVars(bindNames);
-					varsToExecute.add(new PatternInitializerCodePair(pattern, expr));
-				}
-			});
+        @Override
+        protected void prepareFrame(final SymbolMap<TypedValue> outputSymbols, SymbolMap<TypedValue> callSymbols,
+                Cons vars) {
+            vars.visit(new ArgPairVisitor() {
 
-			final SymbolMap<TypedValue> placeholderSymbols = new LocalSymbolMap<TypedValue>(callSymbols);
-			fillPlaceholders(bindNames, placeholderSymbols);
+                @Override
+                protected void acceptVar(IBindPattern pattern, Code expr) {
+                    final Set<String> bindNames = extractBindNames(pattern);
+                    fillPlaceholders(bindNames, outputSymbols);
 
-			// evaluate and unpack expressions
-			for (PatternInitializerCodePair e : varsToExecute) {
-				final Frame<TypedValue> executionFrame = FrameFactory.newLocalFrame(placeholderSymbols);
-				final TypedValue result = executeForSingleResult(executionFrame, e.code);
-				TypedCalcUtils.matchPattern(e.pattern, executionFrame, outputSymbols, result);
-			}
+                    final Frame<TypedValue> executionFrame = FrameFactory.symbolsToFrame(outputSymbols);
 
-			// expose results to namespaces - must be done after evaluations, since all symbols must be executed with dummy values in place
-			// IMO this is more consistent than "each id is initialized immediately after the corresponding val-expr is evaluated"
-			copySymbols(bindNames, outputSymbols, placeholderSymbols);
-		}
-	}
+                    final TypedValue result = executeForSingleResult(executionFrame, expr);
 
-	public void registerSymbol(Environment<TypedValue> env) {
-		env.setGlobalSymbol(TypedCalcConstants.SYMBOL_LET, new LetSymbol());
-		env.setGlobalSymbol(TypedCalcConstants.SYMBOL_LETSEQ, new LetSeqSymbol());
-		env.setGlobalSymbol(TypedCalcConstants.SYMBOL_LETREC, new LetRecSymbol());
-	}
+                    TypedCalcUtils.matchPattern(pattern, executionFrame, outputSymbols, result);
+
+                    // make new values visible to intializer body
+                    copySymbols(bindNames, outputSymbols, executionFrame.symbols());
+                }
+            });
+        }
+    }
+
+    private static class PatternInitializerCodePair {
+
+        public final IBindPattern pattern;
+        public final Code code;
+
+        public PatternInitializerCodePair(IBindPattern pattern, Code code) {
+            this.pattern = pattern;
+            this.code = code;
+        }
+    }
+
+    private class LetRecSymbol extends LetSymbolBase {
+
+        @Override
+        protected void prepareFrame(final SymbolMap<TypedValue> outputSymbols, SymbolMap<TypedValue> callSymbols,
+                Cons vars) {
+            // collect data, including var names
+            final Set<String> bindNames = Sets.newHashSet();
+            final List<PatternInitializerCodePair> varsToExecute = Lists.newArrayList();
+            vars.visit(new ArgPairVisitor() {
+
+                @Override
+                protected void acceptVar(IBindPattern pattern, Code expr) {
+                    pattern.listBoundVars(bindNames);
+                    varsToExecute.add(new PatternInitializerCodePair(pattern, expr));
+                }
+            });
+
+            final SymbolMap<TypedValue> placeholderSymbols = new LocalSymbolMap<TypedValue>(callSymbols);
+            fillPlaceholders(bindNames, placeholderSymbols);
+
+            // evaluate and unpack expressions
+            for (PatternInitializerCodePair e : varsToExecute) {
+                final Frame<TypedValue> executionFrame = FrameFactory.newLocalFrame(placeholderSymbols);
+                final TypedValue result = executeForSingleResult(executionFrame, e.code);
+                TypedCalcUtils.matchPattern(e.pattern, executionFrame, outputSymbols, result);
+            }
+
+            // expose results to namespaces - must be done after evaluations, since all symbols must be executed with
+            // dummy values in place
+            // IMO this is more consistent than "each id is initialized immediately after the corresponding val-expr is
+            // evaluated"
+            copySymbols(bindNames, outputSymbols, placeholderSymbols);
+        }
+    }
+
+    public void registerSymbol(Environment<TypedValue> env) {
+        env.setGlobalSymbol(TypedCalcConstants.SYMBOL_LET, new LetSymbol());
+        env.setGlobalSymbol(TypedCalcConstants.SYMBOL_LETSEQ, new LetSeqSymbol());
+        env.setGlobalSymbol(TypedCalcConstants.SYMBOL_LETREC, new LetRecSymbol());
+    }
 }

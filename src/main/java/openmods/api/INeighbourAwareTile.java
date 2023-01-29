@@ -4,5 +4,5 @@ import net.minecraft.block.Block;
 
 public interface INeighbourAwareTile {
 
-	public void onNeighbourChanged(Block block);
+    public void onNeighbourChanged(Block block);
 }

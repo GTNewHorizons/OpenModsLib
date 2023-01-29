@@ -8,9 +8,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ConfigProperty {
-	public String name() default "";
 
-	public String category();
+    public String name() default "";
 
-	public String comment() default "";
+    public String category();
+
+    public String comment() default "";
 }

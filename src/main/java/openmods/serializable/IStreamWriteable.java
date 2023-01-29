@@ -5,6 +5,6 @@ import java.io.IOException;
 
 public interface IStreamWriteable {
 
-	public void writeToStream(DataOutput output) throws IOException;
+    public void writeToStream(DataOutput output) throws IOException;
 
 }

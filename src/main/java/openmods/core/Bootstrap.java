@@ -2,6 +2,7 @@ package openmods.core;
 
 import java.io.File;
 import java.util.Map;
+
 import openmods.config.simple.ConfigProcessor;
 
 /**
@@ -9,21 +10,21 @@ import openmods.config.simple.ConfigProcessor;
  */
 public class Bootstrap {
 
-	public static void injectData(Map<String, Object> data) {
-		File mcLocation = (File)data.get("mcLocation");
-		File configDir = new File(mcLocation, "config");
+    public static void injectData(Map<String, Object> data) {
+        File mcLocation = (File) data.get("mcLocation");
+        File configDir = new File(mcLocation, "config");
 
-		if (!configDir.exists()) configDir.mkdir();
+        if (!configDir.exists()) configDir.mkdir();
 
-		File configFile = new File(configDir, "OpenModsLibCore.json");
+        File configFile = new File(configDir, "OpenModsLibCore.json");
 
-		try {
-			ConfigProcessor processor = new ConfigProcessor();
-			OpenModsClassTransformer.instance().addConfigValues(processor);
-			processor.process(configFile);
-		} catch (Throwable t) {
-			throw new RuntimeException(String.format("Failed to read config from file %s", configFile), t);
-		}
-	}
+        try {
+            ConfigProcessor processor = new ConfigProcessor();
+            OpenModsClassTransformer.instance().addConfigValues(processor);
+            processor.process(configFile);
+        } catch (Throwable t) {
+            throw new RuntimeException(String.format("Failed to read config from file %s", configFile), t);
+        }
+    }
 
 }

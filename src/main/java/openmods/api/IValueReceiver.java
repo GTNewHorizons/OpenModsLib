@@ -1,5 +1,6 @@
 package openmods.api;
 
 public interface IValueReceiver<T> {
-	public void setValue(T value);
+
+    public void setValue(T value);
 }

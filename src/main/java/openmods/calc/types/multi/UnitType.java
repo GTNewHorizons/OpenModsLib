@@ -1,12 +1,13 @@
 package openmods.calc.types.multi;
 
 public class UnitType {
-	public static final UnitType INSTANCE = new UnitType();
 
-	private UnitType() {}
+    public static final UnitType INSTANCE = new UnitType();
 
-	@Override
-	public String toString() {
-		return "<null>";
-	}
+    private UnitType() {}
+
+    @Override
+    public String toString() {
+        return "<null>";
+    }
 }

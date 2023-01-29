@@ -1,310 +1,342 @@
 package openmods.config.game;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
-import cpw.mods.fml.common.registry.GameRegistry;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
+
 import openmods.Log;
 import openmods.config.BlockInstances;
 import openmods.config.InstanceContainer;
 import openmods.config.ItemInstances;
 import openmods.config.game.RegisterBlock.RegisterTileEntity;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
+import cpw.mods.fml.common.registry.GameRegistry;
+
 public class GameConfigProvider {
 
-	private interface IAnnotationProcessor<I, A extends Annotation> {
-		public void process(I entry, A annotation);
+    private interface IAnnotationProcessor<I, A extends Annotation> {
 
-		public String getEntryName(A annotation);
+        public void process(I entry, A annotation);
 
-		public boolean isEnabled(String name);
-	}
+        public String getEntryName(A annotation);
 
-	private static final AbstractFeatureManager NULL_FEATURE_MANAGER = new AbstractFeatureManager() {
-		@Override
-		public boolean isEnabled(String category, String name) {
-			return true;
-		}
+        public boolean isEnabled(String name);
+    }
 
-		@Override
-		public Set<String> getCategories() {
-			return ImmutableSet.of();
-		}
+    private static final AbstractFeatureManager NULL_FEATURE_MANAGER = new AbstractFeatureManager() {
 
-		@Override
-		public Set<String> getFeaturesInCategory(String category) {
-			return ImmutableSet.of();
-		}
-	};
+        @Override
+        public boolean isEnabled(String category, String name) {
+            return true;
+        }
 
-	private AbstractFeatureManager features = NULL_FEATURE_MANAGER;
+        @Override
+        public Set<String> getCategories() {
+            return ImmutableSet.of();
+        }
 
-	private boolean remapFromLegacy = true;
+        @Override
+        public Set<String> getFeaturesInCategory(String category) {
+            return ImmutableSet.of();
+        }
+    };
 
-	private final FactoryRegistry<Block> blockFactory = new FactoryRegistry<Block>();
+    private AbstractFeatureManager features = NULL_FEATURE_MANAGER;
 
-	private final FactoryRegistry<Item> itemFactory = new FactoryRegistry<Item>();
+    private boolean remapFromLegacy = true;
 
-	private final Map<String, Item> itemRemaps = Maps.newHashMap();
+    private final FactoryRegistry<Block> blockFactory = new FactoryRegistry<Block>();
 
-	private final Map<String, Block> blockRemaps = Maps.newHashMap();
+    private final FactoryRegistry<Item> itemFactory = new FactoryRegistry<Item>();
 
-	private static class IdDecorator {
-		private String modId;
-		private final String joiner;
+    private final Map<String, Item> itemRemaps = Maps.newHashMap();
 
-		public IdDecorator(String joiner) {
-			this.joiner = joiner;
-		}
+    private final Map<String, Block> blockRemaps = Maps.newHashMap();
 
-		public void setMod(String modId) {
-			this.modId = modId;
-		}
+    private static class IdDecorator {
 
-		public String decorate(String id) {
-			return modId + joiner + id;
-		}
-	}
+        private String modId;
+        private final String joiner;
 
-	private final IdDecorator langDecorator = new IdDecorator(".");
+        public IdDecorator(String joiner) {
+            this.joiner = joiner;
+        }
 
-	private final IdDecorator textureDecorator = new IdDecorator(":");
+        public void setMod(String modId) {
+            this.modId = modId;
+        }
 
-	private final IdDecorator teDecorator = new IdDecorator("_");
+        public String decorate(String id) {
+            return modId + joiner + id;
+        }
+    }
 
-	private final IdDecorator legacyItemDecorator = new IdDecorator(".");
+    private final IdDecorator langDecorator = new IdDecorator(".");
 
-	private final IdDecorator legacyBlockDecorator = new IdDecorator("_");
+    private final IdDecorator textureDecorator = new IdDecorator(":");
 
-	private final String modId;
+    private final IdDecorator teDecorator = new IdDecorator("_");
 
-	public GameConfigProvider(String modPrefix) {
-		langDecorator.setMod(modPrefix);
-		textureDecorator.setMod(modPrefix);
-		teDecorator.setMod(modPrefix);
-		legacyBlockDecorator.setMod(modPrefix);
-		legacyItemDecorator.setMod(modPrefix);
+    private final IdDecorator legacyItemDecorator = new IdDecorator(".");
 
-		ModContainer mod = Loader.instance().activeModContainer();
-		Preconditions.checkNotNull(mod, "This class can only be initialized in mod init");
-		this.modId = mod.getModId();
-	}
+    private final IdDecorator legacyBlockDecorator = new IdDecorator("_");
 
-	public void setLanguageModId(String modId) {
-		langDecorator.setMod(modId);
-	}
+    private final String modId;
 
-	public void setTextureModId(String modId) {
-		textureDecorator.setMod(modId);
-	}
+    public GameConfigProvider(String modPrefix) {
+        langDecorator.setMod(modPrefix);
+        textureDecorator.setMod(modPrefix);
+        teDecorator.setMod(modPrefix);
+        legacyBlockDecorator.setMod(modPrefix);
+        legacyItemDecorator.setMod(modPrefix);
 
-	public void setTileEntityModId(String modId) {
-		teDecorator.setMod(modId);
-	}
+        ModContainer mod = Loader.instance().activeModContainer();
+        Preconditions.checkNotNull(mod, "This class can only be initialized in mod init");
+        this.modId = mod.getModId();
+    }
 
-	public void setFeatures(AbstractFeatureManager features) {
-		this.features = features;
-	}
+    public void setLanguageModId(String modId) {
+        langDecorator.setMod(modId);
+    }
 
-	public void setRemapFromLegacy(boolean remapFromLegacy) {
-		this.remapFromLegacy = remapFromLegacy;
-	}
+    public void setTextureModId(String modId) {
+        textureDecorator.setMod(modId);
+    }
 
-	public FactoryRegistry<Block> getBlockFactory() {
-		return blockFactory;
-	}
+    public void setTileEntityModId(String modId) {
+        teDecorator.setMod(modId);
+    }
 
-	public FactoryRegistry<Item> getItemFactory() {
-		return itemFactory;
-	}
+    public void setFeatures(AbstractFeatureManager features) {
+        this.features = features;
+    }
 
-	private static <I, A extends Annotation> void processAnnotations(Class<? extends InstanceContainer<?>> config, Class<I> fieldClass, Class<A> annotationClass, FactoryRegistry<I> factory, IAnnotationProcessor<I, A> processor) {
-		for (Field f : config.getFields()) {
-			if (Modifier.isStatic(f.getModifiers()) && fieldClass.isAssignableFrom(f.getType())) {
-				if (f.isAnnotationPresent(IgnoreFeature.class)) continue;
-				A annotation = f.getAnnotation(annotationClass);
-				if (annotation == null) {
-					Log.warn("Field %s has valid type %s for registration, but no annotation %s", f, fieldClass, annotationClass);
-					continue;
-				}
+    public void setRemapFromLegacy(boolean remapFromLegacy) {
+        this.remapFromLegacy = remapFromLegacy;
+    }
 
-				String name = processor.getEntryName(annotation);
-				if (!processor.isEnabled(name)) {
-					Log.info("Item %s (from field %s) is disabled", name, f);
-					continue;
-				}
+    public FactoryRegistry<Block> getBlockFactory() {
+        return blockFactory;
+    }
 
-				@SuppressWarnings("unchecked")
-				Class<? extends I> fieldType = (Class<? extends I>)f.getType();
-				I entry = factory.construct(name, fieldType);
-				if (entry == null) continue;
-				try {
-					f.set(null, entry);
-				} catch (Exception e) {
-					throw Throwables.propagate(e);
-				}
-				processor.process(entry, annotation);
-			}
-		}
-	}
+    public FactoryRegistry<Item> getItemFactory() {
+        return itemFactory;
+    }
 
-	private interface IdSetter {
-		public void setId(String id);
-	}
+    private static <I, A extends Annotation> void processAnnotations(Class<? extends InstanceContainer<?>> config,
+            Class<I> fieldClass, Class<A> annotationClass, FactoryRegistry<I> factory,
+            IAnnotationProcessor<I, A> processor) {
+        for (Field f : config.getFields()) {
+            if (Modifier.isStatic(f.getModifiers()) && fieldClass.isAssignableFrom(f.getType())) {
+                if (f.isAnnotationPresent(IgnoreFeature.class)) continue;
+                A annotation = f.getAnnotation(annotationClass);
+                if (annotation == null) {
+                    Log.warn(
+                            "Field %s has valid type %s for registration, but no annotation %s",
+                            f,
+                            fieldClass,
+                            annotationClass);
+                    continue;
+                }
 
-	private static void setPrefixedId(String id, String objectName, IdDecorator decorator, IdSetter setter, String noneValue, String defaultValue) {
-		if (!id.equals(RegisterBlock.NONE)) {
-			if (id.equals(RegisterBlock.DEFAULT)) id = decorator.decorate(objectName);
-			else id = decorator.decorate(id);
-			setter.setId(id);
-		}
-	}
+                String name = processor.getEntryName(annotation);
+                if (!processor.isEnabled(name)) {
+                    Log.info("Item %s (from field %s) is disabled", name, f);
+                    continue;
+                }
 
-	private static void setItemPrefixedId(String id, String itemName, IdDecorator decorator, IdSetter setter) {
-		setPrefixedId(id, itemName, decorator, setter, RegisterItem.NONE, RegisterItem.DEFAULT);
-	}
+                @SuppressWarnings("unchecked")
+                Class<? extends I> fieldType = (Class<? extends I>) f.getType();
+                I entry = factory.construct(name, fieldType);
+                if (entry == null) continue;
+                try {
+                    f.set(null, entry);
+                } catch (Exception e) {
+                    throw Throwables.propagate(e);
+                }
+                processor.process(entry, annotation);
+            }
+        }
+    }
 
-	public void registerItems(Class<? extends ItemInstances> klazz) {
-		processAnnotations(klazz, Item.class, RegisterItem.class, itemFactory, new IAnnotationProcessor<Item, RegisterItem>() {
-			@Override
-			public void process(final Item item, RegisterItem annotation) {
-				final String name = annotation.name();
+    private interface IdSetter {
 
-				final String legacyName = legacyItemDecorator.decorate(name);
+        public void setId(String id);
+    }
 
-				if (remapFromLegacy) {
-					GameRegistry.registerItem(item, name);
-					itemRemaps.put(modId + ":" + legacyName, item);
-				} else {
-					GameRegistry.registerItem(item, legacyName);
-				}
+    private static void setPrefixedId(String id, String objectName, IdDecorator decorator, IdSetter setter,
+            String noneValue, String defaultValue) {
+        if (!id.equals(RegisterBlock.NONE)) {
+            if (id.equals(RegisterBlock.DEFAULT)) id = decorator.decorate(objectName);
+            else id = decorator.decorate(id);
+            setter.setId(id);
+        }
+    }
 
-				setItemPrefixedId(annotation.unlocalizedName(), name, langDecorator, new IdSetter() {
-					@Override
-					public void setId(String unlocalizedName) {
-						item.setUnlocalizedName(unlocalizedName);
-					}
-				});
+    private static void setItemPrefixedId(String id, String itemName, IdDecorator decorator, IdSetter setter) {
+        setPrefixedId(id, itemName, decorator, setter, RegisterItem.NONE, RegisterItem.DEFAULT);
+    }
 
-				setItemPrefixedId(annotation.textureName(), name, textureDecorator, new IdSetter() {
-					@Override
-					public void setId(String textureName) {
-						item.setTextureName(textureName);
-					}
-				});
-			}
+    public void registerItems(Class<? extends ItemInstances> klazz) {
+        processAnnotations(
+                klazz,
+                Item.class,
+                RegisterItem.class,
+                itemFactory,
+                new IAnnotationProcessor<Item, RegisterItem>() {
 
-			@Override
-			public String getEntryName(RegisterItem annotation) {
-				return annotation.name();
-			}
+                    @Override
+                    public void process(final Item item, RegisterItem annotation) {
+                        final String name = annotation.name();
 
-			@Override
-			public boolean isEnabled(String name) {
-				return features.isItemEnabled(name);
-			}
-		});
-	}
+                        final String legacyName = legacyItemDecorator.decorate(name);
 
-	private static void setBlockPrefixedId(String id, String blockName, IdDecorator decorator, IdSetter setter) {
-		setPrefixedId(id, blockName, decorator, setter, RegisterBlock.NONE, RegisterBlock.DEFAULT);
-	}
+                        if (remapFromLegacy) {
+                            GameRegistry.registerItem(item, name);
+                            itemRemaps.put(modId + ":" + legacyName, item);
+                        } else {
+                            GameRegistry.registerItem(item, legacyName);
+                        }
 
-	public void registerBlocks(Class<? extends BlockInstances> klazz) {
-		processAnnotations(klazz, Block.class, RegisterBlock.class, blockFactory, new IAnnotationProcessor<Block, RegisterBlock>() {
-			@Override
-			public void process(final Block block, RegisterBlock annotation) {
-				final String name = annotation.name();
-				final Class<? extends ItemBlock> itemBlockClass = annotation.itemBlock();
-				Class<? extends TileEntity> teClass = annotation.tileEntity();
-				if (teClass == TileEntity.class) teClass = null;
+                        setItemPrefixedId(annotation.unlocalizedName(), name, langDecorator, new IdSetter() {
 
-				final String legacyName = legacyBlockDecorator.decorate(name);
+                            @Override
+                            public void setId(String unlocalizedName) {
+                                item.setUnlocalizedName(unlocalizedName);
+                            }
+                        });
 
-				if (remapFromLegacy) {
-					GameRegistry.registerBlock(block, itemBlockClass, name);
-					blockRemaps.put(modId + ":" + legacyName, block);
-				} else {
-					GameRegistry.registerBlock(block, itemBlockClass, legacyName);
-				}
+                        setItemPrefixedId(annotation.textureName(), name, textureDecorator, new IdSetter() {
 
-				setBlockPrefixedId(annotation.unlocalizedName(), name, langDecorator, new IdSetter() {
-					@Override
-					public void setId(String unlocalizedName) {
-						block.setBlockName(unlocalizedName);
-					}
-				});
+                            @Override
+                            public void setId(String textureName) {
+                                item.setTextureName(textureName);
+                            }
+                        });
+                    }
 
-				setBlockPrefixedId(annotation.textureName(), name, textureDecorator, new IdSetter() {
-					@Override
-					public void setId(String textureName) {
-						block.setBlockTextureName(textureName);
-					}
-				});
+                    @Override
+                    public String getEntryName(RegisterItem annotation) {
+                        return annotation.name();
+                    }
 
-				if (teClass != null) {
-					final String teName = teDecorator.decorate(name);
-					GameRegistry.registerTileEntity(teClass, teName);
-				}
+                    @Override
+                    public boolean isEnabled(String name) {
+                        return features.isItemEnabled(name);
+                    }
+                });
+    }
 
-				if (block instanceof IRegisterableBlock) ((IRegisterableBlock)block).setupBlock(modId, name, teClass, itemBlockClass);
+    private static void setBlockPrefixedId(String id, String blockName, IdDecorator decorator, IdSetter setter) {
+        setPrefixedId(id, blockName, decorator, setter, RegisterBlock.NONE, RegisterBlock.DEFAULT);
+    }
 
-				for (RegisterTileEntity te : annotation.tileEntities()) {
-					final String teName = teDecorator.decorate(te.name());
-					GameRegistry.registerTileEntity(te.cls(), teName);
-				}
-			}
+    public void registerBlocks(Class<? extends BlockInstances> klazz) {
+        processAnnotations(
+                klazz,
+                Block.class,
+                RegisterBlock.class,
+                blockFactory,
+                new IAnnotationProcessor<Block, RegisterBlock>() {
 
-			@Override
-			public String getEntryName(RegisterBlock annotation) {
-				return annotation.name();
-			}
+                    @Override
+                    public void process(final Block block, RegisterBlock annotation) {
+                        final String name = annotation.name();
+                        final Class<? extends ItemBlock> itemBlockClass = annotation.itemBlock();
+                        Class<? extends TileEntity> teClass = annotation.tileEntity();
+                        if (teClass == TileEntity.class) teClass = null;
 
-			@Override
-			public boolean isEnabled(String name) {
-				return features.isBlockEnabled(name);
-			}
-		});
-	}
+                        final String legacyName = legacyBlockDecorator.decorate(name);
 
-	public void handleRemaps(Collection<MissingMapping> mappings) {
-		for (MissingMapping mapping : mappings) {
-			switch (mapping.type) {
-				case BLOCK: {
-					Block remap = blockRemaps.get(mapping.name);
-					if (remap != null) mapping.remap(remap);
-					break;
-				}
-				case ITEM: {
-					Item remap = itemRemaps.get(mapping.name);
+                        if (remapFromLegacy) {
+                            GameRegistry.registerBlock(block, itemBlockClass, name);
+                            blockRemaps.put(modId + ":" + legacyName, block);
+                        } else {
+                            GameRegistry.registerBlock(block, itemBlockClass, legacyName);
+                        }
 
-					if (remap == null) {
-						Block blockRemap = blockRemaps.get(mapping.name);
-						if (blockRemap != null) remap = Item.getItemFromBlock(blockRemap);
-					}
+                        setBlockPrefixedId(annotation.unlocalizedName(), name, langDecorator, new IdSetter() {
 
-					if (remap != null) mapping.remap(remap);
-				}
+                            @Override
+                            public void setId(String unlocalizedName) {
+                                block.setBlockName(unlocalizedName);
+                            }
+                        });
 
-				default:
-					break;
+                        setBlockPrefixedId(annotation.textureName(), name, textureDecorator, new IdSetter() {
 
-			}
-		}
-	}
+                            @Override
+                            public void setId(String textureName) {
+                                block.setBlockTextureName(textureName);
+                            }
+                        });
+
+                        if (teClass != null) {
+                            final String teName = teDecorator.decorate(name);
+                            GameRegistry.registerTileEntity(teClass, teName);
+                        }
+
+                        if (block instanceof IRegisterableBlock)
+                            ((IRegisterableBlock) block).setupBlock(modId, name, teClass, itemBlockClass);
+
+                        for (RegisterTileEntity te : annotation.tileEntities()) {
+                            final String teName = teDecorator.decorate(te.name());
+                            GameRegistry.registerTileEntity(te.cls(), teName);
+                        }
+                    }
+
+                    @Override
+                    public String getEntryName(RegisterBlock annotation) {
+                        return annotation.name();
+                    }
+
+                    @Override
+                    public boolean isEnabled(String name) {
+                        return features.isBlockEnabled(name);
+                    }
+                });
+    }
+
+    public void handleRemaps(Collection<MissingMapping> mappings) {
+        for (MissingMapping mapping : mappings) {
+            switch (mapping.type) {
+                case BLOCK: {
+                    Block remap = blockRemaps.get(mapping.name);
+                    if (remap != null) mapping.remap(remap);
+                    break;
+                }
+                case ITEM: {
+                    Item remap = itemRemaps.get(mapping.name);
+
+                    if (remap == null) {
+                        Block blockRemap = blockRemaps.get(mapping.name);
+                        if (blockRemap != null) remap = Item.getItemFromBlock(blockRemap);
+                    }
+
+                    if (remap != null) mapping.remap(remap);
+                }
+
+                default:
+                    break;
+
+            }
+        }
+    }
 
 }

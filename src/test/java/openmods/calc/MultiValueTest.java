@@ -5,84 +5,88 @@ import openmods.calc.types.multi.TypeDomain;
 import openmods.calc.types.multi.TypeDomain.Coercion;
 import openmods.calc.types.multi.TypedValue;
 import openmods.reflection.TypeVariableHolderHandler;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 public class MultiValueTest {
 
-	private static void assertValueEquals(TypedValue value, TypeDomain expectedDomain, Class<?> expectedType, Object expectedValue) {
-		Assert.assertEquals(expectedValue, value.value);
-		Assert.assertEquals(expectedType, value.type);
-		Assert.assertEquals(expectedDomain, value.domain);
-	}
+    private static void assertValueEquals(TypedValue value, TypeDomain expectedDomain, Class<?> expectedType,
+            Object expectedValue) {
+        Assert.assertEquals(expectedValue, value.value);
+        Assert.assertEquals(expectedType, value.type);
+        Assert.assertEquals(expectedDomain, value.domain);
+    }
 
-	static {
-		TypeVariableHolderHandler.initializeClass(TypeDomain.TypeVariableHolders.class);
-	}
+    static {
+        TypeVariableHolderHandler.initializeClass(TypeDomain.TypeVariableHolders.class);
+    }
 
-	@Test
-	public void testConversion() {
-		final TypeDomain domain = new TypeDomain();
-		domain.registerType(Integer.class);
-		domain.registerType(String.class);
+    @Test
+    public void testConversion() {
+        final TypeDomain domain = new TypeDomain();
+        domain.registerType(Integer.class);
+        domain.registerType(String.class);
 
-		domain.registerConverter(new IConverter<Integer, String>() {
-			@Override
-			public String convert(Integer value) {
-				return value.toString();
-			}
-		});
+        domain.registerConverter(new IConverter<Integer, String>() {
 
-		final TypedValue intValue = domain.create(Integer.class, 123);
-		final TypedValue stringValue = intValue.cast(String.class);
-		assertValueEquals(stringValue, domain, String.class, "123");
-	}
+            @Override
+            public String convert(Integer value) {
+                return value.toString();
+            }
+        });
 
-	@Test
-	public void testSelfConversion() {
-		final TypeDomain domain = new TypeDomain();
-		domain.registerType(Integer.class);
+        final TypedValue intValue = domain.create(Integer.class, 123);
+        final TypedValue stringValue = intValue.cast(String.class);
+        assertValueEquals(stringValue, domain, String.class, "123");
+    }
 
-		final TypedValue intValue = domain.create(Integer.class, 123);
-		final TypedValue result = intValue.cast(Integer.class);
-		Assert.assertEquals(intValue, result);
-	}
+    @Test
+    public void testSelfConversion() {
+        final TypeDomain domain = new TypeDomain();
+        domain.registerType(Integer.class);
 
-	@Test
-	public void testCast() {
-		final TypeDomain domain = new TypeDomain();
-		domain.registerType(Integer.class);
-		domain.registerType(Number.class);
+        final TypedValue intValue = domain.create(Integer.class, 123);
+        final TypedValue result = intValue.cast(Integer.class);
+        Assert.assertEquals(intValue, result);
+    }
 
-		domain.registerCast(Integer.class, Number.class);
+    @Test
+    public void testCast() {
+        final TypeDomain domain = new TypeDomain();
+        domain.registerType(Integer.class);
+        domain.registerType(Number.class);
 
-		final TypedValue intValue = domain.create(Integer.class, 123);
-		final TypedValue numberValue = intValue.cast(Number.class);
-		assertValueEquals(numberValue, domain, Number.class, Integer.valueOf(123));
-	}
+        domain.registerCast(Integer.class, Number.class);
 
-	@Test
-	public void testCoercion() {
-		final TypeDomain domain = new TypeDomain();
-		domain.registerType(Integer.class);
-		domain.registerType(Float.class);
+        final TypedValue intValue = domain.create(Integer.class, 123);
+        final TypedValue numberValue = intValue.cast(Number.class);
+        assertValueEquals(numberValue, domain, Number.class, Integer.valueOf(123));
+    }
 
-		domain.registerConverter(new IConverter<Integer, Float>() {
-			@Override
-			public Float convert(Integer value) {
-				return value.floatValue();
-			}
-		});
-		domain.registerSymmetricCoercionRule(Float.class, Integer.class, Coercion.TO_LEFT);
+    @Test
+    public void testCoercion() {
+        final TypeDomain domain = new TypeDomain();
+        domain.registerType(Integer.class);
+        domain.registerType(Float.class);
 
-		Assert.assertEquals(Coercion.TO_LEFT, domain.getCoercionRule(Float.class, Integer.class));
-		Assert.assertEquals(Coercion.TO_RIGHT, domain.getCoercionRule(Integer.class, Float.class));
-	}
+        domain.registerConverter(new IConverter<Integer, Float>() {
 
-	@Test
-	public void testSelfCoercion() {
-		final TypeDomain domain = new TypeDomain();
-		Assert.assertEquals(Coercion.TO_LEFT, domain.getCoercionRule(Float.class, Float.class));
-	}
+            @Override
+            public Float convert(Integer value) {
+                return value.floatValue();
+            }
+        });
+        domain.registerSymmetricCoercionRule(Float.class, Integer.class, Coercion.TO_LEFT);
+
+        Assert.assertEquals(Coercion.TO_LEFT, domain.getCoercionRule(Float.class, Integer.class));
+        Assert.assertEquals(Coercion.TO_RIGHT, domain.getCoercionRule(Integer.class, Float.class));
+    }
+
+    @Test
+    public void testSelfCoercion() {
+        final TypeDomain domain = new TypeDomain();
+        Assert.assertEquals(Coercion.TO_LEFT, domain.getCoercionRule(Float.class, Float.class));
+    }
 
 }

@@ -1,290 +1,288 @@
 package openmods.config.properties;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Map;
+
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
+import net.minecraftforge.common.config.Property.Type;
+
+import openmods.Log;
+import openmods.utils.io.IStringSerializer;
+import openmods.utils.io.StringConversionException;
+import openmods.utils.io.TypeRW;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Map;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-import net.minecraftforge.common.config.Property.Type;
-import openmods.Log;
-import openmods.utils.io.IStringSerializer;
-import openmods.utils.io.StringConversionException;
-import openmods.utils.io.TypeRW;
-import org.apache.commons.lang3.StringUtils;
 
 public abstract class ConfigPropertyMeta {
-	public enum Result {
-		CANCELLED,
-		ONLINE,
-		OFFLINE
-	}
 
-	public final String name;
-	public final String category;
-	public final String comment;
-	public final Property.Type type;
-	protected final Field field;
-	private final boolean onLine;
-	private final Object defaultValue;
-	private final String[] defaultText;
+    public enum Result {
+        CANCELLED,
+        ONLINE,
+        OFFLINE
+    }
 
-	// shadowed, since properties can change independently
-	protected String[] propertyText;
+    public final String name;
+    public final String category;
+    public final String comment;
+    public final Property.Type type;
+    protected final Field field;
+    private final boolean onLine;
+    private final Object defaultValue;
+    private final String[] defaultText;
 
-	protected final IStringSerializer<?> converter;
-	protected final Property wrappedProperty;
-	public static final Map<Class<?>, Property.Type> CONFIG_TYPES = ImmutableMap.<Class<?>, Property.Type> builder()
-			.put(Integer.class, Property.Type.INTEGER)
-			.put(int.class, Property.Type.INTEGER)
-			.put(Boolean.class, Property.Type.BOOLEAN)
-			.put(boolean.class, Property.Type.BOOLEAN)
-			.put(Byte.class, Property.Type.INTEGER)
-			.put(byte.class, Property.Type.INTEGER)
-			.put(Double.class, Property.Type.DOUBLE)
-			.put(double.class, Property.Type.DOUBLE)
-			.put(Float.class, Property.Type.DOUBLE)
-			.put(float.class, Property.Type.DOUBLE)
-			.put(Long.class, Property.Type.INTEGER)
-			.put(long.class, Property.Type.INTEGER)
-			.put(Short.class, Property.Type.INTEGER)
-			.put(short.class, Property.Type.INTEGER)
-			.put(String.class, Property.Type.STRING)
-			.build();
+    // shadowed, since properties can change independently
+    protected String[] propertyText;
 
-	protected ConfigPropertyMeta(Configuration config, Field field, ConfigProperty annotation) {
-		this.comment = annotation.comment();
-		this.category = annotation.category();
-		OnLineModifiable mod = field.getAnnotation(OnLineModifiable.class);
-		this.onLine = mod != null;
+    protected final IStringSerializer<?> converter;
+    protected final Property wrappedProperty;
+    public static final Map<Class<?>, Property.Type> CONFIG_TYPES = ImmutableMap.<Class<?>, Property.Type>builder()
+            .put(Integer.class, Property.Type.INTEGER).put(int.class, Property.Type.INTEGER)
+            .put(Boolean.class, Property.Type.BOOLEAN).put(boolean.class, Property.Type.BOOLEAN)
+            .put(Byte.class, Property.Type.INTEGER).put(byte.class, Property.Type.INTEGER)
+            .put(Double.class, Property.Type.DOUBLE).put(double.class, Property.Type.DOUBLE)
+            .put(Float.class, Property.Type.DOUBLE).put(float.class, Property.Type.DOUBLE)
+            .put(Long.class, Property.Type.INTEGER).put(long.class, Property.Type.INTEGER)
+            .put(Short.class, Property.Type.INTEGER).put(short.class, Property.Type.INTEGER)
+            .put(String.class, Property.Type.STRING).build();
 
-		String name = annotation.name();
-		String category = annotation.category();
+    protected ConfigPropertyMeta(Configuration config, Field field, ConfigProperty annotation) {
+        this.comment = annotation.comment();
+        this.category = annotation.category();
+        OnLineModifiable mod = field.getAnnotation(OnLineModifiable.class);
+        this.onLine = mod != null;
 
-		if (Strings.isNullOrEmpty(name)) name = field.getName();
-		if (Strings.isNullOrEmpty(category)) category = null;
+        String name = annotation.name();
+        String category = annotation.category();
 
-		this.name = name;
-		this.field = field;
+        if (Strings.isNullOrEmpty(name)) name = field.getName();
+        if (Strings.isNullOrEmpty(category)) category = null;
 
-		defaultValue = getFieldValue();
-		Preconditions.checkNotNull(defaultValue, "Config field %s has no default value", name);
-		defaultText = convertToStringArray(defaultValue);
+        this.name = name;
+        this.field = field;
 
-		final Class<?> fieldType = getFieldType();
-		type = ConfigPropertyMeta.CONFIG_TYPES.get(fieldType);
-		Preconditions.checkNotNull(type, "Config field %s has no property type mapping", name);
+        defaultValue = getFieldValue();
+        Preconditions.checkNotNull(defaultValue, "Config field %s has no default value", name);
+        defaultText = convertToStringArray(defaultValue);
 
-		converter = TypeRW.STRING_SERIALIZERS.get(fieldType);
-		Preconditions.checkNotNull(converter, "Config field %s has no known conversion from string", name);
+        final Class<?> fieldType = getFieldType();
+        type = ConfigPropertyMeta.CONFIG_TYPES.get(fieldType);
+        Preconditions.checkNotNull(type, "Config field %s has no property type mapping", name);
 
-		wrappedProperty = getProperty(config, type, defaultValue);
-	}
+        converter = TypeRW.STRING_SERIALIZERS.get(fieldType);
+        Preconditions.checkNotNull(converter, "Config field %s has no known conversion from string", name);
 
-	void updateValueFromConfig(boolean force) {
-		// return on newly created value. Due to forge bug list properties
-		// don't set this value properly
-		if (!force && !wrappedProperty.wasRead() && !wrappedProperty.isList()) return;
+        wrappedProperty = getProperty(config, type, defaultValue);
+    }
 
-		final Type actualType = wrappedProperty.getType();
+    void updateValueFromConfig(boolean force) {
+        // return on newly created value. Due to forge bug list properties
+        // don't set this value properly
+        if (!force && !wrappedProperty.wasRead() && !wrappedProperty.isList()) return;
 
-		Preconditions.checkState(type == actualType, "Invalid config property type '%s', expected '%s'", actualType, type);
+        final Type actualType = wrappedProperty.getType();
 
-		String[] currentValue = getActualPropertyValue();
-		try {
-			Object converted = convertValue(currentValue);
-			setFieldValue(converted);
-		} catch (StringConversionException e) {
-			Log.warn(e, "Invalid config property value %s, using default value", Arrays.toString(currentValue));
-		}
-	}
+        Preconditions
+                .checkState(type == actualType, "Invalid config property type '%s', expected '%s'", actualType, type);
 
-	protected void setFieldValue(Object value) {
-		try {
-			field.set(null, value);
-		} catch (Throwable e) {
-			throw Throwables.propagate(e);
-		}
-	}
+        String[] currentValue = getActualPropertyValue();
+        try {
+            Object converted = convertValue(currentValue);
+            setFieldValue(converted);
+        } catch (StringConversionException e) {
+            Log.warn(e, "Invalid config property value %s, using default value", Arrays.toString(currentValue));
+        }
+    }
 
-	protected Object getFieldValue() {
-		try {
-			return field.get(null);
-		} catch (Throwable t) {
-			throw Throwables.propagate(t);
-		}
-	}
+    protected void setFieldValue(Object value) {
+        try {
+            field.set(null, value);
+        } catch (Throwable e) {
+            throw Throwables.propagate(e);
+        }
+    }
 
-	protected abstract Class<? extends Object> getFieldType();
+    protected Object getFieldValue() {
+        try {
+            return field.get(null);
+        } catch (Throwable t) {
+            throw Throwables.propagate(t);
+        }
+    }
 
-	protected abstract Property getProperty(Configuration configFile, Type expectedType, Object defaultValue);
+    protected abstract Class<? extends Object> getFieldType();
 
-	public String[] getPropertyValue() {
-		return propertyText;
-	}
+    protected abstract Property getProperty(Configuration configFile, Type expectedType, Object defaultValue);
 
-	public abstract String[] getActualPropertyValue();
+    public String[] getPropertyValue() {
+        return propertyText;
+    }
 
-	protected abstract void setPropertyValue(String... values);
+    public abstract String[] getActualPropertyValue();
 
-	protected abstract Object convertValue(String... values);
+    protected abstract void setPropertyValue(String... values);
 
-	public abstract boolean acceptsMultipleValues();
+    protected abstract Object convertValue(String... values);
 
-	public abstract String valueDescription();
+    public abstract boolean acceptsMultipleValues();
 
-	protected abstract String[] convertToStringArray(Object value);
+    public abstract String valueDescription();
 
-	public Result tryChangeValue(String... proposedValues) {
-		ConfigurationChange.Pre evt = new ConfigurationChange.Pre(name, category, proposedValues);
-		if (MinecraftForge.EVENT_BUS.post(evt)) return Result.CANCELLED;
+    protected abstract String[] convertToStringArray(Object value);
 
-		Object converted = convertValue(evt.proposedValues);
+    public Result tryChangeValue(String... proposedValues) {
+        ConfigurationChange.Pre evt = new ConfigurationChange.Pre(name, category, proposedValues);
+        if (MinecraftForge.EVENT_BUS.post(evt)) return Result.CANCELLED;
 
-		if (onLine) setFieldValue(converted);
+        Object converted = convertValue(evt.proposedValues);
 
-		MinecraftForge.EVENT_BUS.post(new ConfigurationChange.Post(name, category));
+        if (onLine) setFieldValue(converted);
 
-		setPropertyValue(evt.proposedValues);
+        MinecraftForge.EVENT_BUS.post(new ConfigurationChange.Post(name, category));
 
-		this.propertyText = evt.proposedValues;
+        setPropertyValue(evt.proposedValues);
 
-		return onLine? Result.ONLINE : Result.OFFLINE;
-	}
+        this.propertyText = evt.proposedValues;
 
-	public String[] getDefaultValues() {
-		return defaultText.clone();
-	}
+        return onLine ? Result.ONLINE : Result.OFFLINE;
+    }
 
-	public Property getProperty() {
-		return wrappedProperty;
-	}
+    public String[] getDefaultValues() {
+        return defaultText.clone();
+    }
 
-	private static class SingleValue extends ConfigPropertyMeta {
+    public Property getProperty() {
+        return wrappedProperty;
+    }
 
-		protected SingleValue(Configuration config, Field field, ConfigProperty annotation) {
-			super(config, field, annotation);
+    private static class SingleValue extends ConfigPropertyMeta {
 
-			this.propertyText = new String[] { wrappedProperty.getString() };
-		}
+        protected SingleValue(Configuration config, Field field, ConfigProperty annotation) {
+            super(config, field, annotation);
 
-		@Override
-		protected Class<? extends Object> getFieldType() {
-			return field.getType();
-		}
+            this.propertyText = new String[] { wrappedProperty.getString() };
+        }
 
-		@Override
-		protected Property getProperty(Configuration configFile, Type expectedType, Object defaultValue) {
-			final String defaultString = defaultValue.toString();
-			return configFile.get(category, name, defaultString, comment, expectedType);
-		}
+        @Override
+        protected Class<? extends Object> getFieldType() {
+            return field.getType();
+        }
 
-		@Override
-		protected Object convertValue(String... values) {
-			Preconditions.checkArgument(values.length == 1, "This parameter has only one value");
-			final String value = values[0];
-			return converter.readFromString(value);
-		}
+        @Override
+        protected Property getProperty(Configuration configFile, Type expectedType, Object defaultValue) {
+            final String defaultString = defaultValue.toString();
+            return configFile.get(category, name, defaultString, comment, expectedType);
+        }
 
-		@Override
-		public String[] getActualPropertyValue() {
-			return new String[] { wrappedProperty.getString() };
-		}
+        @Override
+        protected Object convertValue(String... values) {
+            Preconditions.checkArgument(values.length == 1, "This parameter has only one value");
+            final String value = values[0];
+            return converter.readFromString(value);
+        }
 
-		@Override
-		protected void setPropertyValue(String... values) {
-			Preconditions.checkArgument(values.length == 1, "This parameter has only one value");
-			wrappedProperty.set(values[0]);
-		}
+        @Override
+        public String[] getActualPropertyValue() {
+            return new String[] { wrappedProperty.getString() };
+        }
 
-		@Override
-		public boolean acceptsMultipleValues() {
-			return false;
-		}
+        @Override
+        protected void setPropertyValue(String... values) {
+            Preconditions.checkArgument(values.length == 1, "This parameter has only one value");
+            wrappedProperty.set(values[0]);
+        }
 
-		@Override
-		public String valueDescription() {
-			return propertyText[0];
-		}
+        @Override
+        public boolean acceptsMultipleValues() {
+            return false;
+        }
 
-		@Override
-		protected String[] convertToStringArray(Object value) {
-			return new String[] { value.toString() };
-		}
-	}
+        @Override
+        public String valueDescription() {
+            return propertyText[0];
+        }
 
-	private static class MultipleValues extends ConfigPropertyMeta {
+        @Override
+        protected String[] convertToStringArray(Object value) {
+            return new String[] { value.toString() };
+        }
+    }
 
-		protected MultipleValues(Configuration config, Field field, ConfigProperty annotation) {
-			super(config, field, annotation);
-			this.propertyText = wrappedProperty.getStringList();
-		}
+    private static class MultipleValues extends ConfigPropertyMeta {
 
-		@Override
-		protected Class<? extends Object> getFieldType() {
-			return field.getType().getComponentType();
-		}
+        protected MultipleValues(Configuration config, Field field, ConfigProperty annotation) {
+            super(config, field, annotation);
+            this.propertyText = wrappedProperty.getStringList();
+        }
 
-		@Override
-		protected Property getProperty(Configuration configFile, Type expectedType, Object defaultValue) {
-			final String[] defaultStrings = convertToStringArray(defaultValue);
-			return configFile.get(category, name, defaultStrings, comment, expectedType);
-		}
+        @Override
+        protected Class<? extends Object> getFieldType() {
+            return field.getType().getComponentType();
+        }
 
-		@Override
-		protected Object convertValue(String... values) {
-			final Object result = Array.newInstance(field.getType().getComponentType(), values.length);
-			final CharMatcher matcher = CharMatcher.is('"');
-			for (int i = 0; i < values.length; i++) {
-				final String value = matcher.trimFrom(StringUtils.strip(values[i]));
-				final Object converted = converter.readFromString(value);
-				Array.set(result, i, converted);
-			}
-			return result;
-		}
+        @Override
+        protected Property getProperty(Configuration configFile, Type expectedType, Object defaultValue) {
+            final String[] defaultStrings = convertToStringArray(defaultValue);
+            return configFile.get(category, name, defaultStrings, comment, expectedType);
+        }
 
-		@Override
-		public String[] getActualPropertyValue() {
-			return wrappedProperty.getStringList();
-		}
+        @Override
+        protected Object convertValue(String... values) {
+            final Object result = Array.newInstance(field.getType().getComponentType(), values.length);
+            final CharMatcher matcher = CharMatcher.is('"');
+            for (int i = 0; i < values.length; i++) {
+                final String value = matcher.trimFrom(StringUtils.strip(values[i]));
+                final Object converted = converter.readFromString(value);
+                Array.set(result, i, converted);
+            }
+            return result;
+        }
 
-		@Override
-		protected void setPropertyValue(String... values) {
-			wrappedProperty.set(values);
-		}
+        @Override
+        public String[] getActualPropertyValue() {
+            return wrappedProperty.getStringList();
+        }
 
-		@Override
-		public boolean acceptsMultipleValues() {
-			return true;
-		}
+        @Override
+        protected void setPropertyValue(String... values) {
+            wrappedProperty.set(values);
+        }
 
-		@Override
-		public String valueDescription() {
-			return Arrays.toString(propertyText);
-		}
+        @Override
+        public boolean acceptsMultipleValues() {
+            return true;
+        }
 
-		@Override
-		protected String[] convertToStringArray(Object value) {
-			Preconditions.checkArgument(value.getClass().isArray(), "Type %s is not an array", value.getClass());
-			int length = Array.getLength(value);
-			String[] result = new String[length];
-			for (int i = 0; i < length; i++)
-				result[i] = String.format("\"%s\"", Array.get(value, i).toString());
+        @Override
+        public String valueDescription() {
+            return Arrays.toString(propertyText);
+        }
 
-			return result;
-		}
-	}
+        @Override
+        protected String[] convertToStringArray(Object value) {
+            Preconditions.checkArgument(value.getClass().isArray(), "Type %s is not an array", value.getClass());
+            int length = Array.getLength(value);
+            String[] result = new String[length];
+            for (int i = 0; i < length; i++) result[i] = String.format("\"%s\"", Array.get(value, i).toString());
 
-	public static ConfigPropertyMeta createMetaForField(Configuration config, Field field) {
-		ConfigProperty annotation = field.getAnnotation(ConfigProperty.class);
-		if (annotation == null) return null;
-		Class<?> fieldType = field.getType();
-		return fieldType.isArray()? new MultipleValues(config, field, annotation) : new SingleValue(config, field, annotation);
-	}
+            return result;
+        }
+    }
+
+    public static ConfigPropertyMeta createMetaForField(Configuration config, Field field) {
+        ConfigProperty annotation = field.getAnnotation(ConfigProperty.class);
+        if (annotation == null) return null;
+        Class<?> fieldType = field.getType();
+        return fieldType.isArray() ? new MultipleValues(config, field, annotation)
+                : new SingleValue(config, field, annotation);
+    }
 }

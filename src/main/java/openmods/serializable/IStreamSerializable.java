@@ -1,3 +1,4 @@
 package openmods.serializable;
 
-public interface IStreamSerializable extends IStreamReadable, IStreamWriteable {}
+public interface IStreamSerializable extends IStreamReadable, IStreamWriteable {
+}

@@ -9,8 +9,9 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE, ElementType.FIELD })
 public @interface TypeVariableHolder {
 
-	public static class UseDeclaringType {}
+    public static class UseDeclaringType {
+    }
 
-	public Class<?> value() default UseDeclaringType.class;
+    public Class<?> value() default UseDeclaringType.class;
 
 }

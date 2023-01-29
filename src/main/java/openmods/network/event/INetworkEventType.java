@@ -1,11 +1,12 @@
 package openmods.network.event;
 
 public interface INetworkEventType {
-	public abstract NetworkEvent createPacket();
 
-	public abstract EventDirection getDirection();
+    public abstract NetworkEvent createPacket();
 
-	public boolean isCompressed();
+    public abstract EventDirection getDirection();
 
-	public boolean isChunked();
+    public boolean isCompressed();
+
+    public boolean isChunked();
 }

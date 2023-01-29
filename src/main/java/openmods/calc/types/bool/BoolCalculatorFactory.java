@@ -1,6 +1,7 @@
 package openmods.calc.types.bool;
 
 import java.util.Random;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.Calculator;
 import openmods.calc.Environment;
@@ -16,145 +17,155 @@ import openmods.calc.parsing.IValueParser;
 
 public class BoolCalculatorFactory<M> extends SimpleCalculatorFactory<Boolean, M> {
 
-	@Override
-	protected IValueParser<Boolean> getValueParser() {
-		return new BoolParser();
-	}
+    @Override
+    protected IValueParser<Boolean> getValueParser() {
+        return new BoolParser();
+    }
 
-	@Override
-	protected Boolean getNullValue() {
-		return Boolean.FALSE;
-	}
+    @Override
+    protected Boolean getNullValue() {
+        return Boolean.FALSE;
+    }
 
-	@Override
-	protected IValuePrinter<Boolean> createValuePrinter() {
-		return new BoolPrinter();
-	}
+    @Override
+    protected IValuePrinter<Boolean> createValuePrinter() {
+        return new BoolPrinter();
+    }
 
-	@Override
-	protected void configureEnvironment(Environment<Boolean> env) {
-		env.setGlobalSymbol("true", Boolean.TRUE);
-		env.setGlobalSymbol("false", Boolean.FALSE);
+    @Override
+    protected void configureEnvironment(Environment<Boolean> env) {
+        env.setGlobalSymbol("true", Boolean.TRUE);
+        env.setGlobalSymbol("false", Boolean.FALSE);
 
-		final Random random = new Random();
+        final Random random = new Random();
 
-		env.setGlobalSymbol("rand", new NullaryFunction.Direct<Boolean>() {
-			@Override
-			protected Boolean call() {
-				return random.nextBoolean();
-			}
-		});
-	}
+        env.setGlobalSymbol("rand", new NullaryFunction.Direct<Boolean>() {
 
-	private static final int PRIORITY_AND = 4; // &
-	private static final int PRIORITY_OR = 3; // |
-	private static final int PRIORITY_COMPARE = 2; // ^, =, =>
-	private static final int PRIORITY_ASSIGN = 1;
+            @Override
+            protected Boolean call() {
+                return random.nextBoolean();
+            }
+        });
+    }
 
-	private static class OpAnd extends BinaryOperator.Direct<Boolean> {
-		private OpAnd(String id) {
-			super(id, PRIORITY_AND);
-		}
+    private static final int PRIORITY_AND = 4; // &
+    private static final int PRIORITY_OR = 3; // |
+    private static final int PRIORITY_COMPARE = 2; // ^, =, =>
+    private static final int PRIORITY_ASSIGN = 1;
 
-		@Override
-		public Boolean execute(Boolean left, Boolean right) {
-			return left & right;
-		}
-	}
+    private static class OpAnd extends BinaryOperator.Direct<Boolean> {
 
-	private static class OpOr extends BinaryOperator.Direct<Boolean> {
-		private OpOr(String id) {
-			super(id, PRIORITY_OR);
-		}
+        private OpAnd(String id) {
+            super(id, PRIORITY_AND);
+        }
 
-		@Override
-		public Boolean execute(Boolean left, Boolean right) {
-			return left | right;
-		}
-	}
+        @Override
+        public Boolean execute(Boolean left, Boolean right) {
+            return left & right;
+        }
+    }
 
-	private static class OpImplies extends BinaryOperator.Direct<Boolean> {
-		private OpImplies(String id) {
-			super(id, PRIORITY_COMPARE);
-		}
+    private static class OpOr extends BinaryOperator.Direct<Boolean> {
 
-		@Override
-		public Boolean execute(Boolean left, Boolean right) {
-			return !left | right;
-		}
-	}
+        private OpOr(String id) {
+            super(id, PRIORITY_OR);
+        }
 
-	private static class OpIff extends BinaryOperator.Direct<Boolean> {
-		private OpIff(String id) {
-			super(id, PRIORITY_COMPARE);
-		}
+        @Override
+        public Boolean execute(Boolean left, Boolean right) {
+            return left | right;
+        }
+    }
 
-		@Override
-		public Boolean execute(Boolean left, Boolean right) {
-			return left == right;
-		}
-	}
+    private static class OpImplies extends BinaryOperator.Direct<Boolean> {
 
-	private static class OpXor extends BinaryOperator.Direct<Boolean> {
-		private OpXor(String id) {
-			super(id, PRIORITY_COMPARE);
-		}
+        private OpImplies(String id) {
+            super(id, PRIORITY_COMPARE);
+        }
 
-		@Override
-		public Boolean execute(Boolean left, Boolean right) {
-			return left ^ right;
-		}
-	}
+        @Override
+        public Boolean execute(Boolean left, Boolean right) {
+            return !left | right;
+        }
+    }
 
-	private static class OpNot extends UnaryOperator.Direct<Boolean> {
-		private OpNot(String id) {
-			super(id);
-		}
+    private static class OpIff extends BinaryOperator.Direct<Boolean> {
 
-		@Override
-		public Boolean execute(Boolean value) {
-			return !value;
-		}
-	}
+        private OpIff(String id) {
+            super(id, PRIORITY_COMPARE);
+        }
 
-	@Override
-	protected void configureOperators(OperatorDictionary<Boolean> operators) {
-		operators.registerUnaryOperator(new OpNot("~"));
-		operators.registerUnaryOperator(new OpNot("not"));
+        @Override
+        public Boolean execute(Boolean left, Boolean right) {
+            return left == right;
+        }
+    }
 
-		operators.registerBinaryOperator(new OpXor("^"));
-		operators.registerBinaryOperator(new OpXor("xor"));
-		operators.registerBinaryOperator(new OpXor("!="));
+    private static class OpXor extends BinaryOperator.Direct<Boolean> {
 
-		operators.registerBinaryOperator(new OpIff("="));
-		operators.registerBinaryOperator(new OpIff("<=>"));
-		operators.registerBinaryOperator(new OpIff("eq"));
-		operators.registerBinaryOperator(new OpIff("iff"));
+        private OpXor(String id) {
+            super(id, PRIORITY_COMPARE);
+        }
 
-		operators.registerBinaryOperator(new OpImplies("=>"));
-		operators.registerBinaryOperator(new OpImplies("implies"));
+        @Override
+        public Boolean execute(Boolean left, Boolean right) {
+            return left ^ right;
+        }
+    }
 
-		operators.registerBinaryOperator(new OpOr("|"));
-		operators.registerBinaryOperator(new OpOr("or"));
+    private static class OpNot extends UnaryOperator.Direct<Boolean> {
 
-		operators.registerBinaryOperator(new OpAnd("&"));
-		operators.registerBinaryOperator(new OpAnd("and"));
-	}
+        private OpNot(String id) {
+            super(id);
+        }
 
-	public static Calculator<Boolean, ExprType> createSimple() {
-		return new BoolCalculatorFactory<ExprType>().create(new BasicCompilerMapFactory<Boolean>());
-	}
+        @Override
+        public Boolean execute(Boolean value) {
+            return !value;
+        }
+    }
 
-	public static Calculator<Boolean, ExprType> createDefault() {
-		final CommonSimpleSymbolFactory<Boolean> letFactory = new CommonSimpleSymbolFactory<Boolean>(PRIORITY_ASSIGN, ":");
+    @Override
+    protected void configureOperators(OperatorDictionary<Boolean> operators) {
+        operators.registerUnaryOperator(new OpNot("~"));
+        operators.registerUnaryOperator(new OpNot("not"));
 
-		return new BoolCalculatorFactory<ExprType>() {
-			@Override
-			protected void configureOperators(OperatorDictionary<Boolean> operators) {
-				super.configureOperators(operators);
-				letFactory.registerSeparators(operators);
-			}
-		}.create(letFactory.createCompilerFactory());
-	}
+        operators.registerBinaryOperator(new OpXor("^"));
+        operators.registerBinaryOperator(new OpXor("xor"));
+        operators.registerBinaryOperator(new OpXor("!="));
+
+        operators.registerBinaryOperator(new OpIff("="));
+        operators.registerBinaryOperator(new OpIff("<=>"));
+        operators.registerBinaryOperator(new OpIff("eq"));
+        operators.registerBinaryOperator(new OpIff("iff"));
+
+        operators.registerBinaryOperator(new OpImplies("=>"));
+        operators.registerBinaryOperator(new OpImplies("implies"));
+
+        operators.registerBinaryOperator(new OpOr("|"));
+        operators.registerBinaryOperator(new OpOr("or"));
+
+        operators.registerBinaryOperator(new OpAnd("&"));
+        operators.registerBinaryOperator(new OpAnd("and"));
+    }
+
+    public static Calculator<Boolean, ExprType> createSimple() {
+        return new BoolCalculatorFactory<ExprType>().create(new BasicCompilerMapFactory<Boolean>());
+    }
+
+    public static Calculator<Boolean, ExprType> createDefault() {
+        final CommonSimpleSymbolFactory<Boolean> letFactory = new CommonSimpleSymbolFactory<Boolean>(
+                PRIORITY_ASSIGN,
+                ":");
+
+        return new BoolCalculatorFactory<ExprType>() {
+
+            @Override
+            protected void configureOperators(OperatorDictionary<Boolean> operators) {
+                super.configureOperators(operators);
+                letFactory.registerSeparators(operators);
+            }
+        }.create(letFactory.createCompilerFactory());
+    }
 
 }

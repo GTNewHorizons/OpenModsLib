@@ -4,15 +4,16 @@ import net.minecraft.item.ItemStack;
 
 public interface ICustomBookEntryProvider {
 
-	public class Entry {
-		public final String name;
-		public final ItemStack stack;
+    public class Entry {
 
-		public Entry(String name, ItemStack stack) {
-			this.name = name;
-			this.stack = stack;
-		}
-	}
+        public final String name;
+        public final ItemStack stack;
 
-	public Iterable<Entry> getBookEntries();
+        public Entry(String name, ItemStack stack) {
+            this.name = name;
+            this.stack = stack;
+        }
+    }
+
+    public Iterable<Entry> getBookEntries();
 }

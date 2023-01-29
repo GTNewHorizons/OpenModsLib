@@ -5,6 +5,6 @@ import java.io.IOException;
 
 public interface IStreamReadable {
 
-	public void readFromStream(DataInput input) throws IOException;
+    public void readFromStream(DataInput input) throws IOException;
 
 }

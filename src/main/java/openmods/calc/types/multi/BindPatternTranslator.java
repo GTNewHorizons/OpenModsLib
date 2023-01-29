@@ -1,129 +1,133 @@
 package openmods.calc.types.multi;
 
 import java.util.Collection;
+
 import openmods.calc.Frame;
 import openmods.calc.SymbolMap;
 
 public class BindPatternTranslator {
 
-	public interface IBindPatternProvider {
-		public IBindPattern getPattern(BindPatternTranslator translator);
-	}
+    public interface IBindPatternProvider {
 
-	private static class PatternAny implements IBindPattern {
-		public static final PatternAny INSTANCE = new PatternAny();
+        public IBindPattern getPattern(BindPatternTranslator translator);
+    }
 
-		@Override
-		public boolean match(Frame<TypedValue> env, SymbolMap<TypedValue> output, TypedValue value) {
-			return true;
-		}
+    private static class PatternAny implements IBindPattern {
 
-		@Override
-		public void listBoundVars(Collection<String> output) {}
+        public static final PatternAny INSTANCE = new PatternAny();
 
-		@Override
-		public String serialize() {
-			return "_";
-		}
-	}
+        @Override
+        public boolean match(Frame<TypedValue> env, SymbolMap<TypedValue> output, TypedValue value) {
+            return true;
+        }
 
-	private static class PatternBindName implements IBindPattern {
-		private final String name;
+        @Override
+        public void listBoundVars(Collection<String> output) {}
 
-		public PatternBindName(String name) {
-			this.name = name;
-		}
+        @Override
+        public String serialize() {
+            return "_";
+        }
+    }
 
-		@Override
-		public boolean match(Frame<TypedValue> env, SymbolMap<TypedValue> output, TypedValue value) {
-			output.put(name, value);
-			return true;
-		}
+    private static class PatternBindName implements IBindPattern {
 
-		@Override
-		public void listBoundVars(Collection<String> output) {
-			output.add(name);
-		}
+        private final String name;
 
-		@Override
-		public String serialize() {
-			return name;
-		}
-	}
+        public PatternBindName(String name) {
+            this.name = name;
+        }
 
-	public static IBindPattern createPatternForVarName(String var) {
-		return var.equals(TypedCalcConstants.MATCH_ANY)
-				? PatternAny.INSTANCE
-				: new PatternBindName(var);
-	}
+        @Override
+        public boolean match(Frame<TypedValue> env, SymbolMap<TypedValue> output, TypedValue value) {
+            output.put(name, value);
+            return true;
+        }
 
-	private static class PatternMatchConst implements IBindPattern {
-		private final TypedValue expected;
+        @Override
+        public void listBoundVars(Collection<String> output) {
+            output.add(name);
+        }
 
-		public PatternMatchConst(TypedValue expected) {
-			this.expected = expected;
-		}
+        @Override
+        public String serialize() {
+            return name;
+        }
+    }
 
-		@Override
-		public boolean match(Frame<TypedValue> env, SymbolMap<TypedValue> output, TypedValue value) {
-			return value.equals(expected);
-		}
+    public static IBindPattern createPatternForVarName(String var) {
+        return var.equals(TypedCalcConstants.MATCH_ANY) ? PatternAny.INSTANCE : new PatternBindName(var);
+    }
 
-		@Override
-		public void listBoundVars(Collection<String> output) {}
+    private static class PatternMatchConst implements IBindPattern {
 
-		@Override
-		public String serialize() {
-			return expected.toString();
-		}
-	}
+        private final TypedValue expected;
 
-	private static class PatternMatchCons implements IBindPattern {
-		private final IBindPattern carMatcher;
-		private final IBindPattern cdrMatcher;
+        public PatternMatchConst(TypedValue expected) {
+            this.expected = expected;
+        }
 
-		public PatternMatchCons(IBindPattern carMatcher, IBindPattern cdrMatcher) {
-			this.carMatcher = carMatcher;
-			this.cdrMatcher = cdrMatcher;
-		}
+        @Override
+        public boolean match(Frame<TypedValue> env, SymbolMap<TypedValue> output, TypedValue value) {
+            return value.equals(expected);
+        }
 
-		@Override
-		public boolean match(Frame<TypedValue> env, SymbolMap<TypedValue> output, TypedValue value) {
-			if (!value.is(Cons.class)) return false;
-			final Cons pair = value.as(Cons.class);
-			return carMatcher.match(env, output, pair.car) && cdrMatcher.match(env, output, pair.cdr);
-		}
+        @Override
+        public void listBoundVars(Collection<String> output) {}
 
-		@Override
-		public void listBoundVars(Collection<String> output) {
-			carMatcher.listBoundVars(output);
-			cdrMatcher.listBoundVars(output);
-		}
+        @Override
+        public String serialize() {
+            return expected.toString();
+        }
+    }
 
-		@Override
-		public String serialize() {
-			return carMatcher.serialize() + ":" + cdrMatcher.serialize();
-		}
-	}
+    private static class PatternMatchCons implements IBindPattern {
 
-	public IBindPattern translatePattern(TypedValue value) {
-		if (value.is(IBindPatternProvider.class)) {
-			final IBindPatternProvider p = value.as(IBindPatternProvider.class);
-			return p.getPattern(this);
-		}
+        private final IBindPattern carMatcher;
+        private final IBindPattern cdrMatcher;
 
-		if (value.is(Cons.class)) {
-			final Cons pair = value.as(Cons.class);
-			final IBindPattern carPattern = translatePattern(pair.car);
-			final IBindPattern cdrPattern = translatePattern(pair.cdr);
-			return new PatternMatchCons(carPattern, cdrPattern);
-		}
+        public PatternMatchCons(IBindPattern carMatcher, IBindPattern cdrMatcher) {
+            this.carMatcher = carMatcher;
+            this.cdrMatcher = cdrMatcher;
+        }
 
-		return new PatternMatchConst(value);
-	}
+        @Override
+        public boolean match(Frame<TypedValue> env, SymbolMap<TypedValue> output, TypedValue value) {
+            if (!value.is(Cons.class)) return false;
+            final Cons pair = value.as(Cons.class);
+            return carMatcher.match(env, output, pair.car) && cdrMatcher.match(env, output, pair.cdr);
+        }
 
-	public static void registerType(TypeDomain domain) {
-		domain.registerType(IBindPatternProvider.class, "patternPlaceholder");
-	}
+        @Override
+        public void listBoundVars(Collection<String> output) {
+            carMatcher.listBoundVars(output);
+            cdrMatcher.listBoundVars(output);
+        }
+
+        @Override
+        public String serialize() {
+            return carMatcher.serialize() + ":" + cdrMatcher.serialize();
+        }
+    }
+
+    public IBindPattern translatePattern(TypedValue value) {
+        if (value.is(IBindPatternProvider.class)) {
+            final IBindPatternProvider p = value.as(IBindPatternProvider.class);
+            return p.getPattern(this);
+        }
+
+        if (value.is(Cons.class)) {
+            final Cons pair = value.as(Cons.class);
+            final IBindPattern carPattern = translatePattern(pair.car);
+            final IBindPattern cdrPattern = translatePattern(pair.cdr);
+            return new PatternMatchCons(carPattern, cdrPattern);
+        }
+
+        return new PatternMatchConst(value);
+    }
+
+    public static void registerType(TypeDomain domain) {
+        domain.registerType(IBindPatternProvider.class, "patternPlaceholder");
+    }
 
 }

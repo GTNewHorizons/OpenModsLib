@@ -1,137 +1,141 @@
 package openmods.gui.component;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
 import java.util.List;
+
 import net.minecraft.client.Minecraft;
+
 import openmods.gui.listener.IValueChangedListener;
+
+import com.google.common.collect.ImmutableList;
 
 public class GuiComponentPalettePicker extends BaseComponent {
 
-	public static class PaletteEntry {
-		public final int callback;
-		public final int rgb;
-		public final String name;
+    public static class PaletteEntry {
 
-		public PaletteEntry(int callback, int rgb, String name) {
-			this.callback = callback;
-			this.rgb = rgb;
-			this.name = name;
-		}
-	}
+        public final int callback;
+        public final int rgb;
+        public final String name;
 
-	private List<PaletteEntry> palette = ImmutableList.of();
+        public PaletteEntry(int callback, int rgb, String name) {
+            this.callback = callback;
+            this.rgb = rgb;
+            this.name = name;
+        }
+    }
 
-	private int rowSize = 2;
+    private List<PaletteEntry> palette = ImmutableList.of();
 
-	private int columnCount;
+    private int rowSize = 2;
 
-	private int areaSize = 4;
+    private int columnCount;
 
-	private IValueChangedListener<PaletteEntry> listener;
+    private int areaSize = 4;
 
-	private boolean drawTooltip = false;
+    private IValueChangedListener<PaletteEntry> listener;
 
-	public GuiComponentPalettePicker(int x, int y) {
-		super(x, y);
-	}
+    private boolean drawTooltip = false;
 
-	@Override
-	public int getWidth() {
-		return rowSize * areaSize;
-	}
+    public GuiComponentPalettePicker(int x, int y) {
+        super(x, y);
+    }
 
-	@Override
-	public int getHeight() {
-		return columnCount * areaSize;
-	}
+    @Override
+    public int getWidth() {
+        return rowSize * areaSize;
+    }
 
-	private void recalculate() {
-		if (this.palette.isEmpty()) {
-			this.columnCount = 0;
-		} else {
-			final int count = palette.size();
-			this.columnCount = (count + (rowSize - 1)) / rowSize;
-		}
-	}
+    @Override
+    public int getHeight() {
+        return columnCount * areaSize;
+    }
 
-	public void setPalette(List<PaletteEntry> colors) {
-		this.palette = ImmutableList.copyOf(colors);
-		recalculate();
-	}
+    private void recalculate() {
+        if (this.palette.isEmpty()) {
+            this.columnCount = 0;
+        } else {
+            final int count = palette.size();
+            this.columnCount = (count + (rowSize - 1)) / rowSize;
+        }
+    }
 
-	public void setRowSize(int rowSize) {
-		this.rowSize = rowSize;
-		recalculate();
-	}
+    public void setPalette(List<PaletteEntry> colors) {
+        this.palette = ImmutableList.copyOf(colors);
+        recalculate();
+    }
 
-	public void setAreaSize(int areaSize) {
-		this.areaSize = areaSize;
-	}
+    public void setRowSize(int rowSize) {
+        this.rowSize = rowSize;
+        recalculate();
+    }
 
-	public void setDrawTooltip(boolean drawTooltip) {
-		this.drawTooltip = drawTooltip;
-	}
+    public void setAreaSize(int areaSize) {
+        this.areaSize = areaSize;
+    }
 
-	public void setListener(IValueChangedListener<PaletteEntry> listener) {
-		this.listener = listener;
-	}
+    public void setDrawTooltip(boolean drawTooltip) {
+        this.drawTooltip = drawTooltip;
+    }
 
-	@Override
-	public void render(Minecraft minecraft, int offsetX, int offsetY, int mouseX, int mouseY) {
-		Iterator<PaletteEntry> it = palette.iterator();
+    public void setListener(IValueChangedListener<PaletteEntry> listener) {
+        this.listener = listener;
+    }
 
-		final int bx = x + offsetX;
-		final int by = y + offsetY;
+    @Override
+    public void render(Minecraft minecraft, int offsetX, int offsetY, int mouseX, int mouseY) {
+        Iterator<PaletteEntry> it = palette.iterator();
 
-		int ry = by;
+        final int bx = x + offsetX;
+        final int by = y + offsetY;
 
-		OUTER: for (int column = 0; column < columnCount; column++) {
-			final int ny = ry + areaSize;
-			int rx = bx;
+        int ry = by;
 
-			for (int row = 0; row < rowSize; row++) {
-				if (!it.hasNext()) break OUTER;
-				final PaletteEntry entry = it.next();
+        OUTER: for (int column = 0; column < columnCount; column++) {
+            final int ny = ry + areaSize;
+            int rx = bx;
 
-				final int nx = rx + areaSize;
-				drawRect(rx, ry, nx, ny, 0xFF000000 | entry.rgb);
-				rx = nx;
-			}
+            for (int row = 0; row < rowSize; row++) {
+                if (!it.hasNext()) break OUTER;
+                final PaletteEntry entry = it.next();
 
-			ry = ny;
-		}
+                final int nx = rx + areaSize;
+                drawRect(rx, ry, nx, ny, 0xFF000000 | entry.rgb);
+                rx = nx;
+            }
 
-	}
+            ry = ny;
+        }
 
-	@Override
-	public void renderOverlay(Minecraft minecraft, int offsetX, int offsetY, int mouseX, int mouseY) {
-		if (drawTooltip && isMouseOver(mouseX, mouseY)) {
-			final PaletteEntry entry = findEntry(mouseX - x, mouseY - y);
-			if (entry != null) drawHoveringText(entry.name, offsetX + mouseX, offsetY + mouseY, minecraft.fontRenderer);
-		}
-	}
+    }
 
-	@Override
-	public void mouseDown(int mouseX, int mouseY, int button) {
-		super.mouseDown(mouseX, mouseY, button);
+    @Override
+    public void renderOverlay(Minecraft minecraft, int offsetX, int offsetY, int mouseX, int mouseY) {
+        if (drawTooltip && isMouseOver(mouseX, mouseY)) {
+            final PaletteEntry entry = findEntry(mouseX - x, mouseY - y);
+            if (entry != null) drawHoveringText(entry.name, offsetX + mouseX, offsetY + mouseY, minecraft.fontRenderer);
+        }
+    }
 
-		if (listener != null) {
-			final PaletteEntry entry = findEntry(mouseX, mouseY);
-			if (entry != null) listener.valueChanged(entry);
-		}
-	}
+    @Override
+    public void mouseDown(int mouseX, int mouseY, int button) {
+        super.mouseDown(mouseX, mouseY, button);
 
-	private PaletteEntry findEntry(int mouseX, int mouseY) {
-		final int row = mouseX / areaSize;
-		final int column = mouseY / areaSize;
+        if (listener != null) {
+            final PaletteEntry entry = findEntry(mouseX, mouseY);
+            if (entry != null) listener.valueChanged(entry);
+        }
+    }
 
-		if (row < rowSize && column < columnCount) {
-			final int index = column * rowSize + row;
-			if (index >= 0 && index < palette.size()) return palette.get(index);
-		}
+    private PaletteEntry findEntry(int mouseX, int mouseY) {
+        final int row = mouseX / areaSize;
+        final int column = mouseY / areaSize;
 
-		return null;
-	}
+        if (row < rowSize && column < columnCount) {
+            final int index = column * rowSize + row;
+            if (index >= 0 && index < palette.size()) return palette.get(index);
+        }
+
+        return null;
+    }
 
 }

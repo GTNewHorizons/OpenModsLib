@@ -1,3 +1,4 @@
 package openmods.utils.io;
 
-public interface INBTSerializer<T> extends INbtReader<T>, INbtWriter<T>, INbtChecker {}
+public interface INBTSerializer<T> extends INbtReader<T>, INbtWriter<T>, INbtChecker {
+}

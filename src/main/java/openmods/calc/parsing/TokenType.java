@@ -4,55 +4,56 @@ import java.util.EnumSet;
 import java.util.Set;
 
 enum TokenProperties {
-	NUMBER,
-	VALUE,
-	SYMBOL,
-	EXPRESSION_TERMINATOR
+    NUMBER,
+    VALUE,
+    SYMBOL,
+    EXPRESSION_TERMINATOR
 }
 
 public enum TokenType {
-	DEC_NUMBER(TokenProperties.VALUE, TokenProperties.NUMBER),
-	HEX_NUMBER(TokenProperties.VALUE, TokenProperties.NUMBER),
-	OCT_NUMBER(TokenProperties.VALUE, TokenProperties.NUMBER),
-	BIN_NUMBER(TokenProperties.VALUE, TokenProperties.NUMBER),
-	QUOTED_NUMBER(TokenProperties.VALUE, TokenProperties.NUMBER),
 
-	STRING(TokenProperties.VALUE),
+    DEC_NUMBER(TokenProperties.VALUE, TokenProperties.NUMBER),
+    HEX_NUMBER(TokenProperties.VALUE, TokenProperties.NUMBER),
+    OCT_NUMBER(TokenProperties.VALUE, TokenProperties.NUMBER),
+    BIN_NUMBER(TokenProperties.VALUE, TokenProperties.NUMBER),
+    QUOTED_NUMBER(TokenProperties.VALUE, TokenProperties.NUMBER),
 
-	SYMBOL(TokenProperties.SYMBOL),
-	SYMBOL_WITH_ARGS(TokenProperties.SYMBOL),
+    STRING(TokenProperties.VALUE),
 
-	OPERATOR(),
+    SYMBOL(TokenProperties.SYMBOL),
+    SYMBOL_WITH_ARGS(TokenProperties.SYMBOL),
 
-	LEFT_BRACKET(),
-	SEPARATOR(TokenProperties.EXPRESSION_TERMINATOR),
-	RIGHT_BRACKET(TokenProperties.EXPRESSION_TERMINATOR),
+    OPERATOR(),
 
-	MODIFIER();
+    LEFT_BRACKET(),
+    SEPARATOR(TokenProperties.EXPRESSION_TERMINATOR),
+    RIGHT_BRACKET(TokenProperties.EXPRESSION_TERMINATOR),
 
-	public boolean isValue() {
-		return properties.contains(TokenProperties.VALUE);
-	}
+    MODIFIER();
 
-	public boolean isNumber() {
-		return properties.contains(TokenProperties.NUMBER);
-	}
+    public boolean isValue() {
+        return properties.contains(TokenProperties.VALUE);
+    }
 
-	public final boolean isSymbol() {
-		return properties.contains(TokenProperties.SYMBOL);
-	}
+    public boolean isNumber() {
+        return properties.contains(TokenProperties.NUMBER);
+    }
 
-	public boolean isExpressionTerminator() {
-		return properties.contains(TokenProperties.EXPRESSION_TERMINATOR);
-	}
+    public final boolean isSymbol() {
+        return properties.contains(TokenProperties.SYMBOL);
+    }
 
-	private final Set<TokenProperties> properties;
+    public boolean isExpressionTerminator() {
+        return properties.contains(TokenProperties.EXPRESSION_TERMINATOR);
+    }
 
-	private TokenType(TokenProperties property, TokenProperties... properties) {
-		this.properties = EnumSet.of(property, properties);
-	}
+    private final Set<TokenProperties> properties;
 
-	private TokenType() {
-		this.properties = EnumSet.noneOf(TokenProperties.class);
-	}
+    private TokenType(TokenProperties property, TokenProperties... properties) {
+        this.properties = EnumSet.of(property, properties);
+    }
+
+    private TokenType() {
+        this.properties = EnumSet.noneOf(TokenProperties.class);
+    }
 }

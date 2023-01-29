@@ -1,212 +1,222 @@
 package openmods.structured;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Sets;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+
 import openmods.structured.Command.ConsistencyCheck;
 import openmods.structured.Command.ContainerInfo;
 import openmods.structured.Command.Create;
 import openmods.structured.Command.Delete;
 import openmods.structured.Command.UpdateSingle;
 
-public class StructuredDataMaster<C extends IStructureContainer<E>, E extends IStructureElement> extends StructuredData<C, E> {
-	public static final int CONSISTENCY_CHECK_PERIOD = 10;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 
-	private final Set<Integer> newContainers = Sets.newTreeSet();
-	private final Set<Integer> deletedContainers = Sets.newTreeSet();
-	private final Set<Integer> modifiedElements = Sets.newTreeSet();
-	private byte checkCount;
+public class StructuredDataMaster<C extends IStructureContainer<E>, E extends IStructureElement>
+        extends StructuredData<C, E> {
 
-	private int nextElementId;
-	private int nextContainerId;
+    public static final int CONSISTENCY_CHECK_PERIOD = 10;
 
-	private boolean fullUpdateNeeded;
+    private final Set<Integer> newContainers = Sets.newTreeSet();
+    private final Set<Integer> deletedContainers = Sets.newTreeSet();
+    private final Set<Integer> modifiedElements = Sets.newTreeSet();
+    private byte checkCount;
 
-	public StructuredDataMaster() {
-		super();
-	}
+    private int nextElementId;
+    private int nextContainerId;
 
-	public StructuredDataMaster(IStructureObserver<C, E> observer) {
-		super(observer);
-	}
+    private boolean fullUpdateNeeded;
 
-	public synchronized void appendUpdateCommands(List<Command> commands) {
-		if (fullUpdateNeeded) {
-			createFullCommands(commands);
-			fullUpdateNeeded = false;
-		} else {
-			createUpdateCommands(commands);
-		}
+    public StructuredDataMaster() {
+        super();
+    }
 
-		clearUpdates();
-	}
+    public StructuredDataMaster(IStructureObserver<C, E> observer) {
+        super(observer);
+    }
 
-	public synchronized void appendFullCommands(List<Command> commands) {
-		createFullCommands(commands);
-	}
+    public synchronized void appendUpdateCommands(List<Command> commands) {
+        if (fullUpdateNeeded) {
+            createFullCommands(commands);
+            fullUpdateNeeded = false;
+        } else {
+            createUpdateCommands(commands);
+        }
 
-	private void createFullCommands(List<Command> commands) {
-		commands.add(Command.RESET_INST);
+        clearUpdates();
+    }
 
-		if (!containers.isEmpty()) {
-			appendContainersCreate(commands, containers.keySet());
-			commands.add(createConsistencyCheck());
-		}
-	}
+    public synchronized void appendFullCommands(List<Command> commands) {
+        createFullCommands(commands);
+    }
 
-	private void createUpdateCommands(List<Command> commands) {
-		boolean addCheck = (checkCount++) % CONSISTENCY_CHECK_PERIOD == 0;
+    private void createFullCommands(List<Command> commands) {
+        commands.add(Command.RESET_INST);
 
-		if (!deletedContainers.isEmpty()) {
-			addCheck = true;
-			Command.Delete delete = new Delete();
-			delete.idList.addAll(deletedContainers);
-			commands.add(delete);
-			newContainers.removeAll(deletedContainers);
-		}
+        if (!containers.isEmpty()) {
+            appendContainersCreate(commands, containers.keySet());
+            commands.add(createConsistencyCheck());
+        }
+    }
 
-		if (!newContainers.isEmpty()) {
-			addCheck = true;
-			Set<Integer> newElements = appendContainersCreate(commands, newContainers);
-			modifiedElements.removeAll(newElements);
-		}
+    private void createUpdateCommands(List<Command> commands) {
+        boolean addCheck = (checkCount++) % CONSISTENCY_CHECK_PERIOD == 0;
 
-		if (!modifiedElements.isEmpty()) {
-			Command.UpdateSingle update = new UpdateSingle();
-			update.idList.addAll(modifiedElements);
-			update.elementPayload = createElementPayload(modifiedElements);
-			commands.add(update);
-		}
+        if (!deletedContainers.isEmpty()) {
+            addCheck = true;
+            Command.Delete delete = new Delete();
+            delete.idList.addAll(deletedContainers);
+            commands.add(delete);
+            newContainers.removeAll(deletedContainers);
+        }
 
-		if (addCheck) commands.add(createConsistencyCheck());
-	}
+        if (!newContainers.isEmpty()) {
+            addCheck = true;
+            Set<Integer> newElements = appendContainersCreate(commands, newContainers);
+            modifiedElements.removeAll(newElements);
+        }
 
-	private synchronized Set<Integer> appendContainersCreate(List<Command> commands, final Set<Integer> containersToSend) {
-		Set<Integer> newElements = Sets.newTreeSet();
-		Command.Create create = new Create();
-		for (Integer containerId : containersToSend) {
-			C container = containers.get(containerId);
-			SortedSet<Integer> containerContents = containerToElement.get(containerId);
-			newElements.addAll(containerContents);
-			int firstContainerElement = containerContents.first();
-			create.containers.add(new ContainerInfo(containerId, container.getType(), firstContainerElement));
-		}
+        if (!modifiedElements.isEmpty()) {
+            Command.UpdateSingle update = new UpdateSingle();
+            update.idList.addAll(modifiedElements);
+            update.elementPayload = createElementPayload(modifiedElements);
+            commands.add(update);
+        }
 
-		create.containerPayload = createContainerPayload(containersToSend);
-		create.elementPayload = createElementPayload(newElements);
-		commands.add(create);
-		return newElements;
-	}
+        if (addCheck) commands.add(createConsistencyCheck());
+    }
 
-	private synchronized ConsistencyCheck createConsistencyCheck() {
-		ConsistencyCheck check = new ConsistencyCheck();
+    private synchronized Set<Integer> appendContainersCreate(List<Command> commands,
+            final Set<Integer> containersToSend) {
+        Set<Integer> newElements = Sets.newTreeSet();
+        Command.Create create = new Create();
+        for (Integer containerId : containersToSend) {
+            C container = containers.get(containerId);
+            SortedSet<Integer> containerContents = containerToElement.get(containerId);
+            newElements.addAll(containerContents);
+            int firstContainerElement = containerContents.first();
+            create.containers.add(new ContainerInfo(containerId, container.getType(), firstContainerElement));
+        }
 
-		SortedSet<Integer> containers = containerToElement.keySet();
-		if (!containers.isEmpty()) {
-			check.containerCount = containers.size();
-			check.minContainerId = containers.first();
-			check.maxContainerId = containers.last();
-		}
+        create.containerPayload = createContainerPayload(containersToSend);
+        create.elementPayload = createElementPayload(newElements);
+        commands.add(create);
+        return newElements;
+    }
 
-		if (!elements.isEmpty()) {
-			check.elementCount = elements.size();
-			check.minElementId = elements.firstKey();
-			check.maxElementId = elements.lastKey();
-		}
-		return check;
-	}
+    private synchronized ConsistencyCheck createConsistencyCheck() {
+        ConsistencyCheck check = new ConsistencyCheck();
 
-	@Override
-	public void removeAll() {
-		super.removeAll();
-		observer.onStructureUpdate();
+        SortedSet<Integer> containers = containerToElement.keySet();
+        if (!containers.isEmpty()) {
+            check.containerCount = containers.size();
+            check.minContainerId = containers.first();
+            check.maxContainerId = containers.last();
+        }
 
-		fullUpdateNeeded = true;
+        if (!elements.isEmpty()) {
+            check.elementCount = elements.size();
+            check.minElementId = elements.firstKey();
+            check.maxElementId = elements.lastKey();
+        }
+        return check;
+    }
 
-		clearUpdates();
+    @Override
+    public void removeAll() {
+        super.removeAll();
+        observer.onStructureUpdate();
 
-		checkCount = 0;
-		nextElementId = 0;
-		nextContainerId = 0;
-	}
+        fullUpdateNeeded = true;
 
-	private synchronized void clearUpdates() {
-		newContainers.clear();
-		deletedContainers.clear();
-		modifiedElements.clear();
-	}
+        clearUpdates();
 
-	public boolean hasUpdates() {
-		return fullUpdateNeeded || !(newContainers.isEmpty() && deletedContainers.isEmpty() && modifiedElements.isEmpty());
-	}
+        checkCount = 0;
+        nextElementId = 0;
+        nextContainerId = 0;
+    }
 
-	public synchronized void markElementModified(int elementId) {
-		final E element = elements.get(elementId);
-		Preconditions.checkArgument(element != null, "No element with id %s", elementId);
-		modifiedElements.add(elementId);
+    private synchronized void clearUpdates() {
+        newContainers.clear();
+        deletedContainers.clear();
+        modifiedElements.clear();
+    }
 
-		final int containerId = elementToContainer.get(elementId);
-		Preconditions.checkState(containerId != NULL, "Inconsistent state for element %s", elementId);
-		final C container = containers.get(containerId);
-		Preconditions.checkState(container != null, "Inconsistent state for element %s, container %s", elementId, containerId);
+    public boolean hasUpdates() {
+        return fullUpdateNeeded
+                || !(newContainers.isEmpty() && deletedContainers.isEmpty() && modifiedElements.isEmpty());
+    }
 
-		observer.onContainerUpdated(containerId, container);
-		observer.onElementUpdated(containerId, container, elementId, element);
-		observer.onDataUpdate();
-	}
+    public synchronized void markElementModified(int elementId) {
+        final E element = elements.get(elementId);
+        Preconditions.checkArgument(element != null, "No element with id %s", elementId);
+        modifiedElements.add(elementId);
 
-	public synchronized int addContainer(C container) {
-		int containerId = nextContainerId++;
-		nextElementId = addContainer(containerId, container, nextElementId);
-		newContainers.add(containerId);
-		observer.onStructureUpdate();
-		return containerId;
-	}
+        final int containerId = elementToContainer.get(elementId);
+        Preconditions.checkState(containerId != NULL, "Inconsistent state for element %s", elementId);
+        final C container = containers.get(containerId);
+        Preconditions.checkState(
+                container != null,
+                "Inconsistent state for element %s, container %s",
+                elementId,
+                containerId);
 
-	@Override
-	public synchronized SortedSet<Integer> removeContainer(int containerId) {
-		SortedSet<Integer> removedElements = super.removeContainer(containerId);
-		boolean isNewContainer = newContainers.remove(containerId);
-		if (!isNewContainer) deletedContainers.add(containerId);
+        observer.onContainerUpdated(containerId, container);
+        observer.onElementUpdated(containerId, container, elementId, element);
+        observer.onDataUpdate();
+    }
 
-		modifiedElements.removeAll(removedElements);
-		observer.onStructureUpdate();
-		return removedElements;
-	}
+    public synchronized int addContainer(C container) {
+        int containerId = nextContainerId++;
+        nextElementId = addContainer(containerId, container, nextElementId);
+        newContainers.add(containerId);
+        observer.onStructureUpdate();
+        return containerId;
+    }
 
-	private byte[] createContainerPayload(Set<Integer> containerIds) {
-		try {
-			ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    @Override
+    public synchronized SortedSet<Integer> removeContainer(int containerId) {
+        SortedSet<Integer> removedElements = super.removeContainer(containerId);
+        boolean isNewContainer = newContainers.remove(containerId);
+        if (!isNewContainer) deletedContainers.add(containerId);
 
-			for (Integer id : containerIds) {
-				final C c = containers.get(id);
-				if (c instanceof ICustomCreateData) ((ICustomCreateData)c).writeCustomDataFromStream(output);
-			}
+        modifiedElements.removeAll(removedElements);
+        observer.onStructureUpdate();
+        return removedElements;
+    }
 
-			return output.toByteArray();
-		} catch (IOException e) {
-			throw Throwables.propagate(e);
-		}
-	}
+    private byte[] createContainerPayload(Set<Integer> containerIds) {
+        try {
+            ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
-	private byte[] createElementPayload(Collection<Integer> ids) {
-		try {
-			ByteArrayDataOutput output = ByteStreams.newDataOutput();
-			for (Integer id : ids) {
-				E element = elements.get(id);
-				element.writeToStream(output);
-			}
+            for (Integer id : containerIds) {
+                final C c = containers.get(id);
+                if (c instanceof ICustomCreateData) ((ICustomCreateData) c).writeCustomDataFromStream(output);
+            }
 
-			return output.toByteArray();
-		} catch (IOException e) {
-			throw Throwables.propagate(e);
-		}
-	}
+            return output.toByteArray();
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    private byte[] createElementPayload(Collection<Integer> ids) {
+        try {
+            ByteArrayDataOutput output = ByteStreams.newDataOutput();
+            for (Integer id : ids) {
+                E element = elements.get(id);
+                element.writeToStream(output);
+            }
+
+            return output.toByteArray();
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
+    }
 }

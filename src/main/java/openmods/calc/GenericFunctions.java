@@ -1,98 +1,104 @@
 package openmods.calc;
 
-import com.google.common.collect.Lists;
 import java.util.List;
+
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
 import openmods.utils.StackValidationException;
 
+import com.google.common.collect.Lists;
+
 public class GenericFunctions {
 
-	public interface Accumulator<E> {
-		public E accumulate(E prev, E value);
-	}
+    public interface Accumulator<E> {
 
-	// WARNING: this assumes 'accumulate' operation is associative!
-	public abstract static class AccumulatorFunction<E> extends SingleReturnCallable<E> {
-		private final E nullValue;
+        public E accumulate(E prev, E value);
+    }
 
-		public AccumulatorFunction(E nullValue) {
-			this.nullValue = nullValue;
-		}
+    // WARNING: this assumes 'accumulate' operation is associative!
+    public abstract static class AccumulatorFunction<E> extends SingleReturnCallable<E> {
 
-		@Override
-		public E call(Frame<E> frame, OptionalInt argumentsCount) {
-			final Stack<E> stack = frame.stack();
-			final int args = argumentsCount.or(2);
+        private final E nullValue;
 
-			if (args == 0)
-				return nullValue;
-			E result = stack.pop();
+        public AccumulatorFunction(E nullValue) {
+            this.nullValue = nullValue;
+        }
 
-			for (int i = 1; i < args; i++) {
-				final E value = stack.pop();
-				result = accumulate(value, result);
-			}
+        @Override
+        public E call(Frame<E> frame, OptionalInt argumentsCount) {
+            final Stack<E> stack = frame.stack();
+            final int args = argumentsCount.or(2);
 
-			return process(result, args);
-		}
+            if (args == 0) return nullValue;
+            E result = stack.pop();
 
-		protected E process(E result, int argCount) {
-			return result;
-		}
+            for (int i = 1; i < args; i++) {
+                final E value = stack.pop();
+                result = accumulate(value, result);
+            }
 
-		protected abstract E accumulate(E result, E value);
-	}
+            return process(result, args);
+        }
 
-	public static <E> void createStackManipulationFunctions(Environment<E> calculator) {
-		calculator.setGlobalSymbol("swap", new FixedCallable<E>(2, 2) {
-			@Override
-			public void call(Frame<E> frame) {
-				final Stack<E> stack = frame.stack();
+        protected E process(E result, int argCount) {
+            return result;
+        }
 
-				final E first = stack.pop();
-				final E second = stack.pop();
+        protected abstract E accumulate(E result, E value);
+    }
 
-				stack.push(first);
-				stack.push(second);
-			}
-		});
+    public static <E> void createStackManipulationFunctions(Environment<E> calculator) {
+        calculator.setGlobalSymbol("swap", new FixedCallable<E>(2, 2) {
 
-		calculator.setGlobalSymbol("pop", new ICallable<E>() {
-			@Override
-			public void call(Frame<E> frame, OptionalInt argumentsCount, OptionalInt returnsCount) {
-				if (returnsCount.isPresent() && returnsCount.get() != 0) throw new StackValidationException("Invalid expected return values on 'pop'");
+            @Override
+            public void call(Frame<E> frame) {
+                final Stack<E> stack = frame.stack();
 
-				final Stack<E> stack = frame.stack();
+                final E first = stack.pop();
+                final E second = stack.pop();
 
-				final int count = argumentsCount.or(1);
-				for (int i = 0; i < count; i++)
-					stack.pop();
-			}
-		});
+                stack.push(first);
+                stack.push(second);
+            }
+        });
 
-		calculator.setGlobalSymbol("dup", new ICallable<E>() {
-			@Override
-			public void call(Frame<E> frame, OptionalInt argumentsCount, OptionalInt returnsCount) {
-				final Stack<E> stack = frame.stack();
+        calculator.setGlobalSymbol("pop", new ICallable<E>() {
 
-				List<E> values = Lists.newArrayList();
+            @Override
+            public void call(Frame<E> frame, OptionalInt argumentsCount, OptionalInt returnsCount) {
+                if (returnsCount.isPresent() && returnsCount.get() != 0)
+                    throw new StackValidationException("Invalid expected return values on 'pop'");
 
-				final int in = argumentsCount.or(1);
-				for (int i = 0; i < in; i++) {
-					final E value = stack.pop();
-					values.add(value);
-				}
+                final Stack<E> stack = frame.stack();
 
-				values = Lists.reverse(values);
+                final int count = argumentsCount.or(1);
+                for (int i = 0; i < count; i++) stack.pop();
+            }
+        });
 
-				final int out = returnsCount.or(2 * in);
-				for (int i = 0; i < out; i++) {
-					final E value = values.get(i % in);
-					stack.push(value);
-				}
-			}
-		});
-	}
+        calculator.setGlobalSymbol("dup", new ICallable<E>() {
+
+            @Override
+            public void call(Frame<E> frame, OptionalInt argumentsCount, OptionalInt returnsCount) {
+                final Stack<E> stack = frame.stack();
+
+                List<E> values = Lists.newArrayList();
+
+                final int in = argumentsCount.or(1);
+                for (int i = 0; i < in; i++) {
+                    final E value = stack.pop();
+                    values.add(value);
+                }
+
+                values = Lists.reverse(values);
+
+                final int out = returnsCount.or(2 * in);
+                for (int i = 0; i < out; i++) {
+                    final E value = values.get(i % in);
+                    stack.push(value);
+                }
+            }
+        });
+    }
 
 }

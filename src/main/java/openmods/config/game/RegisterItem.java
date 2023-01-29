@@ -8,16 +8,17 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface RegisterItem {
-	public static final String DEFAULT = "[default]";
-	public static final String NONE = "[none]";
 
-	public String name();
+    public static final String DEFAULT = "[default]";
+    public static final String NONE = "[none]";
 
-	public String unlocalizedName() default DEFAULT;
+    public String name();
 
-	public String textureName() default DEFAULT;
+    public String unlocalizedName() default DEFAULT;
 
-	public boolean isEnabled() default true;
+    public String textureName() default DEFAULT;
 
-	public boolean isConfigurable() default true;
+    public boolean isEnabled() default true;
+
+    public boolean isConfigurable() default true;
 }

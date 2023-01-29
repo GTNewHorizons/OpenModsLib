@@ -1,22 +1,16 @@
 package openmods.infobook;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import cpw.mods.fml.common.registry.FMLControlledNamespacedRegistry;
-import cpw.mods.fml.common.registry.GameData;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.SortedMap;
+
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
+
 import openmods.Log;
 import openmods.OpenMods;
 import openmods.gui.component.BaseComponent;
@@ -26,163 +20,183 @@ import openmods.gui.component.page.StandardRecipePage;
 import openmods.gui.listener.IMouseDownListener;
 import openmods.utils.CachedInstanceFactory;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import cpw.mods.fml.common.registry.FMLControlledNamespacedRegistry;
+import cpw.mods.fml.common.registry.GameData;
+
 public class PageBuilder {
-	public interface StackProvider<T> {
-		public ItemStack createStack(String modId, String name, T item);
-	}
 
-	private static final CachedInstanceFactory<ICustomBookEntryProvider> PROVIDERS = CachedInstanceFactory.create();
+    public interface StackProvider<T> {
 
-	private static class Entry {
-		public final BaseComponent page;
-		public final ItemStack stack;
+        public ItemStack createStack(String modId, String name, T item);
+    }
 
-		public Entry(BaseComponent page, ItemStack stack) {
-			this.page = page;
-			this.stack = stack;
-		}
-	}
+    private static final CachedInstanceFactory<ICustomBookEntryProvider> PROVIDERS = CachedInstanceFactory.create();
 
-	private final SortedMap<String, Entry> pages = Maps.newTreeMap();
+    private static class Entry {
 
-	private Set<String> modIds;
+        public final BaseComponent page;
+        public final ItemStack stack;
 
-	private List<ItemStackTocPage> tocPages;
+        public Entry(BaseComponent page, ItemStack stack) {
+            this.page = page;
+            this.stack = stack;
+        }
+    }
 
-	protected String getMediaLink(String modId, String type, String id) {
-		final String lang = OpenMods.proxy.getLanguage().or("unknown");
-		return "https://videos.openmods.info/" + lang + "/tutorial." + modId + "." + type + "." + id;
-	}
+    private final SortedMap<String, Entry> pages = Maps.newTreeMap();
 
-	public <T> void addPages(String type, FMLControlledNamespacedRegistry<T> registry, StackProvider<T> provider) {
-		@SuppressWarnings("unchecked")
-		Set<String> ids = registry.getKeys();
+    private Set<String> modIds;
 
-		Splitter splitter = Splitter.on(':');
+    private List<ItemStackTocPage> tocPages;
 
-		for (String id : ids) {
-			final T obj = registry.getObject(id);
-			if (obj == null) continue;
+    protected String getMediaLink(String modId, String type, String id) {
+        final String lang = OpenMods.proxy.getLanguage().or("unknown");
+        return "https://videos.openmods.info/" + lang + "/tutorial." + modId + "." + type + "." + id;
+    }
 
-			final BookDocumentation doc;
+    public <T> void addPages(String type, FMLControlledNamespacedRegistry<T> registry, StackProvider<T> provider) {
+        @SuppressWarnings("unchecked")
+        Set<String> ids = registry.getKeys();
 
-			final Class<?> cls = obj.getClass();
-			try {
-				// other mods can derp here
-				doc = cls.getAnnotation(BookDocumentation.class);
-			} catch (Throwable t) {
-				Log.warn(t, "Failed to get annotation from %s", cls);
-				continue;
-			}
+        Splitter splitter = Splitter.on(':');
 
-			if (doc == null) continue;
+        for (String id : ids) {
+            final T obj = registry.getObject(id);
+            if (obj == null) continue;
 
-			Iterator<String> components = splitter.split(id).iterator();
-			final String itemModId = components.next();
+            final BookDocumentation doc;
 
-			if (modIds != null && !modIds.contains(itemModId)) continue;
+            final Class<?> cls = obj.getClass();
+            try {
+                // other mods can derp here
+                doc = cls.getAnnotation(BookDocumentation.class);
+            } catch (Throwable t) {
+                Log.warn(t, "Failed to get annotation from %s", cls);
+                continue;
+            }
 
-			final String itemName = components.next();
-			final Class<? extends ICustomBookEntryProvider> customProviderCls = doc.customProvider();
+            if (doc == null) continue;
 
-			if (customProviderCls == BookDocumentation.EMPTY.class) {
-				final ItemStack stack = provider.createStack(itemModId, itemName, obj);
-				if (stack == null) continue;
-				final String customName = doc.customName();
-				addPage(Strings.isNullOrEmpty(customName)? itemName : customName, itemModId.toLowerCase(Locale.ENGLISH), type, doc.hasVideo(), stack);
-			} else {
-				ICustomBookEntryProvider customProvider = PROVIDERS.getOrCreate(customProviderCls);
-				for (ICustomBookEntryProvider.Entry e : customProvider.getBookEntries())
-					addPage(e.name, itemModId.toLowerCase(Locale.ENGLISH), type, doc.hasVideo(), e.stack);
-			}
-		}
-	}
+            Iterator<String> components = splitter.split(id).iterator();
+            final String itemModId = components.next();
 
-	public void insertTocPages(GuiComponentBook book, int rows, int columns, float scale) {
-		Preconditions.checkState(tocPages == null, "Table Of Contents page already added");
-		tocPages = Lists.newArrayList();
+            if (modIds != null && !modIds.contains(itemModId)) continue;
 
-		int tocEntriesCount = pages.size();
-		while (tocEntriesCount > 0) {
-			ItemStackTocPage page = new ItemStackTocPage(rows, columns, scale);
-			tocEntriesCount -= page.getCapacity();
-			tocPages.add(page);
-			book.addPage(page);
-		}
-	}
+            final String itemName = components.next();
+            final Class<? extends ICustomBookEntryProvider> customProviderCls = doc.customProvider();
 
-	public void insertPages(GuiComponentBook book) {
-		for (Entry e : pages.values()) {
-			if (tocPages != null) {
-				final int target = book.getNumberOfPages();
-				addToToc(book, e.stack, target);
-			}
+            if (customProviderCls == BookDocumentation.EMPTY.class) {
+                final ItemStack stack = provider.createStack(itemModId, itemName, obj);
+                if (stack == null) continue;
+                final String customName = doc.customName();
+                addPage(
+                        Strings.isNullOrEmpty(customName) ? itemName : customName,
+                        itemModId.toLowerCase(Locale.ENGLISH),
+                        type,
+                        doc.hasVideo(),
+                        stack);
+            } else {
+                ICustomBookEntryProvider customProvider = PROVIDERS.getOrCreate(customProviderCls);
+                for (ICustomBookEntryProvider.Entry e : customProvider.getBookEntries())
+                    addPage(e.name, itemModId.toLowerCase(Locale.ENGLISH), type, doc.hasVideo(), e.stack);
+            }
+        }
+    }
 
-			book.addPage(e.page);
-		}
-	}
+    public void insertTocPages(GuiComponentBook book, int rows, int columns, float scale) {
+        Preconditions.checkState(tocPages == null, "Table Of Contents page already added");
+        tocPages = Lists.newArrayList();
 
-	private void addToToc(final GuiComponentBook book, ItemStack stack, final int target) {
-		for (ItemStackTocPage tocPage : tocPages)
-			if (tocPage.addEntry(stack, new IMouseDownListener() {
-				@Override
-				public void componentMouseDown(BaseComponent component, int x, int y, int button) {
-					book.changePage(target);
-				}
-			})) return;
+        int tocEntriesCount = pages.size();
+        while (tocEntriesCount > 0) {
+            ItemStackTocPage page = new ItemStackTocPage(rows, columns, scale);
+            tocEntriesCount -= page.getCapacity();
+            tocPages.add(page);
+            book.addPage(page);
+        }
+    }
 
-		throw new IllegalStateException(String.format("Tried to add more TOC entries than allocated"));
-	}
+    public void insertPages(GuiComponentBook book) {
+        for (Entry e : pages.values()) {
+            if (tocPages != null) {
+                final int target = book.getNumberOfPages();
+                addToToc(book, e.stack, target);
+            }
 
-	private void addPage(String id, String modId, String type, boolean hasVideo, ItemStack stack) {
-		final String nameKey = getTranslationKey(id, modId, type, "name");
-		final String descriptionKey = getTranslationKey(id, modId, type, "description");
+            book.addPage(e.page);
+        }
+    }
 
-		final String translatedName = StatCollector.translateToLocal(nameKey);
+    private void addToToc(final GuiComponentBook book, ItemStack stack, final int target) {
+        for (ItemStackTocPage tocPage : tocPages) if (tocPage.addEntry(stack, new IMouseDownListener() {
 
-		final StandardRecipePage page;
-		if (hasVideo) {
-			final String mediaKey = getMediaLink(modId, type, id);
-			page = new StandardRecipePage(nameKey, descriptionKey, mediaKey, stack);
-		} else {
-			page = new StandardRecipePage(nameKey, descriptionKey, stack);
-		}
+            @Override
+            public void componentMouseDown(BaseComponent component, int x, int y, int button) {
+                book.changePage(target);
+            }
+        })) return;
 
-		pages.put(translatedName + ":" + id, new Entry(page, stack));
-	}
+        throw new IllegalStateException(String.format("Tried to add more TOC entries than allocated"));
+    }
 
-	protected String getTranslationKey(String name, String modId, String type, String category) {
-		return String.format("%s.%s.%s.%s", type, modId, name, category);
-	}
+    private void addPage(String id, String modId, String type, boolean hasVideo, ItemStack stack) {
+        final String nameKey = getTranslationKey(id, modId, type, "name");
+        final String descriptionKey = getTranslationKey(id, modId, type, "description");
 
-	public void includeModId(String modid) {
-		if (modIds == null) modIds = Sets.newHashSet();
-		modIds.add(modid);
-	}
+        final String translatedName = StatCollector.translateToLocal(nameKey);
 
-	public void addItemPages(StackProvider<Item> provider) {
-		addPages("item", GameData.getItemRegistry(), provider);
-	}
+        final StandardRecipePage page;
+        if (hasVideo) {
+            final String mediaKey = getMediaLink(modId, type, id);
+            page = new StandardRecipePage(nameKey, descriptionKey, mediaKey, stack);
+        } else {
+            page = new StandardRecipePage(nameKey, descriptionKey, stack);
+        }
 
-	public void createItemPages() {
-		addItemPages(new StackProvider<Item>() {
-			@Override
-			public ItemStack createStack(String itemModId, String itemName, Item item) {
-				return new ItemStack(item);
-			}
-		});
-	}
+        pages.put(translatedName + ":" + id, new Entry(page, stack));
+    }
 
-	public void addBlockPages(StackProvider<Block> provider) {
-		addPages("tile", GameData.getBlockRegistry(), provider);
-	}
+    protected String getTranslationKey(String name, String modId, String type, String category) {
+        return String.format("%s.%s.%s.%s", type, modId, name, category);
+    }
 
-	public void createBlockPages() {
-		addBlockPages(new StackProvider<Block>() {
-			@Override
-			public ItemStack createStack(String blockModId, String blockName, Block block) {
-				return new ItemStack(block);
-			}
-		});
-	}
+    public void includeModId(String modid) {
+        if (modIds == null) modIds = Sets.newHashSet();
+        modIds.add(modid);
+    }
+
+    public void addItemPages(StackProvider<Item> provider) {
+        addPages("item", GameData.getItemRegistry(), provider);
+    }
+
+    public void createItemPages() {
+        addItemPages(new StackProvider<Item>() {
+
+            @Override
+            public ItemStack createStack(String itemModId, String itemName, Item item) {
+                return new ItemStack(item);
+            }
+        });
+    }
+
+    public void addBlockPages(StackProvider<Block> provider) {
+        addPages("tile", GameData.getBlockRegistry(), provider);
+    }
+
+    public void createBlockPages() {
+        addBlockPages(new StackProvider<Block>() {
+
+            @Override
+            public ItemStack createStack(String blockModId, String blockName, Block block) {
+                return new ItemStack(block);
+            }
+        });
+    }
 }

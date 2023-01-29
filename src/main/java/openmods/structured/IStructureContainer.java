@@ -2,12 +2,13 @@ package openmods.structured;
 
 public interface IStructureContainer<E extends IStructureElement> {
 
-	public interface IElementAddCallback<E extends IStructureElement> {
-		public int addElement(E element);
-	}
+    public interface IElementAddCallback<E extends IStructureElement> {
 
-	public int getType();
+        public int addElement(E element);
+    }
 
-	public void createElements(IElementAddCallback<E> callback);
+    public int getType();
+
+    public void createElements(IElementAddCallback<E> callback);
 
 }

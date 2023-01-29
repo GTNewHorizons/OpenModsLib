@@ -1,64 +1,64 @@
 package openmods.world;
 
-import com.google.common.collect.Lists;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import java.util.List;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 
+import com.google.common.collect.Lists;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+
 public class DropCapture {
 
-	public class CaptureContext {
-		private final AxisAlignedBB aabb;
+    public class CaptureContext {
 
-		private final List<EntityItem> drops = Lists.newArrayList();
+        private final AxisAlignedBB aabb;
 
-		public CaptureContext(AxisAlignedBB aabb) {
-			this.aabb = aabb;
-		}
+        private final List<EntityItem> drops = Lists.newArrayList();
 
-		private boolean check(EntityItem item) {
-			if (!item.isDead && aabb.intersectsWith(item.boundingBox)) {
-				drops.add(item);
-				return true;
-			}
+        public CaptureContext(AxisAlignedBB aabb) {
+            this.aabb = aabb;
+        }
 
-			return false;
-		}
+        private boolean check(EntityItem item) {
+            if (!item.isDead && aabb.intersectsWith(item.boundingBox)) {
+                drops.add(item);
+                return true;
+            }
 
-		public List<EntityItem> stop() {
-			captures.remove(this);
-			return drops;
-		}
-	}
+            return false;
+        }
 
-	public static final DropCapture instance = new DropCapture();
+        public List<EntityItem> stop() {
+            captures.remove(this);
+            return drops;
+        }
+    }
 
-	private final List<CaptureContext> captures = Lists.newArrayList();
+    public static final DropCapture instance = new DropCapture();
 
-	public CaptureContext start(AxisAlignedBB aabb) {
-		CaptureContext context = new CaptureContext(aabb);
-		captures.add(context);
-		return context;
-	}
+    private final List<CaptureContext> captures = Lists.newArrayList();
 
-	public CaptureContext start(int x, int y, int z) {
-		return start(AxisAlignedBB.getBoundingBox(x, y, z, x + 1, y + 1, z + 1));
-	}
+    public CaptureContext start(AxisAlignedBB aabb) {
+        CaptureContext context = new CaptureContext(aabb);
+        captures.add(context);
+        return context;
+    }
 
-	@SubscribeEvent
-	public void onEntityConstruct(EntityJoinWorldEvent evt) {
-		final Entity e = evt.entity;
-		if (e != null
-				&& e.getClass() == EntityItem.class
-				&& !e.worldObj.isRemote) {
-			final EntityItem ei = (EntityItem)e;
+    public CaptureContext start(int x, int y, int z) {
+        return start(AxisAlignedBB.getBoundingBox(x, y, z, x + 1, y + 1, z + 1));
+    }
 
-			for (CaptureContext c : captures)
-				if (c.check(ei)) break;
-		}
-	}
+    @SubscribeEvent
+    public void onEntityConstruct(EntityJoinWorldEvent evt) {
+        final Entity e = evt.entity;
+        if (e != null && e.getClass() == EntityItem.class && !e.worldObj.isRemote) {
+            final EntityItem ei = (EntityItem) e;
+
+            for (CaptureContext c : captures) if (c.check(ei)) break;
+        }
+    }
 
 }

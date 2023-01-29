@@ -1,18 +1,12 @@
 package openmods.serializable.cls;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-import com.google.common.reflect.TypeToken;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
+
 import openmods.reflection.FieldAccess;
 import openmods.reflection.TypeUtils;
 import openmods.serializable.IObjectSerializer;
@@ -22,125 +16,137 @@ import openmods.utils.io.InputBitStream;
 import openmods.utils.io.OutputBitStream;
 import openmods.utils.io.StreamUtils;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import com.google.common.reflect.TypeToken;
+
 public class ClassSerializerBuilder<T> {
 
-	private static class SerializableField extends FieldAccess<Object> {
-		private final IStreamSerializer<Object> serializer;
-		private final boolean isNullable;
+    private static class SerializableField extends FieldAccess<Object> {
 
-		public SerializableField(Class<?> ownerCls, Field field, boolean isNullable) {
-			super(field);
+        private final IStreamSerializer<Object> serializer;
+        private final boolean isNullable;
 
-			this.isNullable = isNullable;
+        public SerializableField(Class<?> ownerCls, Field field, boolean isNullable) {
+            super(field);
 
-			final TypeToken<?> fieldType = TypeUtils.resolveFieldType(ownerCls, field);
-			this.serializer = SerializerRegistry.instance.findSerializer(fieldType.getType());
-			Preconditions.checkNotNull(serializer, "Invalid field %s type", field);
-		}
-	}
+            this.isNullable = isNullable;
 
-	private static class NonNullableSerializer<T> implements IObjectSerializer<T> {
+            final TypeToken<?> fieldType = TypeUtils.resolveFieldType(ownerCls, field);
+            this.serializer = SerializerRegistry.instance.findSerializer(fieldType.getType());
+            Preconditions.checkNotNull(serializer, "Invalid field %s type", field);
+        }
+    }
 
-		private final List<SerializableField> fields;
+    private static class NonNullableSerializer<T> implements IObjectSerializer<T> {
 
-		public NonNullableSerializer(List<SerializableField> fields) {
-			this.fields = ImmutableList.copyOf(fields);
-		}
+        private final List<SerializableField> fields;
 
-		@Override
-		public void readFromStream(T object, DataInput input) throws IOException {
-			for (SerializableField field : fields) {
-				Object value = field.serializer.readFromStream(input);
-				field.set(object, value);
-			}
-		}
+        public NonNullableSerializer(List<SerializableField> fields) {
+            this.fields = ImmutableList.copyOf(fields);
+        }
 
-		@Override
-		public void writeToStream(T object, DataOutput output) throws IOException {
-			for (SerializableField field : fields) {
-				Object value = field.get(object);
-				Preconditions.checkNotNull(value, "Non-nullable %s has null value", field.field);
-				field.serializer.writeToStream(value, output);
-			}
-		}
-	}
+        @Override
+        public void readFromStream(T object, DataInput input) throws IOException {
+            for (SerializableField field : fields) {
+                Object value = field.serializer.readFromStream(input);
+                field.set(object, value);
+            }
+        }
 
-	private static class NullableSerializer<T> implements IObjectSerializer<T> {
+        @Override
+        public void writeToStream(T object, DataOutput output) throws IOException {
+            for (SerializableField field : fields) {
+                Object value = field.get(object);
+                Preconditions.checkNotNull(value, "Non-nullable %s has null value", field.field);
+                field.serializer.writeToStream(value, output);
+            }
+        }
+    }
 
-		private final List<SerializableField> fields;
+    private static class NullableSerializer<T> implements IObjectSerializer<T> {
 
-		private final int nullBytesCount;
+        private final List<SerializableField> fields;
 
-		public NullableSerializer(List<SerializableField> fields, int nullBytesCount) {
-			this.fields = ImmutableList.copyOf(fields);
-			this.nullBytesCount = nullBytesCount;
-		}
+        private final int nullBytesCount;
 
-		@Override
-		public void readFromStream(T object, DataInput input) throws IOException {
-			final byte[] nullBits = StreamUtils.readBytes(input, nullBytesCount);
-			final InputBitStream nullBitStream = InputBitStream.create(nullBits);
+        public NullableSerializer(List<SerializableField> fields, int nullBytesCount) {
+            this.fields = ImmutableList.copyOf(fields);
+            this.nullBytesCount = nullBytesCount;
+        }
 
-			for (SerializableField field : fields) {
-				final boolean isNull = field.isNullable && nullBitStream.readBit();
-				final Object value = isNull? null : field.serializer.readFromStream(input);
-				field.set(object, value);
-			}
-		}
+        @Override
+        public void readFromStream(T object, DataInput input) throws IOException {
+            final byte[] nullBits = StreamUtils.readBytes(input, nullBytesCount);
+            final InputBitStream nullBitStream = InputBitStream.create(nullBits);
 
-		@Override
-		public void writeToStream(T object, DataOutput output) throws IOException {
-			final ByteArrayDataOutput payload = ByteStreams.newDataOutput();
-			final OutputBitStream nullBitsStream = OutputBitStream.create(output);
+            for (SerializableField field : fields) {
+                final boolean isNull = field.isNullable && nullBitStream.readBit();
+                final Object value = isNull ? null : field.serializer.readFromStream(input);
+                field.set(object, value);
+            }
+        }
 
-			for (SerializableField field : fields) {
-				final Object value = field.get(object);
-				if (field.isNullable) {
-					if (value == null) {
-						nullBitsStream.writeBit(true);
-					} else {
-						nullBitsStream.writeBit(false);
-						field.serializer.writeToStream(value, payload);
-					}
-				} else {
-					field.serializer.writeToStream(value, payload);
-				}
-			}
+        @Override
+        public void writeToStream(T object, DataOutput output) throws IOException {
+            final ByteArrayDataOutput payload = ByteStreams.newDataOutput();
+            final OutputBitStream nullBitsStream = OutputBitStream.create(output);
 
-			nullBitsStream.flush();
-			output.write(payload.toByteArray());
-		}
-	}
+            for (SerializableField field : fields) {
+                final Object value = field.get(object);
+                if (field.isNullable) {
+                    if (value == null) {
+                        nullBitsStream.writeBit(true);
+                    } else {
+                        nullBitsStream.writeBit(false);
+                        field.serializer.writeToStream(value, payload);
+                    }
+                } else {
+                    field.serializer.writeToStream(value, payload);
+                }
+            }
 
-	private final Class<? extends T> ownerClass;
+            nullBitsStream.flush();
+            output.write(payload.toByteArray());
+        }
+    }
 
-	private final List<SerializableField> fields = Lists.newArrayList();
+    private final Class<? extends T> ownerClass;
 
-	private final Set<Field> addedFields = Sets.newHashSet();
+    private final List<SerializableField> fields = Lists.newArrayList();
 
-	private int nullableCount = 0;
+    private final Set<Field> addedFields = Sets.newHashSet();
 
-	public ClassSerializerBuilder(Class<? extends T> ownerClass) {
-		this.ownerClass = ownerClass;
-	}
+    private int nullableCount = 0;
 
-	public void appendField(Field field) {
-		Preconditions.checkArgument(field.getDeclaringClass().isAssignableFrom(ownerClass), "%s does not belong to %s", field, ownerClass);
+    public ClassSerializerBuilder(Class<? extends T> ownerClass) {
+        this.ownerClass = ownerClass;
+    }
 
-		final boolean newlyAdded = addedFields.add(field);
-		Preconditions.checkState(newlyAdded, "%s already added", field);
+    public void appendField(Field field) {
+        Preconditions.checkArgument(
+                field.getDeclaringClass().isAssignableFrom(ownerClass),
+                "%s does not belong to %s",
+                field,
+                ownerClass);
 
-		Serialize annotation = field.getAnnotation(Serialize.class);
-		final boolean isNullable = !field.getType().isPrimitive() && (annotation != null && annotation.nullable());
+        final boolean newlyAdded = addedFields.add(field);
+        Preconditions.checkState(newlyAdded, "%s already added", field);
 
-		if (isNullable) nullableCount++;
+        Serialize annotation = field.getAnnotation(Serialize.class);
+        final boolean isNullable = !field.getType().isPrimitive() && (annotation != null && annotation.nullable());
 
-		fields.add(new SerializableField(ownerClass, field, isNullable));
-	}
+        if (isNullable) nullableCount++;
 
-	public IObjectSerializer<T> create() {
-		return (nullableCount != 0)
-				? new NullableSerializer<T>(fields, StreamUtils.bitsToBytes(nullableCount))
-				: new NonNullableSerializer<T>(fields);
-	}
+        fields.add(new SerializableField(ownerClass, field, isNullable));
+    }
+
+    public IObjectSerializer<T> create() {
+        return (nullableCount != 0) ? new NullableSerializer<T>(fields, StreamUtils.bitsToBytes(nullableCount))
+                : new NonNullableSerializer<T>(fields);
+    }
 }

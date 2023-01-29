@@ -1,38 +1,41 @@
 package openmods.sync;
 
+import java.io.DataInputStream;
+
+import net.minecraft.world.World;
+
+import openmods.OpenMods;
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import java.io.DataInputStream;
-import net.minecraft.world.World;
-import openmods.OpenMods;
 
 @Sharable
 public class InboundSyncHandler extends SimpleChannelInboundHandler<FMLProxyPacket> {
 
-	public static class SyncException extends RuntimeException {
-		private static final long serialVersionUID = 2585053869917082095L;
+    public static class SyncException extends RuntimeException {
 
-		public SyncException(Throwable cause, ISyncMapProvider provider) {
-			super(String.format("Failed to sync %s (%s)", provider, provider.getClass()), cause);
-		}
-	}
+        private static final long serialVersionUID = 2585053869917082095L;
 
-	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, FMLProxyPacket msg) throws Exception {
-		World world = OpenMods.proxy.getClientWorld();
+        public SyncException(Throwable cause, ISyncMapProvider provider) {
+            super(String.format("Failed to sync %s (%s)", provider, provider.getClass()), cause);
+        }
+    }
 
-		ByteBuf payload = msg.payload();
-		DataInputStream input = new DataInputStream(new ByteBufInputStream(payload));
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, FMLProxyPacket msg) throws Exception {
+        World world = OpenMods.proxy.getClientWorld();
 
-		ISyncMapProvider provider = SyncMap.findSyncMap(world, input);
-		try {
-			if (provider != null) provider.getSyncMap().readFromStream(input);
-		} catch (Throwable e) {
-			throw new SyncException(e, provider);
-		}
-	}
+        ByteBuf payload = msg.payload();
+        DataInputStream input = new DataInputStream(new ByteBufInputStream(payload));
+
+        ISyncMapProvider provider = SyncMap.findSyncMap(world, input);
+        try {
+            if (provider != null) provider.getSyncMap().readFromStream(input);
+        } catch (Throwable e) {
+            throw new SyncException(e, provider);
+        }
+    }
 }

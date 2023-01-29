@@ -1,6 +1,7 @@
 package openmods.gui.component;
 
 import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -8,189 +9,195 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
 import openmods.gui.listener.IKeyTypedListener;
 import openmods.gui.listener.IMouseDownListener;
 import openmods.gui.listener.IMouseDragListener;
 import openmods.gui.listener.IMouseUpListener;
 import openmods.utils.TextureUtils;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 public abstract class BaseComponent extends Gui {
-	protected static final RenderItem ITEM_RENDERER = new RenderItem();
 
-	private static final int CRAZY_1 = 0x505000FF;
-	private static final int CRAZY_2 = (CRAZY_1 & 0xFEFEFE) >> 1 | CRAZY_1 & -0xFF000000;
-	private static final int CRAZY_3 = 0xF0100010;
+    protected static final RenderItem ITEM_RENDERER = new RenderItem();
 
-	public final static ResourceLocation TEXTURE_SHEET = new ResourceLocation("openmodslib", "textures/gui/components.png");
+    private static final int CRAZY_1 = 0x505000FF;
+    private static final int CRAZY_2 = (CRAZY_1 & 0xFEFEFE) >> 1 | CRAZY_1 & -0xFF000000;
+    private static final int CRAZY_3 = 0xF0100010;
 
-	public static void bindComponentsSheet() {
-		TextureUtils.bindTextureToClient(TEXTURE_SHEET);
-	}
+    public final static ResourceLocation TEXTURE_SHEET = new ResourceLocation(
+            "openmodslib",
+            "textures/gui/components.png");
 
-	protected int x;
-	protected int y;
-	protected boolean enabled = true;
+    public static void bindComponentsSheet() {
+        TextureUtils.bindTextureToClient(TEXTURE_SHEET);
+    }
 
-	private IKeyTypedListener keyListener;
-	private IMouseDownListener mouseDownListener;
-	private IMouseUpListener mouseUpListener;
-	private IMouseDragListener mouseDragListener;
+    protected int x;
+    protected int y;
+    protected boolean enabled = true;
 
-	public BaseComponent(int x, int y) {
-		this.x = x;
-		this.y = y;
-	}
+    private IKeyTypedListener keyListener;
+    private IMouseDownListener mouseDownListener;
+    private IMouseUpListener mouseUpListener;
+    private IMouseDragListener mouseDragListener;
 
-	public void setX(int x) {
-		this.x = x;
-	}
+    public BaseComponent(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
 
-	public void setY(int y) {
-		this.y = y;
-	}
+    public void setX(int x) {
+        this.x = x;
+    }
 
-	public int getX() {
-		return x;
-	}
+    public void setY(int y) {
+        this.y = y;
+    }
 
-	public int getY() {
-		return y;
-	}
+    public int getX() {
+        return x;
+    }
 
-	public abstract int getWidth();
+    public int getY() {
+        return y;
+    }
 
-	public abstract int getHeight();
+    public abstract int getWidth();
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+    public abstract int getHeight();
 
-	public boolean isEnabled() {
-		return enabled;
-	}
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
-	public boolean isMouseOver(int mouseX, int mouseY) {
-		return mouseX >= x && mouseX < x + getWidth() && mouseY >= y && mouseY < y + getHeight();
-	}
+    public boolean isEnabled() {
+        return enabled;
+    }
 
-	public void setListener(IKeyTypedListener keyListener) {
-		this.keyListener = keyListener;
-	}
+    public boolean isMouseOver(int mouseX, int mouseY) {
+        return mouseX >= x && mouseX < x + getWidth() && mouseY >= y && mouseY < y + getHeight();
+    }
 
-	public void setListener(IMouseDownListener mouseDownListener) {
-		this.mouseDownListener = mouseDownListener;
-	}
+    public void setListener(IKeyTypedListener keyListener) {
+        this.keyListener = keyListener;
+    }
 
-	public void setListener(IMouseUpListener mouseUpListener) {
-		this.mouseUpListener = mouseUpListener;
-	}
+    public void setListener(IMouseDownListener mouseDownListener) {
+        this.mouseDownListener = mouseDownListener;
+    }
 
-	public void setListener(IMouseDragListener mouseDragListener) {
-		this.mouseDragListener = mouseDragListener;
-	}
+    public void setListener(IMouseUpListener mouseUpListener) {
+        this.mouseUpListener = mouseUpListener;
+    }
 
-	public abstract void render(Minecraft minecraft, int offsetX, int offsetY, int mouseX, int mouseY);
+    public void setListener(IMouseDragListener mouseDragListener) {
+        this.mouseDragListener = mouseDragListener;
+    }
 
-	public abstract void renderOverlay(Minecraft minecraft, int offsetX, int offsetY, int mouseX, int mouseY);
+    public abstract void render(Minecraft minecraft, int offsetX, int offsetY, int mouseX, int mouseY);
 
-	public void keyTyped(char keyChar, int keyCode) {
-		if (keyListener != null) keyListener.componentKeyTyped(this, keyChar, keyCode);
-	}
+    public abstract void renderOverlay(Minecraft minecraft, int offsetX, int offsetY, int mouseX, int mouseY);
 
-	public void mouseDown(int mouseX, int mouseY, int button) {
-		if (mouseDownListener != null) mouseDownListener.componentMouseDown(this, mouseX, mouseY, button);
-	}
+    public void keyTyped(char keyChar, int keyCode) {
+        if (keyListener != null) keyListener.componentKeyTyped(this, keyChar, keyCode);
+    }
 
-	public void mouseUp(int mouseX, int mouseY, int button) {
-		if (mouseUpListener != null) mouseUpListener.componentMouseUp(this, mouseX, mouseY, button);
-	}
+    public void mouseDown(int mouseX, int mouseY, int button) {
+        if (mouseDownListener != null) mouseDownListener.componentMouseDown(this, mouseX, mouseY, button);
+    }
 
-	public void mouseDrag(int mouseX, int mouseY, int button, /* love you */long time) {
-		if (mouseDragListener != null) mouseDragListener.componentMouseDrag(this, mouseX, mouseY, button, time);
-	}
+    public void mouseUp(int mouseX, int mouseY, int button) {
+        if (mouseUpListener != null) mouseUpListener.componentMouseUp(this, mouseX, mouseY, button);
+    }
 
-	public boolean isTicking() {
-		return false;
-	}
+    public void mouseDrag(int mouseX, int mouseY, int button, /* love you */long time) {
+        if (mouseDragListener != null) mouseDragListener.componentMouseDrag(this, mouseX, mouseY, button, time);
+    }
 
-	public void tick() {}
+    public boolean isTicking() {
+        return false;
+    }
 
-	private void drawFancyBox(int width, final int left, final int top, int height) {
-		drawGradientRect(left - 3, top - 4, left + width + 3, top - 3, CRAZY_3, CRAZY_3);
-		drawGradientRect(left - 3, top + height + 3, left + width + 3, top + height + 4, CRAZY_3, CRAZY_3);
-		drawGradientRect(left - 3, top - 3, left + width + 3, top + height + 3, CRAZY_3, CRAZY_3);
-		drawGradientRect(left - 4, top - 3, left - 3, top + height + 3, CRAZY_3, CRAZY_3);
-		drawGradientRect(left + width + 3, top - 3, left + width + 4, top + height + 3, CRAZY_3, CRAZY_3);
+    public void tick() {}
 
-		drawGradientRect(left - 3, top - 3 + 1, left - 3 + 1, top + height + 3 - 1, CRAZY_1, CRAZY_2);
-		drawGradientRect(left + width + 2, top - 3 + 1, left + width + 3, top + height + 3 - 1, CRAZY_1, CRAZY_2);
-		drawGradientRect(left - 3, top - 3, left + width + 3, top - 3 + 1, CRAZY_1, CRAZY_1);
-		drawGradientRect(left - 3, top + height + 2, left + width + 3, top + height + 3, CRAZY_2, CRAZY_2);
-	}
+    private void drawFancyBox(int width, final int left, final int top, int height) {
+        drawGradientRect(left - 3, top - 4, left + width + 3, top - 3, CRAZY_3, CRAZY_3);
+        drawGradientRect(left - 3, top + height + 3, left + width + 3, top + height + 4, CRAZY_3, CRAZY_3);
+        drawGradientRect(left - 3, top - 3, left + width + 3, top + height + 3, CRAZY_3, CRAZY_3);
+        drawGradientRect(left - 4, top - 3, left - 3, top + height + 3, CRAZY_3, CRAZY_3);
+        drawGradientRect(left + width + 3, top - 3, left + width + 4, top + height + 3, CRAZY_3, CRAZY_3);
 
-	protected void drawHoveringText(String line, int x, int y, FontRenderer font) {
-		GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
+        drawGradientRect(left - 3, top - 3 + 1, left - 3 + 1, top + height + 3 - 1, CRAZY_1, CRAZY_2);
+        drawGradientRect(left + width + 2, top - 3 + 1, left + width + 3, top + height + 3 - 1, CRAZY_1, CRAZY_2);
+        drawGradientRect(left - 3, top - 3, left + width + 3, top - 3 + 1, CRAZY_1, CRAZY_1);
+        drawGradientRect(left - 3, top + height + 2, left + width + 3, top + height + 3, CRAZY_2, CRAZY_2);
+    }
 
-		this.zLevel = 350.0F;
-		final int width = font.getStringWidth(line);
-		drawFancyBox(width, x + 12, y - 12, 8);
-		font.drawStringWithShadow(line, x + 12, y - 12, -1);
-		this.zLevel = 0.0F;
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-	}
+    protected void drawHoveringText(String line, int x, int y, FontRenderer font) {
+        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
 
-	protected void drawHoveringText(List<String> lines, int x, int y, FontRenderer font) {
-		final int lineCount = lines.size();
-		if (lineCount == 0) return;
+        this.zLevel = 350.0F;
+        final int width = font.getStringWidth(line);
+        drawFancyBox(width, x + 12, y - 12, 8);
+        font.drawStringWithShadow(line, x + 12, y - 12, -1);
+        this.zLevel = 0.0F;
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+    }
 
-		GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		int width = 0;
+    protected void drawHoveringText(List<String> lines, int x, int y, FontRenderer font) {
+        final int lineCount = lines.size();
+        if (lineCount == 0) return;
 
-		for (String s : lines) {
-			int l = font.getStringWidth(s);
-			if (l > width) width = l;
-		}
+        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        int width = 0;
 
-		final int left = x + 12;
-		int top = y - 12;
+        for (String s : lines) {
+            int l = font.getStringWidth(s);
+            if (l > width) width = l;
+        }
 
-		int height = 8;
-		if (lineCount > 1) height += 2 + (lineCount - 1) * 10;
+        final int left = x + 12;
+        int top = y - 12;
 
-		this.zLevel = 350.0F;
+        int height = 8;
+        if (lineCount > 1) height += 2 + (lineCount - 1) * 10;
 
-		drawFancyBox(width, left, top, height);
+        this.zLevel = 350.0F;
 
-		for (int i = 0; i < lineCount; ++i) {
-			String line = lines.get(i);
-			font.drawStringWithShadow(line, left, top, -1);
-			if (i == 0) top += 2;
-			top += 10;
-		}
+        drawFancyBox(width, left, top, height);
 
-		this.zLevel = 0.0F;
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-	}
+        for (int i = 0; i < lineCount; ++i) {
+            String line = lines.get(i);
+            font.drawStringWithShadow(line, left, top, -1);
+            if (i == 0) top += 2;
+            top += 10;
+        }
 
-	public void drawItemStack(ItemStack stack, int x, int y, String overlayText) {
-		this.zLevel = 200.0F;
-		ITEM_RENDERER.zLevel = 200.0F;
-		RenderHelper.enableGUIStandardItemLighting();
-		GL11.glColor3f(1f, 1f, 1f);
-		GL11.glEnable(GL11.GL_NORMALIZE);
-		FontRenderer font = null;
-		if (stack != null) font = stack.getItem().getFontRenderer(stack);
-		if (font == null) font = Minecraft.getMinecraft().fontRenderer;
-		ITEM_RENDERER.renderItemAndEffectIntoGUI(font, Minecraft.getMinecraft().getTextureManager(), stack, x, y);
-		ITEM_RENDERER.renderItemOverlayIntoGUI(font, Minecraft.getMinecraft().getTextureManager(), stack, x, y, overlayText);
-		this.zLevel = 0.0F;
-		ITEM_RENDERER.zLevel = 0.0F;
-		RenderHelper.disableStandardItemLighting();
-	}
+        this.zLevel = 0.0F;
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+    }
+
+    public void drawItemStack(ItemStack stack, int x, int y, String overlayText) {
+        this.zLevel = 200.0F;
+        ITEM_RENDERER.zLevel = 200.0F;
+        RenderHelper.enableGUIStandardItemLighting();
+        GL11.glColor3f(1f, 1f, 1f);
+        GL11.glEnable(GL11.GL_NORMALIZE);
+        FontRenderer font = null;
+        if (stack != null) font = stack.getItem().getFontRenderer(stack);
+        if (font == null) font = Minecraft.getMinecraft().fontRenderer;
+        ITEM_RENDERER.renderItemAndEffectIntoGUI(font, Minecraft.getMinecraft().getTextureManager(), stack, x, y);
+        ITEM_RENDERER
+                .renderItemOverlayIntoGUI(font, Minecraft.getMinecraft().getTextureManager(), stack, x, y, overlayText);
+        this.zLevel = 0.0F;
+        ITEM_RENDERER.zLevel = 0.0F;
+        RenderHelper.disableStandardItemLighting();
+    }
 }

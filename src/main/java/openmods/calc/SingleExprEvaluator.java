@@ -1,62 +1,64 @@
 package openmods.calc;
 
+import openmods.Log;
+
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
-import openmods.Log;
 
 public class SingleExprEvaluator<E, M> {
 
-	public interface EnvironmentConfigurator<E> {
-		public void accept(Environment<E> env);
-	}
+    public interface EnvironmentConfigurator<E> {
 
-	private final Calculator<E, M> calculator;
+        public void accept(Environment<E> env);
+    }
 
-	private boolean useFallback;
+    private final Calculator<E, M> calculator;
 
-	private M exprType;
+    private boolean useFallback;
 
-	private String expr;
+    private M exprType;
 
-	private IExecutable<E> compiledExpr;
+    private String expr;
 
-	public SingleExprEvaluator(Calculator<E, M> calculator) {
-		this.calculator = calculator;
-	}
+    private IExecutable<E> compiledExpr;
 
-	public static <E, M> SingleExprEvaluator<E, M> create(Calculator<E, M> calculator) {
-		return new SingleExprEvaluator<E, M>(calculator);
-	}
+    public SingleExprEvaluator(Calculator<E, M> calculator) {
+        this.calculator = calculator;
+    }
 
-	public void setExpr(M exprType, String expr) {
-		this.exprType = exprType;
-		this.expr = expr;
-		this.compiledExpr = null;
-		this.useFallback = false;
-	}
+    public static <E, M> SingleExprEvaluator<E, M> create(Calculator<E, M> calculator) {
+        return new SingleExprEvaluator<E, M>(calculator);
+    }
 
-	public E evaluate(EnvironmentConfigurator<E> conf, Supplier<E> fallbackValue) {
-		if (useFallback || Strings.isNullOrEmpty(expr) || exprType == null) return fallbackValue.get();
+    public void setExpr(M exprType, String expr) {
+        this.exprType = exprType;
+        this.expr = expr;
+        this.compiledExpr = null;
+        this.useFallback = false;
+    }
 
-		if (compiledExpr == null) {
-			try {
-				compiledExpr = calculator.compilers.compile(exprType, expr);
-			} catch (Exception ex) {
-				useFallback = true;
-				Log.warn(ex, "Failed to compile formula %s", expr);
-				return fallbackValue.get();
-			}
-		}
+    public E evaluate(EnvironmentConfigurator<E> conf, Supplier<E> fallbackValue) {
+        if (useFallback || Strings.isNullOrEmpty(expr) || exprType == null) return fallbackValue.get();
 
-		conf.accept(calculator.environment);
+        if (compiledExpr == null) {
+            try {
+                compiledExpr = calculator.compilers.compile(exprType, expr);
+            } catch (Exception ex) {
+                useFallback = true;
+                Log.warn(ex, "Failed to compile formula %s", expr);
+                return fallbackValue.get();
+            }
+        }
 
-		try {
-			return calculator.environment.executeAndPop(compiledExpr);
-		} catch (Exception ex) {
-			useFallback = true;
-			Log.warn(ex, "Failed to execute formula %s", expr);
-			return fallbackValue.get();
-		}
-	}
+        conf.accept(calculator.environment);
+
+        try {
+            return calculator.environment.executeAndPop(compiledExpr);
+        } catch (Exception ex) {
+            useFallback = true;
+            Log.warn(ex, "Failed to execute formula %s", expr);
+            return fallbackValue.get();
+        }
+    }
 
 }

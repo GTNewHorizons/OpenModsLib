@@ -7,180 +7,182 @@ import net.minecraft.world.ChunkPosition;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class Coord implements Cloneable {
-	public final int x;
-	public final int y;
-	public final int z;
 
-	public Coord(int x, int y, int z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
+    public final int x;
+    public final int y;
+    public final int z;
 
-	public Coord(double x, double y, double z) {
-		this.x = MathHelper.floor_double(x);
-		this.y = MathHelper.floor_double(y);
-		this.z = MathHelper.floor_double(z);
-	}
+    public Coord(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
 
-	public Coord(ForgeDirection direction) {
-		this(direction.offsetX, direction.offsetY, direction.offsetZ);
-	}
+    public Coord(double x, double y, double z) {
+        this.x = MathHelper.floor_double(x);
+        this.y = MathHelper.floor_double(y);
+        this.z = MathHelper.floor_double(z);
+    }
 
-	public Coord(int[] coords) {
-		this(coords[0], coords[1], coords[2]);
-	}
+    public Coord(ForgeDirection direction) {
+        this(direction.offsetX, direction.offsetY, direction.offsetZ);
+    }
 
-	public Coord(ChunkPosition pos) {
-		this(pos.chunkPosX, pos.chunkPosY, pos.chunkPosZ);
-	}
+    public Coord(int[] coords) {
+        this(coords[0], coords[1], coords[2]);
+    }
 
-	public Coord(ChunkCoordinates pos) {
-		this(pos.posX, pos.posY, pos.posZ);
-	}
+    public Coord(ChunkPosition pos) {
+        this(pos.chunkPosX, pos.chunkPosY, pos.chunkPosZ);
+    }
 
-	public Coord(Vec3 vec) {
-		this(vec.xCoord, vec.yCoord, vec.zCoord);
-	}
+    public Coord(ChunkCoordinates pos) {
+        this(pos.posX, pos.posY, pos.posZ);
+    }
 
-	public Coord offset(ForgeDirection direction) {
-		return new Coord(x + direction.offsetX, y + direction.offsetY, z + direction.offsetZ);
-	}
+    public Coord(Vec3 vec) {
+        this(vec.xCoord, vec.yCoord, vec.zCoord);
+    }
 
-	public Coord offset(int ox, int oy, int oz) {
-		return new Coord(x + ox, y + oy, z + oz);
-	}
+    public Coord offset(ForgeDirection direction) {
+        return new Coord(x + direction.offsetX, y + direction.offsetY, z + direction.offsetZ);
+    }
 
-	@Override
-	public int hashCode() {
-		return (x + 128) << 16 | (y + 128) << 8 | (z + 128);
-	}
+    public Coord offset(int ox, int oy, int oz) {
+        return new Coord(x + ox, y + oy, z + oz);
+    }
 
-	@Override
-	public boolean equals(Object that) {
-		if (!(that instanceof Coord)) { return false; }
-		Coord otherCoord = (Coord)that;
-		return otherCoord.x == x && otherCoord.y == y && otherCoord.z == z;
-	}
+    @Override
+    public int hashCode() {
+        return (x + 128) << 16 | (y + 128) << 8 | (z + 128);
+    }
 
-	@Override
-	public String toString() {
-		return String.format("%s,%s,%s", x, y, z);
-	}
+    @Override
+    public boolean equals(Object that) {
+        if (!(that instanceof Coord)) {
+            return false;
+        }
+        Coord otherCoord = (Coord) that;
+        return otherCoord.x == x && otherCoord.y == y && otherCoord.z == z;
+    }
 
-	@Override
-	public Coord clone() {
-		return new Coord(x, y, z);
-	}
+    @Override
+    public String toString() {
+        return String.format("%s,%s,%s", x, y, z);
+    }
 
-	public ChunkPosition asChunkPosition() {
-		return new ChunkPosition(x, y, z);
-	}
+    @Override
+    public Coord clone() {
+        return new Coord(x, y, z);
+    }
 
-	public ChunkCoordinates asChunkCoordinate() {
-		return new ChunkCoordinates(x, y, z);
-	}
+    public ChunkPosition asChunkPosition() {
+        return new ChunkPosition(x, y, z);
+    }
 
-	public Vec3 asVector() {
-		return Vec3.createVectorHelper(x, y, z);
-	}
+    public ChunkCoordinates asChunkCoordinate() {
+        return new ChunkCoordinates(x, y, z);
+    }
 
-	public Coord add(Coord other) {
-		return new Coord(x + other.x, y + other.y, z + other.z);
-	}
+    public Vec3 asVector() {
+        return Vec3.createVectorHelper(x, y, z);
+    }
 
-	public Coord substract(Coord other) {
-		return new Coord(x - other.x, y - other.y, z - other.z);
-	}
+    public Coord add(Coord other) {
+        return new Coord(x + other.x, y + other.y, z + other.z);
+    }
 
-	public int lengthSq() {
-		return x * x + y * y + z * z;
-	}
+    public Coord substract(Coord other) {
+        return new Coord(x - other.x, y - other.y, z - other.z);
+    }
 
-	public double length() {
-		return Math.sqrt(lengthSq());
-	}
+    public int lengthSq() {
+        return x * x + y * y + z * z;
+    }
 
-	public Coord getAdjacentCoord(ForgeDirection fd) {
-		return getOffsetCoord(fd, 1);
-	}
+    public double length() {
+        return Math.sqrt(lengthSq());
+    }
 
-	public Coord getOffsetCoord(ForgeDirection fd, int distance) {
-		return new Coord(x + (fd.offsetX * distance), y + (fd.offsetY * distance), z + (fd.offsetZ * distance));
-	}
+    public Coord getAdjacentCoord(ForgeDirection fd) {
+        return getOffsetCoord(fd, 1);
+    }
 
-	public Coord[] getDirectlyAdjacentCoords() {
-		return getDirectlyAdjacentCoords(true);
-	}
+    public Coord getOffsetCoord(ForgeDirection fd, int distance) {
+        return new Coord(x + (fd.offsetX * distance), y + (fd.offsetY * distance), z + (fd.offsetZ * distance));
+    }
 
-	public Coord[] getDirectlyAdjacentCoords(boolean includeBelow) {
-		Coord[] adjacents;
-		if (includeBelow) adjacents = new Coord[6];
-		else adjacents = new Coord[5];
+    public Coord[] getDirectlyAdjacentCoords() {
+        return getDirectlyAdjacentCoords(true);
+    }
 
-		adjacents[0] = getAdjacentCoord(ForgeDirection.UP);
-		adjacents[1] = getAdjacentCoord(ForgeDirection.NORTH);
-		adjacents[2] = getAdjacentCoord(ForgeDirection.EAST);
-		adjacents[3] = getAdjacentCoord(ForgeDirection.SOUTH);
-		adjacents[4] = getAdjacentCoord(ForgeDirection.WEST);
+    public Coord[] getDirectlyAdjacentCoords(boolean includeBelow) {
+        Coord[] adjacents;
+        if (includeBelow) adjacents = new Coord[6];
+        else adjacents = new Coord[5];
 
-		if (includeBelow) adjacents[5] = getAdjacentCoord(ForgeDirection.DOWN);
+        adjacents[0] = getAdjacentCoord(ForgeDirection.UP);
+        adjacents[1] = getAdjacentCoord(ForgeDirection.NORTH);
+        adjacents[2] = getAdjacentCoord(ForgeDirection.EAST);
+        adjacents[3] = getAdjacentCoord(ForgeDirection.SOUTH);
+        adjacents[4] = getAdjacentCoord(ForgeDirection.WEST);
 
-		return adjacents;
-	}
+        if (includeBelow) adjacents[5] = getAdjacentCoord(ForgeDirection.DOWN);
 
-	public Coord[] getAdjacentCoords() {
-		return getAdjacentCoords(true, true);
-	}
+        return adjacents;
+    }
 
-	public Coord[] getAdjacentCoords(boolean includeBelow, boolean includeDiagonal) {
-		if (!includeDiagonal) return getDirectlyAdjacentCoords(includeBelow);
+    public Coord[] getAdjacentCoords() {
+        return getAdjacentCoords(true, true);
+    }
 
-		Coord[] adjacents = new Coord[(includeBelow? 26 : 17)];
+    public Coord[] getAdjacentCoords(boolean includeBelow, boolean includeDiagonal) {
+        if (!includeDiagonal) return getDirectlyAdjacentCoords(includeBelow);
 
-		int index = 0;
+        Coord[] adjacents = new Coord[(includeBelow ? 26 : 17)];
 
-		for (int xl = -1; xl < 1; xl++)
-			for (int zl = -1; zl < 1; zl++)
-				for (int yl = (includeBelow? -1 : 0); yl < 1; yl++)
-					if (xl != 0 || zl != 0 || yl != 0) adjacents[index++] = new Coord(x + xl, y + yl, z + zl);
+        int index = 0;
 
-		return adjacents;
-	}
+        for (int xl = -1; xl < 1; xl++)
+            for (int zl = -1; zl < 1; zl++) for (int yl = (includeBelow ? -1 : 0); yl < 1; yl++)
+                if (xl != 0 || zl != 0 || yl != 0) adjacents[index++] = new Coord(x + xl, y + yl, z + zl);
 
-	public boolean isAbove(Coord pos) {
-		return pos != null? y > pos.y : false;
-	}
+        return adjacents;
+    }
 
-	public boolean isBelow(Coord pos) {
-		return pos != null? y < pos.y : false;
-	}
+    public boolean isAbove(Coord pos) {
+        return pos != null ? y > pos.y : false;
+    }
 
-	public boolean isNorthOf(Coord pos) {
-		return pos != null? z < pos.z : false;
-	}
+    public boolean isBelow(Coord pos) {
+        return pos != null ? y < pos.y : false;
+    }
 
-	public boolean isSouthOf(Coord pos) {
-		return pos != null? z > pos.z : false;
-	}
+    public boolean isNorthOf(Coord pos) {
+        return pos != null ? z < pos.z : false;
+    }
 
-	public boolean isEastOf(Coord pos) {
-		return pos != null? x > pos.x : false;
-	}
+    public boolean isSouthOf(Coord pos) {
+        return pos != null ? z > pos.z : false;
+    }
 
-	public boolean isWestOf(Coord pos) {
-		return pos != null? x < pos.x : false;
-	}
+    public boolean isEastOf(Coord pos) {
+        return pos != null ? x > pos.x : false;
+    }
 
-	public boolean isXAligned(Coord pos) {
-		return pos != null? x == pos.x : false;
-	}
+    public boolean isWestOf(Coord pos) {
+        return pos != null ? x < pos.x : false;
+    }
 
-	public boolean isYAligned(Coord pos) {
-		return pos != null? y == pos.y : false;
-	}
+    public boolean isXAligned(Coord pos) {
+        return pos != null ? x == pos.x : false;
+    }
 
-	public boolean isZAligned(Coord pos) {
-		return pos != null? z == pos.z : false;
-	}
+    public boolean isYAligned(Coord pos) {
+        return pos != null ? y == pos.y : false;
+    }
+
+    public boolean isZAligned(Coord pos) {
+        return pos != null ? z == pos.z : false;
+    }
 }

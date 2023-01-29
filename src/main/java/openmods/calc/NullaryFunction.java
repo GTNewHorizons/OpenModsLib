@@ -4,38 +4,41 @@ import openmods.utils.Stack;
 
 public abstract class NullaryFunction<E> extends FixedCallable<E> {
 
-	private NullaryFunction() {
-		super(0, 1);
-	}
+    private NullaryFunction() {
+        super(0, 1);
+    }
 
-	public abstract static class Direct<E> extends NullaryFunction<E> {
-		protected abstract E call();
+    public abstract static class Direct<E> extends NullaryFunction<E> {
 
-		@Override
-		public final void call(Frame<E> frame) {
-			frame.stack().push(call());
-		}
-	}
+        protected abstract E call();
 
-	public abstract static class WithFrame<E> extends NullaryFunction<E> {
-		protected abstract E callImpl(Frame<E> frame);
+        @Override
+        public final void call(Frame<E> frame) {
+            frame.stack().push(call());
+        }
+    }
 
-		@Override
-		public final void call(Frame<E> frame) {
-			final Frame<E> executionFrame = FrameFactory.newLocalFrameWithSubstack(frame, 1);
-			final Stack<E> stack = executionFrame.stack();
+    public abstract static class WithFrame<E> extends NullaryFunction<E> {
 
-			final E result = callImpl(executionFrame);
-			stack.checkIsEmpty().push(result);
-		}
-	}
+        protected abstract E callImpl(Frame<E> frame);
 
-	public static <E> ICallable<E> createConst(final E value) {
-		return new NullaryFunction.Direct<E>() {
-			@Override
-			protected E call() {
-				return value;
-			}
-		};
-	}
+        @Override
+        public final void call(Frame<E> frame) {
+            final Frame<E> executionFrame = FrameFactory.newLocalFrameWithSubstack(frame, 1);
+            final Stack<E> stack = executionFrame.stack();
+
+            final E result = callImpl(executionFrame);
+            stack.checkIsEmpty().push(result);
+        }
+    }
+
+    public static <E> ICallable<E> createConst(final E value) {
+        return new NullaryFunction.Direct<E>() {
+
+            @Override
+            protected E call() {
+                return value;
+            }
+        };
+    }
 }

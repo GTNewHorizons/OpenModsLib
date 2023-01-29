@@ -1,259 +1,265 @@
 package openmods.calc.types.multi;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+
 import openmods.calc.types.multi.StructWrapper.ExposeMethod;
 import openmods.calc.types.multi.StructWrapper.ExposeProperty;
 import openmods.utils.EnchantmentUtils;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 public class EntityPlayerWrapper {
 
-	private final WeakReference<EntityPlayer> player;
-	private final TypedValue nullValue;
+    private final WeakReference<EntityPlayer> player;
+    private final TypedValue nullValue;
 
-	public EntityPlayerWrapper(EntityPlayer player, TypedValue nullValue) {
-		this.player = new WeakReference<EntityPlayer>(player);
-		this.nullValue = nullValue;
-	}
+    public EntityPlayerWrapper(EntityPlayer player, TypedValue nullValue) {
+        this.player = new WeakReference<EntityPlayer>(player);
+        this.nullValue = nullValue;
+    }
 
-	@ExposeProperty
-	public Boolean isValid() {
-		return this.player.get() != null;
-	}
+    @ExposeProperty
+    public Boolean isValid() {
+        return this.player.get() != null;
+    }
 
-	private EntityPlayer player() {
-		final EntityPlayer player = this.player.get();
-		Preconditions.checkNotNull(player, "Object no longer valid");
-		return player;
-	}
+    private EntityPlayer player() {
+        final EntityPlayer player = this.player.get();
+        Preconditions.checkNotNull(player, "Object no longer valid");
+        return player;
+    }
 
-	@ExposeProperty
-	public String name() {
-		return player().getGameProfile().getName();
-	}
+    @ExposeProperty
+    public String name() {
+        return player().getGameProfile().getName();
+    }
 
-	@ExposeProperty
-	public String uuid() {
-		return player().getGameProfile().getId().toString();
-	}
+    @ExposeProperty
+    public String uuid() {
+        return player().getGameProfile().getId().toString();
+    }
 
-	@ExposeProperty
-	public Double hp() {
-		return Double.valueOf(player().getHealth());
-	}
+    @ExposeProperty
+    public Double hp() {
+        return Double.valueOf(player().getHealth());
+    }
 
-	@ExposeProperty
-	public BigInteger xp() {
-		return BigInteger.valueOf(EnchantmentUtils.getPlayerXP(player()));
-	}
+    @ExposeProperty
+    public BigInteger xp() {
+        return BigInteger.valueOf(EnchantmentUtils.getPlayerXP(player()));
+    }
 
-	@ExposeProperty
-	public BigInteger level() {
-		return BigInteger.valueOf(player().experienceLevel);
-	}
+    @ExposeProperty
+    public BigInteger level() {
+        return BigInteger.valueOf(player().experienceLevel);
+    }
 
-	@ExposeProperty
-	public Double xpBar() {
-		return Double.valueOf(player().experience);
-	}
+    @ExposeProperty
+    public Double xpBar() {
+        return Double.valueOf(player().experience);
+    }
 
-	@ExposeProperty
-	public Double x() {
-		return player().posX;
-	}
+    @ExposeProperty
+    public Double x() {
+        return player().posX;
+    }
 
-	@ExposeProperty
-	public Double y() {
-		return player().posX;
-	}
+    @ExposeProperty
+    public Double y() {
+        return player().posX;
+    }
 
-	@ExposeProperty
-	public Double z() {
-		return player().posX;
-	}
+    @ExposeProperty
+    public Double z() {
+        return player().posX;
+    }
 
-	@ExposeProperty
-	public Double vx() {
-		return player().motionX;
-	}
+    @ExposeProperty
+    public Double vx() {
+        return player().motionX;
+    }
 
-	@ExposeProperty
-	public Double vy() {
-		return player().motionY;
-	}
+    @ExposeProperty
+    public Double vy() {
+        return player().motionY;
+    }
 
-	@ExposeProperty
-	public Double vz() {
-		return player().motionZ;
-	}
+    @ExposeProperty
+    public Double vz() {
+        return player().motionZ;
+    }
 
-	@ExposeProperty
-	public Double yaw() {
-		return Double.valueOf(player().rotationYaw);
-	}
+    @ExposeProperty
+    public Double yaw() {
+        return Double.valueOf(player().rotationYaw);
+    }
 
-	@ExposeProperty
-	public Double pitch() {
-		return Double.valueOf(player().rotationPitch);
-	}
+    @ExposeProperty
+    public Double pitch() {
+        return Double.valueOf(player().rotationPitch);
+    }
 
-	@ExposeProperty
-	public Boolean creative() {
-		return player().capabilities.isCreativeMode;
-	}
+    @ExposeProperty
+    public Boolean creative() {
+        return player().capabilities.isCreativeMode;
+    }
 
-	@ExposeProperty
-	public Boolean flying() {
-		return player().capabilities.isFlying;
-	}
+    @ExposeProperty
+    public Boolean flying() {
+        return player().capabilities.isFlying;
+    }
 
-	@ExposeProperty
-	public Boolean inAir() {
-		return player().isAirBorne;
-	}
+    @ExposeProperty
+    public Boolean inAir() {
+        return player().isAirBorne;
+    }
 
-	@ExposeProperty
-	public Boolean burning() {
-		return player().isBurning();
-	}
+    @ExposeProperty
+    public Boolean burning() {
+        return player().isBurning();
+    }
 
-	@ExposeProperty
-	public Boolean blocking() {
-		return player().isBlocking();
-	}
+    @ExposeProperty
+    public Boolean blocking() {
+        return player().isBlocking();
+    }
 
-	public static class WorldWrapper {
-		private final WeakReference<World> world;
+    public static class WorldWrapper {
 
-		public WorldWrapper(World world) {
-			this.world = new WeakReference<World>(world);
-		}
+        private final WeakReference<World> world;
 
-		public World world() {
-			final World world = this.world.get();
-			Preconditions.checkNotNull(world, "Object no longer valid");
-			return world;
-		}
+        public WorldWrapper(World world) {
+            this.world = new WeakReference<World>(world);
+        }
 
-		@ExposeProperty
-		public String name() {
-			return world().getWorldInfo().getWorldName();
-		}
+        public World world() {
+            final World world = this.world.get();
+            Preconditions.checkNotNull(world, "Object no longer valid");
+            return world;
+        }
 
-		@ExposeProperty
-		public String type() {
-			return world().getProviderName();
-		}
+        @ExposeProperty
+        public String name() {
+            return world().getWorldInfo().getWorldName();
+        }
 
-		@ExposeProperty
-		public BigInteger dimension() {
-			return BigInteger.valueOf(world().provider.dimensionId);
-		}
+        @ExposeProperty
+        public String type() {
+            return world().getProviderName();
+        }
 
-		@ExposeProperty
-		public BigInteger totalTime() {
-			return BigInteger.valueOf(world().getTotalWorldTime());
-		}
+        @ExposeProperty
+        public BigInteger dimension() {
+            return BigInteger.valueOf(world().provider.dimensionId);
+        }
 
-		@ExposeProperty
-		public BigInteger time() {
-			return BigInteger.valueOf(world().getWorldTime());
-		}
-	}
+        @ExposeProperty
+        public BigInteger totalTime() {
+            return BigInteger.valueOf(world().getTotalWorldTime());
+        }
 
-	@ExposeProperty
-	public StructWrapper world() {
-		return StructWrapper.create(new WorldWrapper(player().getEntityWorld()));
-	}
+        @ExposeProperty
+        public BigInteger time() {
+            return BigInteger.valueOf(world().getWorldTime());
+        }
+    }
 
-	@ExposeProperty
-	public BigInteger inventorySize() {
-		return BigInteger.valueOf(player().inventory.getSizeInventory());
-	}
+    @ExposeProperty
+    public StructWrapper world() {
+        return StructWrapper.create(new WorldWrapper(player().getEntityWorld()));
+    }
 
-	public static class EnchantmentWrapper {
-		private final Enchantment ench;
+    @ExposeProperty
+    public BigInteger inventorySize() {
+        return BigInteger.valueOf(player().inventory.getSizeInventory());
+    }
 
-		@ExposeProperty
-		public final BigInteger level;
+    public static class EnchantmentWrapper {
 
-		public EnchantmentWrapper(Enchantment ench, int level) {
-			this.ench = ench;
-			this.level = BigInteger.valueOf(level);
-		}
+        private final Enchantment ench;
 
-		@ExposeProperty
-		public String name() {
-			return ench.getName();
-		}
-	}
+        @ExposeProperty
+        public final BigInteger level;
 
-	public class ItemStackWrapper {
-		private final ItemStack itemStack;
+        public EnchantmentWrapper(Enchantment ench, int level) {
+            this.ench = ench;
+            this.level = BigInteger.valueOf(level);
+        }
 
-		public ItemStackWrapper(ItemStack itemStack) {
-			this.itemStack = itemStack;
-		}
+        @ExposeProperty
+        public String name() {
+            return ench.getName();
+        }
+    }
 
-		@ExposeProperty
-		public BigInteger count() {
-			return BigInteger.valueOf(itemStack.stackSize);
-		}
+    public class ItemStackWrapper {
 
-		@ExposeProperty
-		public BigInteger damage() {
-			return BigInteger.valueOf(itemStack.getItemDamage());
-		}
+        private final ItemStack itemStack;
 
-		@ExposeProperty
-		public String name() {
-			return itemStack.getUnlocalizedName();
-		}
+        public ItemStackWrapper(ItemStack itemStack) {
+            this.itemStack = itemStack;
+        }
 
-		@ExposeProperty
-		public String displayName() {
-			return itemStack.getDisplayName();
-		}
+        @ExposeProperty
+        public BigInteger count() {
+            return BigInteger.valueOf(itemStack.stackSize);
+        }
 
-		@ExposeProperty(raw = true)
-		public TypedValue enchantments() {
-			final List<TypedValue> result = Lists.newArrayList();
+        @ExposeProperty
+        public BigInteger damage() {
+            return BigInteger.valueOf(itemStack.getItemDamage());
+        }
 
-			@SuppressWarnings("unchecked")
-			final Map<Integer, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
+        @ExposeProperty
+        public String name() {
+            return itemStack.getUnlocalizedName();
+        }
 
-			for (Map.Entry<Integer, Integer> e : enchantments.entrySet()) {
-				final Enchantment enchantment = Enchantment.enchantmentsList[e.getKey()];
-				if (enchantment != null)
-					result.add(StructWrapper.create(nullValue.domain, new EnchantmentWrapper(enchantment, e.getValue())));
-			}
+        @ExposeProperty
+        public String displayName() {
+            return itemStack.getDisplayName();
+        }
 
-			return Cons.createList(result, nullValue);
-		}
+        @ExposeProperty(raw = true)
+        public TypedValue enchantments() {
+            final List<TypedValue> result = Lists.newArrayList();
 
-	}
+            @SuppressWarnings("unchecked")
+            final Map<Integer, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
 
-	@ExposeMethod
-	public StructWrapper inventoryItem(BigInteger slotId) {
-		final InventoryPlayer inventory = player().inventory;
-		final int slot = slotId.intValue();
-		Preconditions.checkState(slot >= 0 && slot < inventory.getSizeInventory(), "Invalid slot");
-		return StructWrapper.create(new ItemStackWrapper(inventory.getStackInSlot(slot)));
-	}
+            for (Map.Entry<Integer, Integer> e : enchantments.entrySet()) {
+                final Enchantment enchantment = Enchantment.enchantmentsList[e.getKey()];
+                if (enchantment != null) result
+                        .add(StructWrapper.create(nullValue.domain, new EnchantmentWrapper(enchantment, e.getValue())));
+            }
 
-	@ExposeProperty
-	public StructWrapper currentItem() {
-		final InventoryPlayer inventory = player().inventory;
-		return StructWrapper.create(new ItemStackWrapper(inventory.getCurrentItem()));
-	}
+            return Cons.createList(result, nullValue);
+        }
+
+    }
+
+    @ExposeMethod
+    public StructWrapper inventoryItem(BigInteger slotId) {
+        final InventoryPlayer inventory = player().inventory;
+        final int slot = slotId.intValue();
+        Preconditions.checkState(slot >= 0 && slot < inventory.getSizeInventory(), "Invalid slot");
+        return StructWrapper.create(new ItemStackWrapper(inventory.getStackInSlot(slot)));
+    }
+
+    @ExposeProperty
+    public StructWrapper currentItem() {
+        final InventoryPlayer inventory = player().inventory;
+        return StructWrapper.create(new ItemStackWrapper(inventory.getCurrentItem()));
+    }
 }

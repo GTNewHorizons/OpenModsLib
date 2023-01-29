@@ -1,57 +1,59 @@
 package openmods.network.senders;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 import cpw.mods.fml.common.network.FMLOutboundHandler;
 import cpw.mods.fml.common.network.FMLOutboundHandler.OutboundTarget;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import io.netty.channel.Channel;
-import net.minecraft.entity.player.EntityPlayer;
 
 public class FmlPacketSenderFactory {
 
-	public static ITargetedPacketSender<EntityPlayer> createPlayerSender(Channel channel) {
-		return new FmlTargetedPacketSender<EntityPlayer>(channel, OutboundTarget.PLAYER);
-	}
+    public static ITargetedPacketSender<EntityPlayer> createPlayerSender(Channel channel) {
+        return new FmlTargetedPacketSender<EntityPlayer>(channel, OutboundTarget.PLAYER);
+    }
 
-	public static ITargetedPacketSender<Integer> createDimensionSender(Channel channel) {
-		return new FmlTargetedPacketSender<Integer>(channel, OutboundTarget.DIMENSION);
-	}
+    public static ITargetedPacketSender<Integer> createDimensionSender(Channel channel) {
+        return new FmlTargetedPacketSender<Integer>(channel, OutboundTarget.DIMENSION);
+    }
 
-	public static ITargetedPacketSender<TargetPoint> createPointSender(Channel channel) {
-		return new FmlTargetedPacketSender<TargetPoint>(channel, OutboundTarget.ALLAROUNDPOINT);
-	}
+    public static ITargetedPacketSender<TargetPoint> createPointSender(Channel channel) {
+        return new FmlTargetedPacketSender<TargetPoint>(channel, OutboundTarget.ALLAROUNDPOINT);
+    }
 
-	public static IPacketSender createSender(Channel channel, OutboundTarget target) {
-		return new FmlPacketSender(channel, target);
-	}
+    public static IPacketSender createSender(Channel channel, OutboundTarget target) {
+        return new FmlPacketSender(channel, target);
+    }
 
-	private static class FmlPacketSender extends PacketSenderBase {
-		private final OutboundTarget selector;
+    private static class FmlPacketSender extends PacketSenderBase {
 
-		public FmlPacketSender(Channel channel, OutboundTarget selector) {
-			super(channel);
-			this.selector = selector;
-		}
+        private final OutboundTarget selector;
 
-		@Override
-		protected void configureChannel(Channel channel) {
-			channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(selector);
-		}
-	}
+        public FmlPacketSender(Channel channel, OutboundTarget selector) {
+            super(channel);
+            this.selector = selector;
+        }
 
-	private static class FmlTargetedPacketSender<T> extends TargetedPacketSenderBase<T> {
+        @Override
+        protected void configureChannel(Channel channel) {
+            channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(selector);
+        }
+    }
 
-		private final OutboundTarget selector;
+    private static class FmlTargetedPacketSender<T> extends TargetedPacketSenderBase<T> {
 
-		public FmlTargetedPacketSender(Channel channel, OutboundTarget selector) {
-			super(channel);
-			this.selector = selector;
-		}
+        private final OutboundTarget selector;
 
-		@Override
-		protected void configureChannel(Channel channel, T target) {
-			channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(selector);
-			channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(target);
-		}
-	}
+        public FmlTargetedPacketSender(Channel channel, OutboundTarget selector) {
+            super(channel);
+            this.selector = selector;
+        }
+
+        @Override
+        protected void configureChannel(Channel channel, T target) {
+            channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(selector);
+            channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(target);
+        }
+    }
 
 }
