@@ -2,10 +2,10 @@ package openmods.calc.parsing;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.IExecutable;
-
-import com.google.common.collect.ImmutableList;
 
 public class BinaryOpNode<E> implements IExprNode<E> {
 

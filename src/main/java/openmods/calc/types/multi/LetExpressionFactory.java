@@ -3,6 +3,11 @@ package openmods.calc.types.multi;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.Environment;
 import openmods.calc.ExecutionErrorException;
@@ -25,11 +30,6 @@ import openmods.calc.parsing.SymbolCallNode;
 import openmods.calc.parsing.SymbolGetNode;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class LetExpressionFactory {
 

@@ -4,6 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.PeekingIterator;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.Environment;
 import openmods.calc.ExecutionErrorException;
@@ -19,13 +26,6 @@ import openmods.calc.SymbolMap;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
 import openmods.utils.StackValidationException;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.PeekingIterator;
 
 public class CommonSimpleSymbolFactory<E> {
 

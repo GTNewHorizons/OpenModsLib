@@ -3,10 +3,10 @@ package openmods.gui.component;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.MathHelper;
 
+import org.lwjgl.opengl.GL11;
+
 import openmods.api.IValueReceiver;
 import openmods.gui.listener.IValueChangedListener;
-
-import org.lwjgl.opengl.GL11;
 
 public class GuiComponentSlider extends BaseComponent implements IValueReceiver<Integer> {
 

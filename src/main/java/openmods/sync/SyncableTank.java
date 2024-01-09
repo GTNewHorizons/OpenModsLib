@@ -12,11 +12,11 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
+import com.google.common.io.ByteStreams;
+
 import openmods.api.IValueProvider;
 import openmods.liquids.GenericTank;
 import openmods.utils.ByteUtils;
-
-import com.google.common.io.ByteStreams;
 
 public class SyncableTank extends GenericTank implements ISyncableObject, IValueProvider<FluidStack> {
 

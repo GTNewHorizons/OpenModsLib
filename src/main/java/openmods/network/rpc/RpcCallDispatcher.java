@@ -2,10 +2,6 @@ package openmods.network.rpc;
 
 import java.util.Map;
 
-import openmods.network.Dispatcher;
-import openmods.network.ExtendedOutboundHandler;
-import openmods.network.senders.IPacketSender;
-
 import com.google.common.base.Preconditions;
 
 import cpw.mods.fml.common.Loader;
@@ -13,6 +9,9 @@ import cpw.mods.fml.common.LoaderState;
 import cpw.mods.fml.common.network.FMLEmbeddedChannel;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
+import openmods.network.Dispatcher;
+import openmods.network.ExtendedOutboundHandler;
+import openmods.network.senders.IPacketSender;
 
 public class RpcCallDispatcher extends Dispatcher {
 

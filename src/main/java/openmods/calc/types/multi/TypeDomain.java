@@ -3,8 +3,6 @@ package openmods.calc.types.multi;
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
-import openmods.reflection.TypeVariableHolder;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -12,6 +10,8 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.google.common.reflect.TypeToken;
+
+import openmods.reflection.TypeVariableHolder;
 
 public class TypeDomain {
 

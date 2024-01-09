@@ -1,14 +1,14 @@
 package openmods.calc;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import openmods.calc.types.multi.IConverter;
 import openmods.calc.types.multi.TypeDomain;
 import openmods.calc.types.multi.TypeDomain.Coercion;
 import openmods.calc.types.multi.TypedValue;
 import openmods.calc.types.multi.TypedValueComparator;
 import openmods.reflection.TypeVariableHolderHandler;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public class TypedValueComparatorTest {
 

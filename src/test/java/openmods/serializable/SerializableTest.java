@@ -14,10 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import openmods.serializable.cls.SerializableClass;
-import openmods.serializable.cls.Serialize;
-import openmods.utils.io.IStreamSerializer;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -32,6 +28,10 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.common.reflect.TypeToken;
+
+import openmods.serializable.cls.SerializableClass;
+import openmods.serializable.cls.Serialize;
+import openmods.utils.io.IStreamSerializer;
 
 public class SerializableTest {
 

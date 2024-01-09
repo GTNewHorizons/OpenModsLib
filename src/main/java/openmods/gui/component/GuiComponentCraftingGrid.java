@@ -13,14 +13,14 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
-import openmods.utils.CollectionUtils;
-
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
+import openmods.utils.CollectionUtils;
 
 public class GuiComponentCraftingGrid extends GuiComponentSprite {
 

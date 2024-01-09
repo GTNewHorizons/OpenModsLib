@@ -3,10 +3,10 @@ package openmods.inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import openmods.inventory.StackEqualityTesterBuilder.IEqualityTester;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import openmods.inventory.StackEqualityTesterBuilder.IEqualityTester;
 
 public class EqualTest {
 

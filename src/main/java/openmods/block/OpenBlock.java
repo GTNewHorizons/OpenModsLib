@@ -22,6 +22,11 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import openmods.api.IActivateAwareTile;
 import openmods.api.IAddAwareTile;
 import openmods.api.IBreakAwareTile;
@@ -42,12 +47,6 @@ import openmods.inventory.IInventoryProvider;
 import openmods.tileentity.OpenTileEntity;
 import openmods.utils.BlockNotifyFlags;
 import openmods.utils.BlockUtils;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public abstract class OpenBlock extends Block implements IRegisterableBlock {
 

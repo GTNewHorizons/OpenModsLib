@@ -16,10 +16,10 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 
-import openmods.utils.ByteUtils;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+
+import openmods.utils.ByteUtils;
 
 public abstract class TypeRW<T> implements INBTSerializer<T>, IStreamSerializer<T>, IStringSerializer<T> {
 

@@ -1,12 +1,11 @@
 package openmods.calc;
 
-import openmods.calc.parsing.StringEscaper;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 
 import gnu.trove.set.hash.TCharHashSet;
+import openmods.calc.parsing.StringEscaper;
 
 public class EscapeTest {
 

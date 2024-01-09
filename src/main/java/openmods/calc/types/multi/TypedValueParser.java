@@ -2,12 +2,12 @@ package openmods.calc.types.multi;
 
 import java.math.BigInteger;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import openmods.calc.parsing.IValueParser;
 import openmods.calc.parsing.PositionalNotationParser;
 import openmods.calc.parsing.Token;
 import openmods.calc.parsing.TokenType;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 public class TypedValueParser implements IValueParser<TypedValue> {
 

@@ -6,6 +6,19 @@ import java.util.Set;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+
+import com.google.common.base.Functions;
+import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+
+import cpw.mods.fml.common.discovery.ASMDataTable;
+import cpw.mods.fml.common.discovery.ASMDataTable.ASMData;
 import openmods.Log;
 import openmods.api.IResultListener;
 import openmods.asm.TransformerState;
@@ -23,20 +36,6 @@ import openmods.stencil.FramebufferInjector;
 import openmods.utils.StateTracker;
 import openmods.utils.StateTracker.StateUpdater;
 import openmods.world.MapGenStructureVisitor;
-
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-
-import com.google.common.base.Functions;
-import com.google.common.base.Joiner;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-
-import cpw.mods.fml.common.discovery.ASMDataTable;
-import cpw.mods.fml.common.discovery.ASMDataTable.ASMData;
 
 public class OpenModsClassTransformer implements IClassTransformer {
 

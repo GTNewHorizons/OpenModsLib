@@ -2,14 +2,14 @@ package openmods.stencil;
 
 import net.minecraft.client.renderer.OpenGlHelper;
 
-import openmods.Log;
-
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.EXTPackedDepthStencil;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLContext;
+
+import openmods.Log;
 
 public class FramebufferConstants {
 

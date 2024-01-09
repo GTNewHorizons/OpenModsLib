@@ -3,6 +3,11 @@ package openmods.calc.parsing;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.PeekingIterator;
+
 import openmods.calc.Compilers;
 import openmods.calc.Compilers.ICompiler;
 import openmods.calc.Environment;
@@ -14,11 +19,6 @@ import openmods.calc.IExecutable;
 import openmods.calc.OperatorDictionary;
 import openmods.calc.Value;
 import openmods.calc.parsing.DefaultPostfixCompiler.IStateProvider;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.PeekingIterator;
 
 public class BasicCompilerMapFactory<E> implements ICompilerMapFactory<E, ExprType> {
 

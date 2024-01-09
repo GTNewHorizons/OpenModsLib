@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import openmods.serializable.IObjectSerializer;
 import openmods.utils.CachedFactory;
 import openmods.utils.FieldsSelector;
-
-import com.google.common.collect.Lists;
 
 public class ClassSerializersProvider {
 

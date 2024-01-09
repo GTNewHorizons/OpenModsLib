@@ -7,6 +7,14 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import com.google.common.reflect.TypeToken;
+
 import openmods.reflection.FieldAccess;
 import openmods.reflection.TypeUtils;
 import openmods.serializable.IObjectSerializer;
@@ -15,14 +23,6 @@ import openmods.utils.io.IStreamSerializer;
 import openmods.utils.io.InputBitStream;
 import openmods.utils.io.OutputBitStream;
 import openmods.utils.io.StreamUtils;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-import com.google.common.reflect.TypeToken;
 
 public class ClassSerializerBuilder<T> {
 

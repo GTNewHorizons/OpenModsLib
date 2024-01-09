@@ -15,8 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import openmods.Log;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -25,6 +23,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import openmods.Log;
 
 public class ConfigProcessor {
 

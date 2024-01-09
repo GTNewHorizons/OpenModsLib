@@ -6,18 +6,18 @@ import java.lang.reflect.TypeVariable;
 import java.util.Locale;
 import java.util.Map;
 
-import openmods.calc.types.multi.MetaObject.Builder;
-import openmods.calc.types.multi.MetaObject.Slot;
-import openmods.calc.types.multi.MetaObject.SlotAdapter;
-import openmods.calc.types.multi.MetaObject.SlotField;
-import openmods.reflection.TypeVariableHolder;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
+
+import openmods.calc.types.multi.MetaObject.Builder;
+import openmods.calc.types.multi.MetaObject.Slot;
+import openmods.calc.types.multi.MetaObject.SlotAdapter;
+import openmods.calc.types.multi.MetaObject.SlotField;
+import openmods.reflection.TypeVariableHolder;
 
 public class MetaObjectInfo {
 

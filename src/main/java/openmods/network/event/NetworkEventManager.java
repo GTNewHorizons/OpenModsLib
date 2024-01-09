@@ -2,15 +2,14 @@ package openmods.network.event;
 
 import java.util.Map;
 
-import openmods.datastore.DataStoreBuilder;
-import openmods.network.IdSyncManager;
-import openmods.utils.io.TypeRW;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.LoaderState;
+import openmods.datastore.DataStoreBuilder;
+import openmods.network.IdSyncManager;
+import openmods.utils.io.TypeRW;
 
 public class NetworkEventManager {
 

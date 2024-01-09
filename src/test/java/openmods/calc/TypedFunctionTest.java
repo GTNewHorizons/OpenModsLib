@@ -8,6 +8,14 @@ import static org.mockito.Matchers.anyString;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+
 import openmods.calc.types.multi.IConverter;
 import openmods.calc.types.multi.TypeDomain;
 import openmods.calc.types.multi.TypedFunction;
@@ -26,14 +34,6 @@ import openmods.calc.types.multi.TypedFunction.Variant;
 import openmods.calc.types.multi.TypedValue;
 import openmods.reflection.TypeVariableHolderHandler;
 import openmods.utils.OptionalInt;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 
 public class TypedFunctionTest {
 

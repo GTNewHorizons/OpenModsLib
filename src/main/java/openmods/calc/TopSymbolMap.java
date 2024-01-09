@@ -2,10 +2,10 @@ package openmods.calc;
 
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+
 import openmods.utils.OptionalInt;
 import openmods.utils.StackValidationException;
-
-import com.google.common.collect.Maps;
 
 public class TopSymbolMap<E> extends SymbolMap<E> {
 

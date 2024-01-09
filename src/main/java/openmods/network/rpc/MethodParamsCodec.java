@@ -7,15 +7,15 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeToken;
+
 import openmods.serializable.SerializerRegistry;
 import openmods.utils.AnnotationMap;
 import openmods.utils.CachedFactory;
 import openmods.utils.io.IStreamReader;
 import openmods.utils.io.IStreamSerializer;
 import openmods.utils.io.IStreamWriter;
-
-import com.google.common.base.Preconditions;
-import com.google.common.reflect.TypeToken;
 
 public class MethodParamsCodec {
 

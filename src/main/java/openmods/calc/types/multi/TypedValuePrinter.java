@@ -2,6 +2,8 @@ package openmods.calc.types.multi;
 
 import java.math.BigInteger;
 
+import gnu.trove.set.TCharSet;
+import gnu.trove.set.hash.TCharHashSet;
 import openmods.calc.Frame;
 import openmods.calc.FrameFactory;
 import openmods.calc.IValuePrinter;
@@ -12,8 +14,6 @@ import openmods.calc.types.bigint.BigIntPrinter;
 import openmods.calc.types.fp.DoublePrinter;
 import openmods.config.simpler.Configurable;
 import openmods.math.Complex;
-import gnu.trove.set.TCharSet;
-import gnu.trove.set.hash.TCharHashSet;
 
 public class TypedValuePrinter implements IValuePrinter<TypedValue> {
 

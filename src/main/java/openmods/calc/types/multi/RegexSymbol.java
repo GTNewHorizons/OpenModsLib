@@ -7,16 +7,16 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+
 import openmods.calc.Environment;
 import openmods.calc.Frame;
 import openmods.calc.types.multi.TypedFunction.DispatchArg;
 import openmods.calc.types.multi.TypedFunction.Variant;
 import openmods.utils.OptionalInt;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 
 public class RegexSymbol {
 

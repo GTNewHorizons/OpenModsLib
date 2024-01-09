@@ -7,12 +7,12 @@ import java.util.Set;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
+
 import openmods.shapes.IShapeable;
 import openmods.utils.Coord;
 import openmods.utils.MathUtils;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
 
 public class GeometryUtils {
 

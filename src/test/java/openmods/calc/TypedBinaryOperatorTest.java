@@ -1,5 +1,10 @@
 package openmods.calc;
 
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.google.common.base.Optional;
+
 import openmods.calc.types.multi.TypeDomain;
 import openmods.calc.types.multi.TypeDomain.Coercion;
 import openmods.calc.types.multi.TypedBinaryOperator;
@@ -10,11 +15,6 @@ import openmods.calc.types.multi.TypedBinaryOperator.ISimpleVariantOperation;
 import openmods.calc.types.multi.TypedBinaryOperator.IVariantOperation;
 import openmods.calc.types.multi.TypedValue;
 import openmods.reflection.TypeVariableHolderHandler;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.google.common.base.Optional;
 
 public class TypedBinaryOperatorTest {
 

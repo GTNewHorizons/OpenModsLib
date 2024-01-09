@@ -2,10 +2,10 @@ package openmods.calc.types.multi;
 
 import java.util.Map;
 
-import openmods.calc.Frame;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+
+import openmods.calc.Frame;
 
 public class SimpleNamespace {
 

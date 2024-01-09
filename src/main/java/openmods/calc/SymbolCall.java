@@ -1,9 +1,9 @@
 package openmods.calc;
 
-import openmods.utils.OptionalInt;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+
+import openmods.utils.OptionalInt;
 
 public class SymbolCall<E> implements IExecutable<E> {
 

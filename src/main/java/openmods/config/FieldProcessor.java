@@ -7,10 +7,10 @@ import java.lang.reflect.Modifier;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 
+import com.google.common.base.Throwables;
+
 import openmods.config.game.RegisterBlock;
 import openmods.config.game.RegisterItem;
-
-import com.google.common.base.Throwables;
 
 public class FieldProcessor {
 

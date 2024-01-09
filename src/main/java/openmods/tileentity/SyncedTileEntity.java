@@ -6,6 +6,7 @@ import java.util.Set;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.Packet;
 
+import io.netty.buffer.ByteBuf;
 import openmods.Log;
 import openmods.network.rpc.IRpcTarget;
 import openmods.network.rpc.RpcCallDispatcher;
@@ -20,7 +21,6 @@ import openmods.sync.SyncMap;
 import openmods.sync.SyncMapTile;
 import openmods.sync.SyncObjectScanner;
 import openmods.sync.drops.DropTagSerializer;
-import io.netty.buffer.ByteBuf;
 
 public abstract class SyncedTileEntity extends OpenTileEntity implements ISyncMapProvider {
 

@@ -1,9 +1,9 @@
 package openmods.calc;
 
-import openmods.calc.types.fp.DoublePrinter;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import openmods.calc.types.fp.DoublePrinter;
 
 public class DoublePrinterTest {
 

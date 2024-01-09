@@ -2,6 +2,14 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.PeekingIterator;
+
 import openmods.calc.Frame;
 import openmods.calc.IExecutable;
 import openmods.calc.ISymbol;
@@ -13,14 +21,6 @@ import openmods.calc.parsing.SingleStateTransition;
 import openmods.calc.parsing.SingleTokenPostfixCompilerState;
 import openmods.calc.parsing.Token;
 import openmods.calc.parsing.TokenType;
-
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.PeekingIterator;
 
 public class StringInterpolate {
 

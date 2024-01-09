@@ -2,11 +2,11 @@ package openmods.calc;
 
 import java.math.BigInteger;
 
+import org.junit.Test;
+
 import openmods.calc.CalcTestUtils.CalcCheck;
 import openmods.calc.CalcTestUtils.SymbolStub;
 import openmods.calc.types.bigint.BigIntCalculatorFactory;
-
-import org.junit.Test;
 
 public class BigIntCalculatorTest {
 

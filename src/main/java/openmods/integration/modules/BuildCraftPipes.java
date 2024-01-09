@@ -6,11 +6,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import buildcraft.api.transport.IPipeTile;
 import openmods.integration.IntegrationModule;
 import openmods.inventory.legacy.CustomSinks;
 import openmods.inventory.legacy.CustomSinks.ICustomSink;
 import openmods.inventory.legacy.CustomSinks.ICustomSinkProvider;
-import buildcraft.api.transport.IPipeTile;
 
 public class BuildCraftPipes extends IntegrationModule {
 

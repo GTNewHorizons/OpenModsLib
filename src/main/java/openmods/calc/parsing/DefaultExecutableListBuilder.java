@@ -2,6 +2,8 @@ package openmods.calc.parsing;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import openmods.calc.ExecutableList;
 import openmods.calc.IExecutable;
 import openmods.calc.NoopExecutable;
@@ -11,8 +13,6 @@ import openmods.calc.SymbolCall;
 import openmods.calc.SymbolGet;
 import openmods.calc.Value;
 import openmods.utils.OptionalInt;
-
-import com.google.common.collect.Lists;
 
 public class DefaultExecutableListBuilder<E> implements IExecutableListBuilder<E> {
 

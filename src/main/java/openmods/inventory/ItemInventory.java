@@ -3,9 +3,9 @@ package openmods.inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import openmods.utils.ItemUtils;
-
 import com.google.common.base.Preconditions;
+
+import openmods.utils.ItemUtils;
 
 public class ItemInventory extends GenericInventory {
 

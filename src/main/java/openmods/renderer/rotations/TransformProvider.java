@@ -3,14 +3,14 @@ package openmods.renderer.rotations;
 import java.nio.FloatBuffer;
 import java.util.Map;
 
-import openmods.geometry.Matrix3d;
-import openmods.geometry.Orientation;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 
 import com.google.common.collect.Maps;
+
+import openmods.geometry.Matrix3d;
+import openmods.geometry.Orientation;
 
 public class TransformProvider {
 

@@ -2,6 +2,8 @@ package openmods.calc.types.multi;
 
 import java.util.Locale;
 
+import com.google.common.base.Joiner;
+
 import openmods.calc.Compilers;
 import openmods.calc.ExprType;
 import openmods.calc.Frame;
@@ -10,8 +12,6 @@ import openmods.calc.ICallable;
 import openmods.calc.IExecutable;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
-
-import com.google.common.base.Joiner;
 
 public class EvalSymbol implements ICallable<TypedValue> {
 

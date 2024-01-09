@@ -4,11 +4,11 @@ import java.util.Collection;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 
+import cpw.mods.fml.common.network.handshake.NetworkDispatcher;
+import cpw.mods.fml.relauncher.Side;
 import openmods.Log;
 import openmods.network.IPacketTargetSelector;
 import openmods.utils.NetUtils;
-import cpw.mods.fml.common.network.handshake.NetworkDispatcher;
-import cpw.mods.fml.relauncher.Side;
 
 public class SelectMultiplePlayers implements IPacketTargetSelector<Collection<EntityPlayerMP>> {
 

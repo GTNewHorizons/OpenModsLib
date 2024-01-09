@@ -5,14 +5,14 @@ import java.util.Collection;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 
+import cpw.mods.fml.common.network.FMLOutboundHandler;
+import io.netty.channel.Channel;
 import openmods.network.DimCoord;
 import openmods.network.ExtendedOutboundHandler;
 import openmods.network.IPacketTargetSelector;
 import openmods.network.targets.SelectChunkWatchers;
 import openmods.network.targets.SelectEntityWatchers;
 import openmods.network.targets.SelectMultiplePlayers;
-import cpw.mods.fml.common.network.FMLOutboundHandler;
-import io.netty.channel.Channel;
 
 public class ExtPacketSenderFactory {
 

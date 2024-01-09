@@ -6,6 +6,9 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
 import openmods.Log;
 import openmods.block.OpenBlock;
 import openmods.geometry.Orientation;
@@ -13,9 +16,6 @@ import openmods.renderer.rotations.IRendererSetup;
 import openmods.tileentity.OpenTileEntity;
 import openmods.utils.CachedFactory;
 import openmods.utils.render.RenderUtils;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 public class DefaultBlockRenderer implements IBlockRenderer<Block> {
 

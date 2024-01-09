@@ -2,15 +2,15 @@ package openmods.serializable;
 
 import java.io.IOException;
 
-import openmods.serializable.cls.ClassSerializersProvider;
-import openmods.serializable.cls.Serialize;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+
+import openmods.serializable.cls.ClassSerializersProvider;
+import openmods.serializable.cls.Serialize;
 
 public class ClassSerializerTest {
 

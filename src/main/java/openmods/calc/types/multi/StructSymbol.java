@@ -5,11 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import openmods.calc.Frame;
-import openmods.calc.SingleReturnCallable;
-import openmods.utils.OptionalInt;
-import openmods.utils.Stack;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -18,6 +13,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import openmods.calc.Frame;
+import openmods.calc.SingleReturnCallable;
+import openmods.utils.OptionalInt;
+import openmods.utils.Stack;
 
 public class StructSymbol extends SingleReturnCallable<TypedValue> {
 

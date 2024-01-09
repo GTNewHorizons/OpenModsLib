@@ -8,6 +8,8 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import openmods.api.IInventoryCallback;
 import openmods.block.OpenBlock;
 import openmods.geometry.Orientation;
@@ -20,8 +22,6 @@ import openmods.network.rpc.targets.TileEntityRpcTarget;
 import openmods.network.senders.IPacketSender;
 import openmods.reflection.TypeUtils;
 import openmods.utils.Coord;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public abstract class OpenTileEntity extends TileEntity implements IRpcTargetProvider {
 

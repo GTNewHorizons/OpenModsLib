@@ -5,9 +5,9 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
-import openmods.gui.listener.IValueChangedListener;
-
 import com.google.common.collect.ImmutableList;
+
+import openmods.gui.listener.IValueChangedListener;
 
 public class GuiComponentPalettePicker extends BaseComponent {
 

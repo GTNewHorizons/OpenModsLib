@@ -1,11 +1,11 @@
 package openmods.calc.types.fp;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import openmods.calc.IValuePrinter;
 import openmods.calc.PositionalNotationPrinter;
 import openmods.calc.PrinterUtils;
 import openmods.config.simpler.Configurable;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 public class DoublePrinter implements IValuePrinter<Double> {
 

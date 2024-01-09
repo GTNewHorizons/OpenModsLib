@@ -6,6 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import openmods.calc.BinaryFunction;
 import openmods.calc.BinaryOperator;
 import openmods.calc.BinaryOperator.Associativity;
@@ -64,18 +76,6 @@ import openmods.calc.types.multi.TypedFunction.Variant;
 import openmods.math.Complex;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class TypedValueCalculatorFactory {
 

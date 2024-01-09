@@ -2,10 +2,10 @@ package openmods.calc.parsing;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 import openmods.calc.IExecutable;
 import openmods.calc.SymbolGet;
-
-import com.google.common.collect.ImmutableList;
 
 public class SymbolGetNode<E> extends SymbolOpNode<E> {
 

@@ -4,8 +4,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
-import openmods.structured.IStructureContainer.IElementAddCallback;
-
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.base.Preconditions;
@@ -14,6 +12,7 @@ import com.google.common.collect.TreeMultimap;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntIntHashMap;
+import openmods.structured.IStructureContainer.IElementAddCallback;
 
 public abstract class StructuredData<C extends IStructureContainer<E>, E extends IStructureElement> {
 

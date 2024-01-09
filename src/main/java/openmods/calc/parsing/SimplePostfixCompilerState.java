@@ -1,10 +1,10 @@
 package openmods.calc.parsing;
 
+import com.google.common.base.Preconditions;
+
 import openmods.calc.IExecutable;
 import openmods.calc.SymbolCall;
 import openmods.utils.OptionalInt;
-
-import com.google.common.base.Preconditions;
 
 public class SimplePostfixCompilerState<E> implements IPostfixCompilerState<E> {
 

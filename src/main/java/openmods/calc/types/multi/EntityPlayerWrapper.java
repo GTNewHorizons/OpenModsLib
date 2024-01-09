@@ -12,12 +12,12 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import openmods.calc.types.multi.StructWrapper.ExposeMethod;
 import openmods.calc.types.multi.StructWrapper.ExposeProperty;
 import openmods.utils.EnchantmentUtils;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 public class EntityPlayerWrapper {
 

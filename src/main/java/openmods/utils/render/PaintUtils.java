@@ -6,12 +6,11 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 
-import openmods.Mods;
-
 import com.google.common.collect.Sets;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
+import openmods.Mods;
 
 public class PaintUtils {
 

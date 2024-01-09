@@ -4,9 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
-import openmods.utils.render.FakeIcon;
-
 import org.lwjgl.opengl.GL11;
+
+import openmods.utils.render.FakeIcon;
 
 public class GuiComponentSprite extends BaseComponent {
 

@@ -10,14 +10,14 @@ import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
 import openmods.gui.listener.IKeyTypedListener;
 import openmods.gui.listener.IMouseDownListener;
 import openmods.gui.listener.IMouseDragListener;
 import openmods.gui.listener.IMouseUpListener;
 import openmods.utils.TextureUtils;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 public abstract class BaseComponent extends Gui {
 

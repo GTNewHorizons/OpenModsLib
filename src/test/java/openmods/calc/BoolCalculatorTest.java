@@ -1,10 +1,10 @@
 package openmods.calc;
 
+import org.junit.Test;
+
 import openmods.calc.CalcTestUtils.CalcCheck;
 import openmods.calc.CalcTestUtils.SymbolStub;
 import openmods.calc.types.bool.BoolCalculatorFactory;
-
-import org.junit.Test;
 
 public class BoolCalculatorTest {
 

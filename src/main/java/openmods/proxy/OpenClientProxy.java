@@ -14,6 +14,12 @@ import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 
+import com.google.common.base.Optional;
+
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.ICrashCallable;
+import cpw.mods.fml.common.network.IGuiHandler;
 import openmods.LibConfig;
 import openmods.Log;
 import openmods.OpenMods;
@@ -29,13 +35,6 @@ import openmods.stencil.FramebufferConstants;
 import openmods.stencil.StencilPoolManager;
 import openmods.stencil.StencilPoolManager.StencilPool;
 import openmods.utils.render.RenderUtils;
-
-import com.google.common.base.Optional;
-
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.ICrashCallable;
-import cpw.mods.fml.common.network.IGuiHandler;
 
 public final class OpenClientProxy implements IOpenModsProxy {
 

@@ -4,13 +4,13 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.Random;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+
 import openmods.calc.NullaryFunction;
 import openmods.calc.types.multi.TypedFunction.DispatchArg;
 import openmods.calc.types.multi.TypedFunction.RawReturn;
 import openmods.calc.types.multi.TypedFunction.Variant;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 public class LibRandom {
 

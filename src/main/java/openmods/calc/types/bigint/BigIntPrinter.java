@@ -2,12 +2,12 @@ package openmods.calc.types.bigint;
 
 import java.math.BigInteger;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import openmods.calc.IValuePrinter;
 import openmods.calc.PositionalNotationPrinter;
 import openmods.calc.PrinterUtils;
 import openmods.config.simpler.Configurable;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 public class BigIntPrinter implements IValuePrinter<BigInteger> {
 

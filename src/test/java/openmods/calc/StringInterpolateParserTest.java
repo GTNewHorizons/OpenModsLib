@@ -2,12 +2,12 @@ package openmods.calc;
 
 import java.util.Arrays;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import openmods.calc.types.multi.StringInterpolate;
 import openmods.calc.types.multi.StringInterpolate.TemplatePartInfo;
 import openmods.calc.types.multi.StringInterpolate.TemplatePartType;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public class StringInterpolateParserTest {
 

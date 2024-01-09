@@ -4,14 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
 import openmods.calc.Frame;
 import openmods.calc.ICallable;
 import openmods.calc.types.multi.MetaObject.SlotDir;
 import openmods.utils.OptionalInt;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 public class MetaObjectUtils {
 

@@ -8,6 +8,7 @@ import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+
 import cpw.mods.fml.common.ICrashCallable;
 
 public class InjectorSanityChecker implements ICrashCallable {

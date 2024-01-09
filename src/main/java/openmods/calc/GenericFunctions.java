@@ -2,11 +2,11 @@ package openmods.calc;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
 import openmods.utils.StackValidationException;
-
-import com.google.common.collect.Lists;
 
 public class GenericFunctions {
 

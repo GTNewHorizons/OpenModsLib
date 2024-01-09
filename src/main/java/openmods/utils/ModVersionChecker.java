@@ -6,9 +6,9 @@ import java.net.URL;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 
-import openmods.Log;
-
 import com.google.common.collect.Ordering;
+
+import openmods.Log;
 
 /**
  * This class retrieves a version string from a text file at a given URL and compares it against the locally provided

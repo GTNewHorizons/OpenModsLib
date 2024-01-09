@@ -2,8 +2,8 @@ package openmods.network.senders;
 
 import java.util.Collection;
 
-import openmods.utils.NetUtils;
 import io.netty.channel.Channel;
+import openmods.utils.NetUtils;
 
 public class PacketSenderBase implements IPacketSender {
 

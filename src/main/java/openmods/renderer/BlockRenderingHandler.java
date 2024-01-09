@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.world.IBlockAccess;
 
 import com.google.common.collect.Maps;
+
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
 public class BlockRenderingHandler implements ISimpleBlockRenderingHandler {

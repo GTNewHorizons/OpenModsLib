@@ -5,12 +5,12 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.UUID;
 
-import openmods.utils.ByteUtils;
-
 import com.google.common.base.Strings;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+
+import openmods.utils.ByteUtils;
 
 public class GameProfileSerializer implements IStreamSerializer<GameProfile> {
 

@@ -6,12 +6,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import openmods.calc.Frame;
-import openmods.calc.UnaryFunction;
-import openmods.calc.types.multi.TypedFunction.DispatchArg;
-import openmods.calc.types.multi.TypedFunction.RawReturn;
-import openmods.calc.types.multi.TypedFunction.Variant;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Joiner;
@@ -21,6 +15,12 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import openmods.calc.Frame;
+import openmods.calc.UnaryFunction;
+import openmods.calc.types.multi.TypedFunction.DispatchArg;
+import openmods.calc.types.multi.TypedFunction.RawReturn;
+import openmods.calc.types.multi.TypedFunction.Variant;
 
 public class StringAttrs {
 

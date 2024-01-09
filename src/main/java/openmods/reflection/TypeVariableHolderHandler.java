@@ -5,8 +5,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
-import openmods.Log;
-
 import org.objectweb.asm.Type;
 
 import com.google.common.base.Preconditions;
@@ -14,6 +12,7 @@ import com.google.common.collect.Maps;
 
 import cpw.mods.fml.common.discovery.ASMDataTable;
 import cpw.mods.fml.common.discovery.ASMDataTable.ASMData;
+import openmods.Log;
 
 public class TypeVariableHolderHandler {
 

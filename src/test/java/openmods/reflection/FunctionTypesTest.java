@@ -1,5 +1,8 @@
 package openmods.reflection;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import openmods.reflection.MethodAccess.Function0;
 import openmods.reflection.MethodAccess.Function1;
 import openmods.reflection.MethodAccess.Function2;
@@ -7,9 +10,6 @@ import openmods.reflection.MethodAccess.Function3;
 import openmods.reflection.MethodAccess.Function4;
 import openmods.reflection.MethodAccess.Function5;
 import openmods.reflection.MethodAccess.FunctionVar;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public class FunctionTypesTest {
 

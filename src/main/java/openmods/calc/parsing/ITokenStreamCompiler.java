@@ -1,8 +1,8 @@
 package openmods.calc.parsing;
 
-import openmods.calc.IExecutable;
-
 import com.google.common.collect.PeekingIterator;
+
+import openmods.calc.IExecutable;
 
 public interface ITokenStreamCompiler<E> {
 

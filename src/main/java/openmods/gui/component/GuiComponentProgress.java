@@ -2,9 +2,9 @@ package openmods.gui.component;
 
 import net.minecraft.client.Minecraft;
 
-import openmods.api.IValueReceiver;
-
 import org.lwjgl.opengl.GL11;
+
+import openmods.api.IValueReceiver;
 
 public class GuiComponentProgress extends BaseComponent {
 

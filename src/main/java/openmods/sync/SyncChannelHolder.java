@@ -7,10 +7,6 @@ import java.util.Map;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.Packet;
 
-import openmods.network.ExtendedOutboundHandler;
-import openmods.network.senders.ExtPacketSenderFactory;
-import openmods.network.senders.ITargetedPacketSender;
-
 import com.google.common.collect.Maps;
 
 import cpw.mods.fml.common.network.FMLEmbeddedChannel;
@@ -18,6 +14,9 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
+import openmods.network.ExtendedOutboundHandler;
+import openmods.network.senders.ExtPacketSenderFactory;
+import openmods.network.senders.ITargetedPacketSender;
 
 public class SyncChannelHolder {
 

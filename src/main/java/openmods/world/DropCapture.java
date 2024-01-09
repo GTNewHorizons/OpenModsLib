@@ -8,6 +8,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 
 import com.google.common.collect.Lists;
+
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class DropCapture {

@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import openmods.structured.Command.Type;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InOrder;
 
 import com.google.common.collect.Lists;
+
+import openmods.structured.Command.Type;
 
 public class StructuredTest {
 

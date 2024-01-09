@@ -5,8 +5,6 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
-import openmods.Log;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -16,6 +14,7 @@ import cpw.mods.fml.common.API;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.discovery.ASMDataTable;
 import cpw.mods.fml.common.discovery.ModCandidate;
+import openmods.Log;
 
 public class ClassSourceCollector {
 

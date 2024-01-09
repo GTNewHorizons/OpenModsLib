@@ -1,9 +1,9 @@
 package openmods.calc.types.fraction;
 
+import org.apache.commons.lang3.math.Fraction;
+
 import openmods.calc.IValuePrinter;
 import openmods.config.simpler.Configurable;
-
-import org.apache.commons.lang3.math.Fraction;
 
 public class FractionPrinter implements IValuePrinter<Fraction> {
 

@@ -18,14 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import openmods.calc.Frame;
-import openmods.calc.ICallable;
-import openmods.reflection.TypeVariableHolder;
-import openmods.utils.AnnotationMap;
-import openmods.utils.CachedFactory;
-import openmods.utils.OptionalInt;
-import openmods.utils.Stack;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -36,6 +28,14 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
+
+import openmods.calc.Frame;
+import openmods.calc.ICallable;
+import openmods.reflection.TypeVariableHolder;
+import openmods.utils.AnnotationMap;
+import openmods.utils.CachedFactory;
+import openmods.utils.OptionalInt;
+import openmods.utils.Stack;
 
 public class TypedFunction {
 

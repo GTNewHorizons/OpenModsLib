@@ -2,6 +2,9 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.IExecutable;
 import openmods.calc.SymbolCall;
@@ -10,9 +13,6 @@ import openmods.calc.parsing.BinaryOpNode;
 import openmods.calc.parsing.IExprNode;
 import openmods.calc.parsing.SquareBracketContainerNode;
 import openmods.calc.parsing.SymbolCallNode;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 public abstract class ScopeModifierNode extends SymbolCallNode<TypedValue> {
 

@@ -19,9 +19,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
-import openmods.Log;
-import openmods.utils.ByteUtils;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -31,6 +28,8 @@ import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
+import openmods.Log;
+import openmods.utils.ByteUtils;
 
 public abstract class SyncMap<H extends ISyncMapProvider> {
 

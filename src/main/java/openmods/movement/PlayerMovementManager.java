@@ -6,9 +6,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MovementInput;
 import net.minecraftforge.common.MinecraftForge;
 
-import openmods.movement.PlayerMovementEvent.Type;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
+import openmods.movement.PlayerMovementEvent.Type;
 
 public class PlayerMovementManager {
 

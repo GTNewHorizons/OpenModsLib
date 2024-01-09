@@ -1,10 +1,10 @@
 package openmods.calc.types.fp;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import openmods.calc.parsing.IValueParser;
 import openmods.calc.parsing.PositionalNotationParser;
 import openmods.calc.parsing.Token;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 public class DoubleParser implements IValueParser<Double> {
 

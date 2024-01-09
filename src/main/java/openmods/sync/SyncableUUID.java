@@ -8,9 +8,9 @@ import java.util.UUID;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.Constants;
 
-import openmods.api.IValueProvider;
-
 import com.google.common.base.Objects;
+
+import openmods.api.IValueProvider;
 
 public class SyncableUUID extends SyncableObjectBase implements IValueProvider<UUID> {
 

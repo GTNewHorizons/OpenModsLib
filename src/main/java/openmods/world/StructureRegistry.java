@@ -15,8 +15,6 @@ import net.minecraft.world.gen.ChunkProviderHell;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.gen.structure.MapGenStructure;
 
-import openmods.Log;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -25,6 +23,7 @@ import com.google.common.collect.Lists;
 
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.ReflectionHelper.UnableToAccessFieldException;
+import openmods.Log;
 
 public class StructureRegistry {
 

@@ -1,8 +1,8 @@
 package openmods.calc.parsing;
 
-import openmods.calc.IExecutable;
-
 import com.google.common.base.Preconditions;
+
+import openmods.calc.IExecutable;
 
 public abstract class SingleTokenPostfixCompilerState<E> implements IPostfixCompilerState<E> {
 

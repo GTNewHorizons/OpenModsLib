@@ -5,10 +5,10 @@ import java.util.Map;
 
 import net.minecraft.command.ICommandSender;
 
-import openmods.utils.CommandUtils;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import openmods.utils.CommandUtils;
 
 public class MapCommandComponent implements ICommandComponent {
 
