@@ -2,6 +2,8 @@ package openmods.calc;
 
 import java.util.List;
 
+import org.junit.Test;
+
 import openmods.calc.parsing.AstCompiler;
 import openmods.calc.parsing.DefaultExprNodeFactory;
 import openmods.calc.parsing.IAstParser;
@@ -9,8 +11,6 @@ import openmods.calc.parsing.ICompilerState;
 import openmods.calc.parsing.IExprNode;
 import openmods.calc.parsing.PrefixParser;
 import openmods.calc.parsing.Token;
-
-import org.junit.Test;
 
 public class PrefixCompilerTest extends CalcTestUtils {
 

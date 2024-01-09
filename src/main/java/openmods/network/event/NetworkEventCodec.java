@@ -14,9 +14,6 @@ import java.util.zip.GZIPOutputStream;
 
 import net.minecraft.network.INetHandler;
 
-import openmods.OpenMods;
-import openmods.utils.io.PacketChunker;
-
 import com.google.common.base.Preconditions;
 
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -30,6 +27,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
+import openmods.OpenMods;
+import openmods.utils.io.PacketChunker;
 
 @Sharable
 public class NetworkEventCodec extends MessageToMessageCodec<FMLProxyPacket, NetworkEvent> {

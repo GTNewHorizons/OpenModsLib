@@ -7,9 +7,6 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetHandler;
 
-import openmods.OpenMods;
-import openmods.utils.ByteUtils;
-
 import com.google.common.base.Preconditions;
 
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
@@ -20,6 +17,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
+import openmods.OpenMods;
+import openmods.utils.ByteUtils;
 
 @Sharable
 public class RpcCallCodec extends MessageToMessageCodec<FMLProxyPacket, RpcCall> {

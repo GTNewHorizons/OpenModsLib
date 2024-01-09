@@ -1,10 +1,10 @@
 package openmods.calc;
 
-import openmods.calc.CalcTestUtils.ValueParserHelper;
-import openmods.calc.types.fraction.FractionParser;
-
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.Test;
+
+import openmods.calc.CalcTestUtils.ValueParserHelper;
+import openmods.calc.types.fraction.FractionParser;
 
 public class FractionParserTest {
 

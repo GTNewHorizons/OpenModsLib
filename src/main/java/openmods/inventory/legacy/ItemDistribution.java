@@ -10,13 +10,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import openmods.inventory.GenericInventory;
-import openmods.utils.BlockUtils;
-import openmods.utils.InventoryUtils;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
+import openmods.inventory.GenericInventory;
+import openmods.utils.BlockUtils;
+import openmods.utils.InventoryUtils;
 
 // TODO Legacy methods, replace with something sane
 public class ItemDistribution {

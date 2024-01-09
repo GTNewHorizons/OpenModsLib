@@ -2,9 +2,9 @@ package openmods.calc.parsing;
 
 import java.util.Map;
 
-import openmods.calc.OperatorDictionary;
-
 import com.google.common.collect.Maps;
+
+import openmods.calc.OperatorDictionary;
 
 public class DefaultPostfixCompiler<E> extends PostfixCompiler<E> {
 

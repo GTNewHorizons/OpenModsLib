@@ -5,11 +5,11 @@ import java.util.Map;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import openmods.utils.render.ProjectionHelper;
-
 import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Maps;
+
+import openmods.utils.render.ProjectionHelper;
 
 public class SidePicker {
 

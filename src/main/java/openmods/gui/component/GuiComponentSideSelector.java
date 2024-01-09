@@ -15,6 +15,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+
 import openmods.api.IValueReceiver;
 import openmods.gui.listener.IListenerBase;
 import openmods.gui.misc.SidePicker;
@@ -23,9 +26,6 @@ import openmods.gui.misc.SidePicker.Side;
 import openmods.gui.misc.Trackball.TrackballWrapper;
 import openmods.utils.MathUtils;
 import openmods.utils.bitmap.IReadableBitMap;
-
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 public class GuiComponentSideSelector extends BaseComponent implements IValueReceiver<Set<ForgeDirection>> {
 

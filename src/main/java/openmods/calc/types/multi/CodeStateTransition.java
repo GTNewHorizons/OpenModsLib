@@ -2,14 +2,14 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+
 import openmods.calc.IExecutable;
 import openmods.calc.Value;
 import openmods.calc.parsing.ICompilerState;
 import openmods.calc.parsing.IExprNode;
 import openmods.calc.parsing.SameStateSymbolTransition;
 import openmods.calc.parsing.SymbolCallNode;
-
-import com.google.common.base.Preconditions;
 
 public class CodeStateTransition extends SameStateSymbolTransition<TypedValue> {
 

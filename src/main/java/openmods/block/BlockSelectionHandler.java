@@ -6,8 +6,8 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 
-import openmods.api.ISelectionAware;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import openmods.api.ISelectionAware;
 
 public class BlockSelectionHandler {
 

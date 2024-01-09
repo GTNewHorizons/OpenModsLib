@@ -13,19 +13,19 @@ import javax.annotation.Nullable;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 
-import openmods.calc.ExprType;
-import openmods.calc.command.CalcState.CalculatorType;
-import openmods.calc.command.CalcState.NoSuchNameException;
-import openmods.config.simpler.ConfigurableClassAdapter.NoSuchPropertyException;
-import openmods.utils.CommandUtils;
-import openmods.utils.StackUnderflowException;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closer;
+
+import openmods.calc.ExprType;
+import openmods.calc.command.CalcState.CalculatorType;
+import openmods.calc.command.CalcState.NoSuchNameException;
+import openmods.config.simpler.ConfigurableClassAdapter.NoSuchPropertyException;
+import openmods.utils.CommandUtils;
+import openmods.utils.StackUnderflowException;
 
 public class CommandCalcFactory {
 

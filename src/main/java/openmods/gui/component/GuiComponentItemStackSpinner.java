@@ -15,9 +15,9 @@ import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.IItemRenderer.ItemRenderType;
 import net.minecraftforge.client.MinecraftForgeClient;
 
-import openmods.utils.TextureUtils;
-
 import org.lwjgl.opengl.GL11;
+
+import openmods.utils.TextureUtils;
 
 public class GuiComponentItemStackSpinner extends BaseComponent {
 

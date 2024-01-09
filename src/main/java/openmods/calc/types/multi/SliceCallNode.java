@@ -2,13 +2,13 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 import openmods.calc.IExecutable;
 import openmods.calc.SymbolCall;
 import openmods.calc.Value;
 import openmods.calc.parsing.IExprNode;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 public class SliceCallNode implements IExprNode<TypedValue> {
 

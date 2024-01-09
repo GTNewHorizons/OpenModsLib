@@ -4,15 +4,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.PeekingIterator;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.Operator;
 import openmods.calc.OperatorDictionary;
 import openmods.calc.UnaryOperator;
 import openmods.utils.Stack;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.PeekingIterator;
 
 public class InfixParser<E> implements IAstParser<E> {
 

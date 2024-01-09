@@ -2,6 +2,8 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.IExecutable;
 import openmods.calc.SymbolCall;
@@ -9,8 +11,6 @@ import openmods.calc.Value;
 import openmods.calc.parsing.BinaryOpNode;
 import openmods.calc.parsing.IExprNode;
 import openmods.calc.parsing.MappedExprNodeFactory.IBinaryExprNodeFactory;
-
-import com.google.common.collect.Lists;
 
 public class LazyBinaryOperatorNode extends BinaryOpNode<TypedValue> {
 

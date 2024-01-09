@@ -8,6 +8,7 @@ import net.minecraft.network.INetHandler;
 import net.minecraft.world.World;
 
 import com.google.common.base.Optional;
+
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public interface IOpenModsProxy {

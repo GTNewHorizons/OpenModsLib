@@ -7,9 +7,9 @@ import java.util.TreeSet;
 
 import net.minecraftforge.client.MinecraftForgeClient;
 
-import openmods.Log;
-
 import com.google.common.collect.Sets;
+
+import openmods.Log;
 
 public class StencilPoolManager {
 

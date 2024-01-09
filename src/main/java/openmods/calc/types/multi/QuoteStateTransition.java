@@ -2,6 +2,10 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 import openmods.calc.IExecutable;
 import openmods.calc.Value;
 import openmods.calc.parsing.ContainerNode;
@@ -17,10 +21,6 @@ import openmods.calc.parsing.QuotedParser.IQuotedExprNodeFactory;
 import openmods.calc.parsing.Token;
 import openmods.calc.parsing.TokenType;
 import openmods.calc.parsing.ValueNode;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 public class QuoteStateTransition {
 

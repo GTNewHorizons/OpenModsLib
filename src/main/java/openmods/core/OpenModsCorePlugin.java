@@ -4,12 +4,12 @@ import java.util.Map;
 
 import net.minecraft.launchwrapper.Launch;
 
-import openmods.Log;
-import openmods.Mods;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+import openmods.Log;
+import openmods.Mods;
 
 // must be lower than all dependent ones
 @SortingIndex(16)

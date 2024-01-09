@@ -3,14 +3,14 @@ package openmods.reflection;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import openmods.utils.CachedFactory;
-import openmods.utils.SneakyThrower;
-
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Method;
+
+import openmods.utils.CachedFactory;
+import openmods.utils.SneakyThrower;
 
 public class ClonerFactory implements Opcodes {
 

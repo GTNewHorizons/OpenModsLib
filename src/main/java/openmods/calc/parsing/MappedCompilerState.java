@@ -3,9 +3,9 @@ package openmods.calc.parsing;
 import java.util.List;
 import java.util.Map;
 
-import openmods.utils.CollectionUtils;
-
 import com.google.common.collect.Maps;
+
+import openmods.utils.CollectionUtils;
 
 public class MappedCompilerState<E> implements ICompilerState<E> {
 

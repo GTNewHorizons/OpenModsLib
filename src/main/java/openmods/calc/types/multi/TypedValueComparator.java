@@ -2,9 +2,9 @@ package openmods.calc.types.multi;
 
 import java.util.Comparator;
 
-import openmods.calc.types.multi.TypeDomain.Coercion;
-
 import com.google.common.base.Preconditions;
+
+import openmods.calc.types.multi.TypeDomain.Coercion;
 
 public class TypedValueComparator implements Comparator<TypedValue> {
 

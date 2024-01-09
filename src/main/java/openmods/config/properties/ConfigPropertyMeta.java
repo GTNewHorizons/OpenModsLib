@@ -10,11 +10,6 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.common.config.Property.Type;
 
-import openmods.Log;
-import openmods.utils.io.IStringSerializer;
-import openmods.utils.io.StringConversionException;
-import openmods.utils.io.TypeRW;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.CharMatcher;
@@ -22,6 +17,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+
+import openmods.Log;
+import openmods.utils.io.IStringSerializer;
+import openmods.utils.io.StringConversionException;
+import openmods.utils.io.TypeRW;
 
 public abstract class ConfigPropertyMeta {
 

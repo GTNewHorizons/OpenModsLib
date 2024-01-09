@@ -3,10 +3,10 @@ package openmods.renderer;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.util.ResourceLocation;
 
+import org.lwjgl.opengl.GL11;
+
 import openmods.utils.TextureUtils;
 import openmods.utils.render.RenderUtils;
-
-import org.lwjgl.opengl.GL11;
 
 public class StenciledTextureRenderer extends StencilRendererHandler {
 

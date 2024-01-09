@@ -3,9 +3,9 @@ package openmods.gui.component.page;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.StatCollector;
 
-import openmods.gui.component.GuiComponentLabel;
-
 import org.apache.commons.lang3.StringEscapeUtils;
+
+import openmods.gui.component.GuiComponentLabel;
 
 public class TitledPage extends PageBase {
 

@@ -2,11 +2,11 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 import openmods.calc.IExecutable;
 import openmods.calc.Value;
 import openmods.calc.parsing.IExprNode;
-
-import com.google.common.collect.ImmutableList;
 
 public class RawCodeExprNode implements IExprNode<TypedValue> {
 

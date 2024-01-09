@@ -12,14 +12,14 @@ import java.util.Random;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
-import openmods.reflection.TypeUtils;
-import openmods.utils.io.IStreamReader;
-import openmods.utils.io.IStreamWriter;
-
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
+
+import openmods.reflection.TypeUtils;
+import openmods.utils.io.IStreamReader;
+import openmods.utils.io.IStreamWriter;
 
 public class CollectionUtils {
 

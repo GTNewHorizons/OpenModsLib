@@ -1,11 +1,11 @@
 package openmods.calc.types.multi;
 
+import com.google.common.base.Preconditions;
+
 import openmods.calc.Frame;
 import openmods.calc.ICallable;
 import openmods.calc.ISymbol;
 import openmods.utils.OptionalInt;
-
-import com.google.common.base.Preconditions;
 
 public abstract class CallableValue {
 

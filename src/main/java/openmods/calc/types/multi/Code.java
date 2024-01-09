@@ -2,13 +2,13 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+
 import openmods.calc.ExecutableList;
 import openmods.calc.Frame;
 import openmods.calc.IExecutable;
 import openmods.calc.parsing.ExprUtils;
 import openmods.calc.parsing.IExprNode;
-
-import com.google.common.base.Preconditions;
 
 public class Code {
 

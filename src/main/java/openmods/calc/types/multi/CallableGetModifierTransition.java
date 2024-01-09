@@ -1,5 +1,7 @@
 package openmods.calc.types.multi;
 
+import com.google.common.collect.PeekingIterator;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.ICallable;
 import openmods.calc.OperatorDictionary;
@@ -12,8 +14,6 @@ import openmods.calc.parsing.SymbolGetNode;
 import openmods.calc.parsing.Token;
 import openmods.calc.parsing.TokenType;
 import openmods.calc.parsing.ValueNode;
-
-import com.google.common.collect.PeekingIterator;
 
 public class CallableGetModifierTransition extends SingleStateTransition.ForModifier<TypedValue> {
 

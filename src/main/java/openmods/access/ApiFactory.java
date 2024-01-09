@@ -9,9 +9,6 @@ import java.util.Set;
 
 import net.minecraftforge.common.util.EnumHelper;
 
-import openmods.Log;
-import openmods.utils.CachedFactory;
-
 import org.objectweb.asm.Type;
 
 import com.google.common.base.Preconditions;
@@ -22,6 +19,8 @@ import com.google.common.collect.Sets;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.discovery.ASMDataTable;
 import cpw.mods.fml.common.discovery.ASMDataTable.ASMData;
+import openmods.Log;
+import openmods.utils.CachedFactory;
 
 public class ApiFactory {
 

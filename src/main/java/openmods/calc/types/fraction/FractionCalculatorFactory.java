@@ -2,6 +2,10 @@ package openmods.calc.types.fraction;
 
 import java.util.Random;
 
+import org.apache.commons.lang3.math.Fraction;
+
+import com.google.common.collect.Ordering;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.Calculator;
 import openmods.calc.Environment;
@@ -16,10 +20,6 @@ import openmods.calc.UnaryOperator;
 import openmods.calc.parsing.BasicCompilerMapFactory;
 import openmods.calc.parsing.CommonSimpleSymbolFactory;
 import openmods.calc.parsing.IValueParser;
-
-import org.apache.commons.lang3.math.Fraction;
-
-import com.google.common.collect.Ordering;
 
 public class FractionCalculatorFactory<M> extends SimpleCalculatorFactory<Fraction, M> {
 

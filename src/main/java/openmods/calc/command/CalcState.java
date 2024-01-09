@@ -10,6 +10,13 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 
+import org.apache.commons.lang3.math.Fraction;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import openmods.calc.Calculator;
 import openmods.calc.ExprType;
 import openmods.calc.Frame;
@@ -30,13 +37,6 @@ import openmods.calc.types.multi.TypedValueCalculatorFactory;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
 import openmods.utils.StackValidationException;
-
-import org.apache.commons.lang3.math.Fraction;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class CalcState {
 

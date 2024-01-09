@@ -3,10 +3,10 @@ package openmods.calc.types.multi;
 import java.math.BigInteger;
 import java.util.Map;
 
-import openmods.calc.Frame;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
+
+import openmods.calc.Frame;
 
 public class IntegerAttrs {
 

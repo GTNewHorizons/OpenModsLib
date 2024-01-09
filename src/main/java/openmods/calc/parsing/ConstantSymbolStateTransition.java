@@ -2,13 +2,13 @@ package openmods.calc.parsing;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import openmods.calc.Environment;
 import openmods.calc.ExecutableList;
 import openmods.calc.Frame;
 import openmods.calc.IExecutable;
 import openmods.calc.Value;
-
-import com.google.common.collect.Lists;
 
 public class ConstantSymbolStateTransition<E> extends SameStateSymbolTransition<E> {
 

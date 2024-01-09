@@ -10,14 +10,14 @@ import java.util.Set;
 
 import net.minecraft.command.ICommandSender;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import com.google.common.collect.ImmutableSet;
+
 import openmods.Log;
 import openmods.config.properties.ConfigProcessing.ModConfig;
 import openmods.utils.SidedCommand;
 import openmods.utils.io.StringConversionException;
-
-import org.apache.commons.lang3.ArrayUtils;
-
-import com.google.common.collect.ImmutableSet;
 
 public class CommandConfig extends SidedCommand {
 

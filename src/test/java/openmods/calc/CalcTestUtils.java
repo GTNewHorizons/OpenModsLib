@@ -3,6 +3,14 @@ package openmods.calc;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Assert;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.collect.PeekingIterator;
+
 import openmods.calc.BinaryOperator.Associativity;
 import openmods.calc.parsing.ContainerNode;
 import openmods.calc.parsing.DummyNode;
@@ -21,14 +29,6 @@ import openmods.calc.parsing.TokenType;
 import openmods.calc.types.multi.TypedCalcConstants;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
-
-import org.junit.Assert;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.collect.PeekingIterator;
 
 public class CalcTestUtils {
 

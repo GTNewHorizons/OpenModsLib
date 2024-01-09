@@ -2,17 +2,17 @@ package openmods.calc;
 
 import java.util.List;
 
+import org.junit.Test;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import openmods.calc.parsing.DefaultPostfixCompiler;
 import openmods.calc.parsing.IPostfixCompilerState;
 import openmods.calc.parsing.Token;
 import openmods.calc.parsing.TokenType;
 import openmods.utils.OptionalInt;
 import openmods.utils.StackUnderflowException;
-
-import org.junit.Test;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 public class PostfixCompilerTest extends CalcTestUtils {
 

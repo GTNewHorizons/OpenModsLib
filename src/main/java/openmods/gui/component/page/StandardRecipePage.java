@@ -5,14 +5,14 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 
+import com.google.common.base.Strings;
+
 import openmods.gui.component.GuiComponentCraftingGrid;
 import openmods.gui.component.GuiComponentItemStackSpinner;
 import openmods.gui.component.GuiComponentLabel;
 import openmods.gui.component.GuiComponentSprite;
 import openmods.utils.RecipeUtils;
 import openmods.utils.render.FakeIcon;
-
-import com.google.common.base.Strings;
 
 public class StandardRecipePage extends PageBase {
 

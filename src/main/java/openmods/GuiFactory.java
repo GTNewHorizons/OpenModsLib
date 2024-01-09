@@ -5,10 +5,10 @@ import java.util.Set;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 
-import openmods.config.gui.OpenModsConfigScreen;
-
 import com.google.common.collect.ImmutableSet;
+
 import cpw.mods.fml.client.IModGuiFactory;
+import openmods.config.gui.OpenModsConfigScreen;
 
 public class GuiFactory implements IModGuiFactory {
 

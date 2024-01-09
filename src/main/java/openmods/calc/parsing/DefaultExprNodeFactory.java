@@ -2,10 +2,10 @@ package openmods.calc.parsing;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.UnaryOperator;
-
-import com.google.common.base.Preconditions;
 
 public class DefaultExprNodeFactory<E> implements IExprNodeFactory<E> {
 

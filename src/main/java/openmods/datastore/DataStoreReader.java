@@ -4,10 +4,10 @@ import java.io.DataInput;
 import java.io.IOException;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+
 import openmods.utils.ByteUtils;
 import openmods.utils.io.IStreamReader;
-
-import com.google.common.collect.Maps;
 
 public class DataStoreReader<K, V> {
 

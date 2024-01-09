@@ -1,10 +1,10 @@
 package openmods.calc;
 
-import openmods.calc.command.IWhitespaceSplitter;
-import openmods.calc.command.WhitespaceSplitters;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import openmods.calc.command.IWhitespaceSplitter;
+import openmods.calc.command.WhitespaceSplitters;
 
 public class WhitespaceSplitterTest {
 

@@ -3,14 +3,14 @@ package openmods.calc.types.multi;
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
-import openmods.calc.UnaryOperator;
-import openmods.reflection.TypeVariableHolder;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
+
+import openmods.calc.UnaryOperator;
+import openmods.reflection.TypeVariableHolder;
 
 public class TypedUnaryOperator extends UnaryOperator.Direct<TypedValue> {
 

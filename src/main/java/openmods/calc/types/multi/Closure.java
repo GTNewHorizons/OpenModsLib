@@ -3,14 +3,14 @@ package openmods.calc.types.multi;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 import openmods.calc.Frame;
 import openmods.calc.FrameFactory;
 import openmods.calc.ICallable;
 import openmods.calc.SymbolMap;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
-
-import com.google.common.collect.ImmutableList;
 
 public class Closure implements ICallable<TypedValue> {
 

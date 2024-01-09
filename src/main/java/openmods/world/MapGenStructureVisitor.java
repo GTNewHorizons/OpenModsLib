@@ -1,16 +1,16 @@
 package openmods.world;
 
-import openmods.Log;
-import openmods.api.IResultListener;
-import openmods.asm.MappedType;
-import openmods.asm.MethodMatcher;
-import openmods.asm.VisitorHelper;
-
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import openmods.Log;
+import openmods.api.IResultListener;
+import openmods.asm.MappedType;
+import openmods.asm.MethodMatcher;
+import openmods.asm.VisitorHelper;
 
 public class MapGenStructureVisitor extends ClassVisitor {
 

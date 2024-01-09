@@ -8,9 +8,9 @@ import java.io.IOException;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 
-import openmods.utils.ByteUtils;
-
 import com.google.common.io.ByteStreams;
+
+import openmods.utils.ByteUtils;
 
 /***
  * Note: you must manually .markDirty() right now

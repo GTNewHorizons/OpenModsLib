@@ -1,5 +1,7 @@
 package openmods.calc;
 
+import org.junit.Test;
+
 import openmods.calc.parsing.AstCompiler;
 import openmods.calc.parsing.DefaultExprNodeFactory;
 import openmods.calc.parsing.IAstParser;
@@ -8,8 +10,6 @@ import openmods.calc.parsing.InfixParser;
 import openmods.calc.parsing.Token;
 import openmods.calc.parsing.UnfinishedExpressionException;
 import openmods.calc.parsing.UnmatchedBracketsException;
-
-import org.junit.Test;
 
 public class InfixCompilerTest extends CalcTestUtils {
 

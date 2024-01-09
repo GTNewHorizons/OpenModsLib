@@ -11,15 +11,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 
-import openmods.Log;
-import openmods.OpenMods;
-import openmods.gui.component.BaseComponent;
-import openmods.gui.component.GuiComponentBook;
-import openmods.gui.component.page.ItemStackTocPage;
-import openmods.gui.component.page.StandardRecipePage;
-import openmods.gui.listener.IMouseDownListener;
-import openmods.utils.CachedInstanceFactory;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -29,6 +20,14 @@ import com.google.common.collect.Sets;
 
 import cpw.mods.fml.common.registry.FMLControlledNamespacedRegistry;
 import cpw.mods.fml.common.registry.GameData;
+import openmods.Log;
+import openmods.OpenMods;
+import openmods.gui.component.BaseComponent;
+import openmods.gui.component.GuiComponentBook;
+import openmods.gui.component.page.ItemStackTocPage;
+import openmods.gui.component.page.StandardRecipePage;
+import openmods.gui.listener.IMouseDownListener;
+import openmods.utils.CachedInstanceFactory;
 
 public class PageBuilder {
 

@@ -14,15 +14,6 @@ import java.util.zip.GZIPOutputStream;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 
-import openmods.Log;
-import openmods.OpenMods;
-import openmods.datastore.DataStoreBuilder;
-import openmods.datastore.DataStoreKey;
-import openmods.datastore.DataStoreManager;
-import openmods.datastore.DataStoreReader;
-import openmods.datastore.DataStoreWrapper;
-import openmods.datastore.DataStoreWriter;
-
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
 
@@ -43,6 +34,14 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import openmods.Log;
+import openmods.OpenMods;
+import openmods.datastore.DataStoreBuilder;
+import openmods.datastore.DataStoreKey;
+import openmods.datastore.DataStoreManager;
+import openmods.datastore.DataStoreReader;
+import openmods.datastore.DataStoreWrapper;
+import openmods.datastore.DataStoreWriter;
 
 public class IdSyncManager extends DataStoreManager {
 

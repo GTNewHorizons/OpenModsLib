@@ -2,16 +2,16 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 import openmods.calc.BinaryFunction;
 import openmods.calc.Environment;
 import openmods.calc.Frame;
 import openmods.calc.SingleReturnCallable;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 public class LibFunctional {
 

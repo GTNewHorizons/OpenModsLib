@@ -1,9 +1,9 @@
 package openmods.calc;
 
-import openmods.Log;
-
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
+
+import openmods.Log;
 
 public class SingleExprEvaluator<E, M> {
 

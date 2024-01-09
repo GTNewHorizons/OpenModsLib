@@ -3,15 +3,15 @@ package openmods.calc;
 import java.util.Collection;
 import java.util.Iterator;
 
-import openmods.calc.parsing.Token;
-import openmods.calc.parsing.Tokenizer;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.PeekingIterator;
+
+import openmods.calc.parsing.Token;
+import openmods.calc.parsing.Tokenizer;
 
 public class TokenizerTest extends CalcTestUtils {
 

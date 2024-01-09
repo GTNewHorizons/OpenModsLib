@@ -4,13 +4,13 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
-import openmods.datastore.IDataVisitor;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+
+import openmods.datastore.IDataVisitor;
 
 public class MethodIdRegistry implements IDataVisitor<String, Integer> {
 

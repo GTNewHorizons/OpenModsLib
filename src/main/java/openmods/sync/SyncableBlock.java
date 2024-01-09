@@ -7,11 +7,11 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 
-import openmods.utils.ByteUtils;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+
 import cpw.mods.fml.common.registry.GameData;
+import openmods.utils.ByteUtils;
 
 public class SyncableBlock extends SyncableObjectBase implements ISyncableValueProvider<Block> {
 

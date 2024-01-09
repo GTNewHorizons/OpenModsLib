@@ -10,11 +10,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
 
+import com.google.common.collect.Lists;
+
 import openmods.fakeplayer.FakePlayerPool.PlayerUserReturning;
 import openmods.world.DropCapture;
 import openmods.world.DropCapture.CaptureContext;
-
-import com.google.common.collect.Lists;
 
 public class BreakBlockAction implements PlayerUserReturning<List<EntityItem>> {
 

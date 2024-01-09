@@ -2,9 +2,9 @@ package openmods.calc.parsing;
 
 import java.util.List;
 
-import openmods.calc.IExecutable;
-
 import com.google.common.collect.ImmutableList;
+
+import openmods.calc.IExecutable;
 
 public class ContainerNode<E> implements IExprNode<E> {
 

@@ -2,6 +2,8 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.IExecutable;
 import openmods.calc.SymbolCall;
@@ -12,8 +14,6 @@ import openmods.calc.parsing.IExprNode;
 import openmods.calc.parsing.SymbolCallNode;
 import openmods.calc.parsing.SymbolGetNode;
 import openmods.calc.parsing.SymbolOpNode;
-
-import com.google.common.collect.Lists;
 
 public abstract class DotExprNode extends BinaryOpNode<TypedValue> {
 

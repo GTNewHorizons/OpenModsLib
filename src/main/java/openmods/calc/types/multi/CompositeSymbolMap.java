@@ -1,12 +1,12 @@
 package openmods.calc.types.multi;
 
+import com.google.common.base.Optional;
+
 import openmods.calc.Frame;
 import openmods.calc.FrameFactory;
 import openmods.calc.ISymbol;
 import openmods.calc.NestedSymbolMap;
 import openmods.calc.SymbolMap;
-
-import com.google.common.base.Optional;
 
 public class CompositeSymbolMap extends NestedSymbolMap<TypedValue> {
 

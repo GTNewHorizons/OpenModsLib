@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
-import openmods.structured.Command.ConsistencyCheck;
-import openmods.structured.Command.ContainerInfo;
-import openmods.structured.Command.Create;
-import openmods.structured.Command.Delete;
-import openmods.structured.Command.UpdateSingle;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+
+import openmods.structured.Command.ConsistencyCheck;
+import openmods.structured.Command.ContainerInfo;
+import openmods.structured.Command.Create;
+import openmods.structured.Command.Delete;
+import openmods.structured.Command.UpdateSingle;
 
 public class StructuredDataMaster<C extends IStructureContainer<E>, E extends IStructureElement>
         extends StructuredData<C, E> {

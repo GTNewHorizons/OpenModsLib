@@ -9,13 +9,6 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 
-import openmods.calc.Environment;
-import openmods.calc.Frame;
-import openmods.calc.types.multi.TypedFunction.IUnboundCallable;
-import openmods.reflection.FieldAccess;
-import openmods.utils.CachedFactory;
-import openmods.utils.OptionalInt;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -23,6 +16,13 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Multimap;
+
+import openmods.calc.Environment;
+import openmods.calc.Frame;
+import openmods.calc.types.multi.TypedFunction.IUnboundCallable;
+import openmods.reflection.FieldAccess;
+import openmods.utils.CachedFactory;
+import openmods.utils.OptionalInt;
 
 public class StructWrapper {
 

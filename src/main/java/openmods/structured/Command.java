@@ -9,12 +9,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.SortedSet;
 
-import openmods.utils.ByteUtils;
-import openmods.utils.CollectionUtils;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
+import openmods.utils.ByteUtils;
+import openmods.utils.CollectionUtils;
 
 public abstract class Command {
 

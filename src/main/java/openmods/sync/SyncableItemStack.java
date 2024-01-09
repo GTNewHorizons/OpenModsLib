@@ -10,10 +10,10 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.Constants;
 
+import com.google.common.io.ByteStreams;
+
 import openmods.utils.ByteUtils;
 import openmods.utils.ItemUtils;
-
-import com.google.common.io.ByteStreams;
 
 public class SyncableItemStack extends SyncableObjectBase {
 

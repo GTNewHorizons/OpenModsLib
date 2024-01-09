@@ -5,9 +5,9 @@ import java.io.DataOutputStream;
 
 import net.minecraft.nbt.NBTTagCompound;
 
-import openmods.utils.ByteUtils;
-
 import com.google.common.base.Preconditions;
+
+import openmods.utils.ByteUtils;
 
 public class SyncableVarInt extends SyncableObjectBase implements ISyncableValueProvider<Integer> {
 

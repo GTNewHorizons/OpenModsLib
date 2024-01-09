@@ -5,12 +5,12 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 
-import openmods.api.IValueReceiver;
-
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+
+import openmods.api.IValueReceiver;
 
 public class GuiComponentLabel extends BaseComponent implements IValueReceiver<String> {
 

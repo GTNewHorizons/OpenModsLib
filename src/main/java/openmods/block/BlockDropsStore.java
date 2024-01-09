@@ -10,10 +10,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.WorldEvent;
 
-import openmods.LibConfig;
-import openmods.Log;
-import openmods.utils.Coord;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -24,6 +20,9 @@ import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
 import cpw.mods.fml.relauncher.Side;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import openmods.LibConfig;
+import openmods.Log;
+import openmods.utils.Coord;
 
 public class BlockDropsStore {
 

@@ -2,10 +2,10 @@ package openmods.injector;
 
 import java.util.Map;
 
-import openmods.Log;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+
+import openmods.Log;
 
 public class InjectedClassesManager {
 

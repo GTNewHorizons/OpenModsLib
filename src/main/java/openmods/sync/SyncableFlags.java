@@ -6,11 +6,11 @@ import java.io.IOException;
 
 import net.minecraft.nbt.NBTTagCompound;
 
+import com.google.common.base.Preconditions;
+
 import openmods.utils.ByteUtils;
 import openmods.utils.bitmap.IBitMap;
 import openmods.utils.bitmap.IRpcIntBitMap;
-
-import com.google.common.base.Preconditions;
 
 public abstract class SyncableFlags extends SyncableObjectBase implements IRpcIntBitMap, IBitMap<Integer> {
 

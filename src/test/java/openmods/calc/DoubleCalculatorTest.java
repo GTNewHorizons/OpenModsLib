@@ -1,10 +1,10 @@
 package openmods.calc;
 
+import org.junit.Test;
+
 import openmods.calc.CalcTestUtils.CalcCheck;
 import openmods.calc.CalcTestUtils.SymbolStub;
 import openmods.calc.types.fp.DoubleCalculatorFactory;
-
-import org.junit.Test;
 
 public class DoubleCalculatorTest {
 

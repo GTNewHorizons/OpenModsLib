@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+import com.google.common.reflect.TypeToken;
+
 import openmods.reflection.TypeUtils;
 import openmods.serializable.IGenericSerializerProvider;
 import openmods.utils.io.IStreamSerializer;
-
-import com.google.common.collect.Sets;
-import com.google.common.reflect.TypeToken;
 
 public class SetSerializerProvider implements IGenericSerializerProvider {
 

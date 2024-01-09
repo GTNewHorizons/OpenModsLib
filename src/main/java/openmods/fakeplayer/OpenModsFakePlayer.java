@@ -12,11 +12,11 @@ import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 
-import openmods.Log;
-
 import com.google.common.base.Preconditions;
 import com.mojang.authlib.GameProfile;
+
 import cpw.mods.fml.common.eventhandler.Event;
+import openmods.Log;
 
 public class OpenModsFakePlayer extends FakePlayer {
 

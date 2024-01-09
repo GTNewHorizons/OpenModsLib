@@ -4,11 +4,11 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.reflect.TypeToken;
+
 import openmods.reflection.TypeUtils;
 import openmods.serializable.IGenericSerializerProvider;
 import openmods.utils.io.IStreamSerializer;
-
-import com.google.common.reflect.TypeToken;
 
 public class ListSerializerProvider implements IGenericSerializerProvider {
 

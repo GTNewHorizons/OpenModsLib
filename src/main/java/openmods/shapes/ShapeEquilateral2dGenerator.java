@@ -2,11 +2,11 @@ package openmods.shapes;
 
 import java.util.List;
 
-import openmods.utils.CollectionUtils;
-import openmods.utils.render.GeometryUtils;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+
+import openmods.utils.CollectionUtils;
+import openmods.utils.render.GeometryUtils;
 
 public class ShapeEquilateral2dGenerator extends DefaultShapeGenerator {
 

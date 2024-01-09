@@ -8,16 +8,16 @@ import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 
-import openmods.calc.Frame;
-import openmods.calc.FrameFactory;
-import openmods.utils.OptionalInt;
-import openmods.utils.Stack;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import openmods.calc.Frame;
+import openmods.calc.FrameFactory;
+import openmods.utils.OptionalInt;
+import openmods.utils.Stack;
 
 public class MetaObject {
 

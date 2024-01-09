@@ -2,11 +2,11 @@ package openmods.calc.parsing;
 
 import java.util.List;
 
-import openmods.calc.ExecutableList;
-import openmods.calc.IExecutable;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.PeekingIterator;
+
+import openmods.calc.ExecutableList;
+import openmods.calc.IExecutable;
 
 public class AstCompiler<E> implements ITokenStreamCompiler<E> {
 

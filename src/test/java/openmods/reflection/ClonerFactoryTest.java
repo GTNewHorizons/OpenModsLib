@@ -1,9 +1,9 @@
 package openmods.reflection;
 
-import openmods.reflection.ClonerFactory.ICloner;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import openmods.reflection.ClonerFactory.ICloner;
 
 public class ClonerFactoryTest {
 

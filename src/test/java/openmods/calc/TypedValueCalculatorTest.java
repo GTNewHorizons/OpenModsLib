@@ -6,6 +6,16 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import openmods.calc.CalcTestUtils.CalcCheck;
 import openmods.calc.CalcTestUtils.CallableStub;
 import openmods.calc.CalcTestUtils.SymbolStub;
@@ -33,16 +43,6 @@ import openmods.reflection.MethodAccess;
 import openmods.reflection.TypeVariableHolderHandler;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class TypedValueCalculatorTest {
 

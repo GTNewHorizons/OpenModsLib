@@ -2,6 +2,10 @@ package openmods.calc.types.multi;
 
 import java.util.List;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
 import openmods.calc.Environment;
 import openmods.calc.FixedCallable;
 import openmods.calc.Frame;
@@ -17,10 +21,6 @@ import openmods.calc.parsing.SameStateSymbolTransition;
 import openmods.calc.parsing.SymbolCallNode;
 import openmods.utils.OptionalInt;
 import openmods.utils.Stack;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 public class PromiseExpressionFactory {
 

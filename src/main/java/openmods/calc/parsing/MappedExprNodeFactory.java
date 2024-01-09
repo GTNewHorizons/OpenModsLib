@@ -3,11 +3,11 @@ package openmods.calc.parsing;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+
 import openmods.calc.BinaryOperator;
 import openmods.calc.UnaryOperator;
 import openmods.utils.CollectionUtils;
-
-import com.google.common.collect.Maps;
 
 public class MappedExprNodeFactory<E> extends DefaultExprNodeFactory<E> {
 

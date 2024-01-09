@@ -1,10 +1,10 @@
 package openmods.calc.parsing;
 
+import com.google.common.collect.PeekingIterator;
+
 import openmods.calc.IExecutable;
 import openmods.calc.parsing.IPostfixCompilerState.Result;
 import openmods.utils.Stack;
-
-import com.google.common.collect.PeekingIterator;
 
 public abstract class PostfixCompiler<E> implements ITokenStreamCompiler<E> {
 

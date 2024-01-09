@@ -15,10 +15,10 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
-import openmods.reflection.FieldAccess;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+
+import openmods.reflection.FieldAccess;
 
 public class RecipeUtils {
 

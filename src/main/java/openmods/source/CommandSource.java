@@ -12,13 +12,13 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.SyntaxErrorException;
 import net.minecraft.util.ChatComponentTranslation;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+
 import openmods.Log;
 import openmods.source.ClassSourceCollector.ApiInfo;
 import openmods.source.ClassSourceCollector.ClassMeta;
 import openmods.utils.SidedCommand;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
 
 public class CommandSource extends SidedCommand {
 

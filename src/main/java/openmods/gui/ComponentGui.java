@@ -4,10 +4,10 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.inventory.Container;
 
-import openmods.gui.component.BaseComposite;
-
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+
+import openmods.gui.component.BaseComposite;
 
 public abstract class ComponentGui extends GuiContainer {
 

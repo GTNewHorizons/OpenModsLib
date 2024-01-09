@@ -1,11 +1,11 @@
 package openmods.calc;
 
+import org.apache.commons.lang3.math.Fraction;
+import org.junit.Test;
+
 import openmods.calc.CalcTestUtils.CalcCheck;
 import openmods.calc.CalcTestUtils.SymbolStub;
 import openmods.calc.types.fraction.FractionCalculatorFactory;
-
-import org.apache.commons.lang3.math.Fraction;
-import org.junit.Test;
 
 public class FractionCalculatorTest {
 
