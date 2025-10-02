@@ -24,6 +24,7 @@ import openmods.LibConfig;
 import openmods.Log;
 import openmods.OpenMods;
 import openmods.block.BlockSelectionHandler;
+import openmods.calc.command.CalcKey;
 import openmods.calc.command.CommandCalc;
 import openmods.calc.command.CommandCalcFactory;
 import openmods.calc.command.ICommandComponent;
@@ -129,7 +130,9 @@ public final class OpenClientProxy implements IOpenModsProxy {
     }
 
     @Override
-    public void init() {}
+    public void init() {
+        FMLCommonHandler.instance().bus().register(new CalcKey());
+    }
 
     @Override
     public void postInit() {
