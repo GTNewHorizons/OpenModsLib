@@ -15,7 +15,7 @@ public class InjectedClassesManager {
 
     public static final InjectedClassesManager instance = new InjectedClassesManager();
 
-    private final Map<String, IClassBytesProvider> providers = Maps.newHashMap();
+    private final Map<String, IClassBytesProvider> providers = Maps.newConcurrentMap();
 
     public void registerProvider(String providerId, IClassBytesProvider provider) {
         IClassBytesProvider prev = providers.put(providerId, provider);
